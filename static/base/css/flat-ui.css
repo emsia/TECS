@@ -1081,7 +1081,7 @@ h6 {
 
 .select:focus{
   border: 2px solid #1abc9c;
-  outline-color: transparent;
+  outline-color: 2px solid #bdc3c7;
 }
 
 [class*="span"] > .select[class*="span"] {
