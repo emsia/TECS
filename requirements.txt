@@ -11,3 +11,4 @@ http://pypi.python.org/packages/source/n/nltk/nltk-2.0.1rc1.tar.gz
 numpy==1.6.2
 pycurl==7.19.0
 PIL==1.1.7
+http://nltk.github.com/nltk_data/
