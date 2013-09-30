@@ -164,7 +164,6 @@ class EssayCommentForm(ModelForm):
 	def clean_end(self):
 		clean_end = self.cleaned_data.get('end', None)
 		clean_start = self.cleaned_data.get('start', None)
-		if not (clean_start.isspace() or  clean_start.strip() == '') and clean_start  > clean_end:
 			raise forms.ValidationError("This must be greater than the starting sentence no.")
 
 		return clean_end
