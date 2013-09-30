@@ -7,7 +7,9 @@ DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
-    # ('Your Name', 'your_email@example.com'),
+	('Molen Fernando', 'molenfernando@gmail.com'),
+	('Efren Ver Sia', 'fsvaeg@gmail.com'),
+	('Chery Verano', 'cheryleighverano@gmail.com'),
 )
 
 MANAGERS = ADMINS
@@ -19,8 +21,8 @@ DATABASES = {
 		# The following settings are not used with sqlite3:
 		'USER': 'postgres',
 		'PASSWORD': '',
-		'HOST': '',					  # Empty for localhost through domain sockets or '127.0.0.1' for localhost through TCP.
-		'PORT': '',					  # Set to empty string for default.
+		'HOST': 'localhost',					  # Empty for localhost through domain sockets or '127.0.0.1' for localhost through TCP.
+		'PORT': '5432',					  # Set to empty string for default.
 	}
 }
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
