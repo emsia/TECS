@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 // Some general UI pack related JS
 // Extend JS String with repeat method
 String.prototype.repeat = function(num) {
@@ -67,7 +66,7 @@ String.prototype.repeat = function(num) {
   });
   
 })(jQuery);
-=======
+
 // NOTICE!! DO NOT USE ANY OF THIS JAVASCRIPT
 // IT'S ALL JUST JUNK FOR OUR DOCS!
 // ++++++++++++++++++++++++++++++++++++++++++
@@ -224,4 +223,3 @@ $.ajaxTransport('jsonpi', function(opts, originalOptions, jqXHR) {
 })
 
 }(window.jQuery)
->>>>>>> f93d7213a3fe3570e6c2d4f2cb223a106252f3d9
