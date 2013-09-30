@@ -1,0 +1,69 @@
+{% extends "base/base_settings.html" %}
+{% load staticfiles %}
+
+{% block title %}
+TECS: Test Essay Checking Software | Teacher Classes
+{% endblock %}
+
+{% block custom_style %}
+	<script src="{% static 'base/js/jquery.min.js' %}"></script>
+	<link href="{% static 'base/css/bootstrap-select.css' %}" rel="stylesheet">
+	<script src="{% static 'base/js/bootstrap-filestyle.js' %}"></script>
+
+    <script type="text/javascript">
+        $(window).on('load', function () {
+        	$(":file").filestyle({'classInput': "span3",'style':"margin-top: 10px"});
+        });
+     </script>
+{% endblock %}
+
+{% block content %}
+
+<div class="page-content">
+	<div class="row-fluid">
+		<div class="content">
+			{% if success %}
+				<div class="alert alert-success">
+					<button type="button" class="close" data-dismiss="alert">&times;</button>
+		          <strong>Success!</strong> {{ success }}
+		        </div>
+			{% endif %}
+
+			<img class="title-icons" src="{% static 'base/img/icons/user.png' %}">
+			<h3 class="title">My Profile</h3>
+			<form enctype="multipart/form-data" class="form-horizontal" action="" method="post">{% csrf_token %}
+				<fieldset>
+					{%for formSchool in schoolForm %}
+					<div class="control-group">
+						<label class="control-label" for="email">{{ formSchool.label_tag }}</label>
+						<div class="controls">
+							{{formSchool}}
+							{% for error in formSchool.errors %}
+							<p class="text-error">{{ error }}</p>
+							{% endfor %}
+						</div>
+					</div>
+					{% endfor %}
+
+					{% for form in formProfile %}
+					<div class="control-group">
+						<label class="control-label" for="email">{{ form.label_tag }}</label>
+						<div class="controls">
+							{{form}}
+							{% for error in form.errors %}
+							<p class="text-error">{{ error }}</p>
+							{% endfor %}
+						</div>
+					</div>
+					{% endfor %}
+					<div class="form-actions">	
+						<button type="submit" class="btn btn-primary"><b>Save Changes</b> <i class="fui-user"></i></button> 	
+					</div>	
+				</fieldset>
+			</form>
+		</div>
+	</div>
+</div>
+
+<script src="{% static 'base/js/bootstrap.min.js' %}"></script>
+{% endblock content %}

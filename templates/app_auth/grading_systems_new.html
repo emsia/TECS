@@ -1,0 +1,103 @@
+{% extends "base/base_settings.html" %}
+{% load staticfiles %}
+
+{% block title %}
+TECS: Test Essay Checking Software | Settings
+{% endblock %}
+
+{% block content %}
+<div class="page-content">
+	<div class="row-fluid">
+		<div class="content">							
+			<img class="title-icons" src="{% static 'base/img/icons/Trophy.png' %}">		
+			<h3 class="title">Create Custom Grading System</h3>		
+			<form class="form-horizontal" method="post">
+				{% csrf_token %}
+				<div class="control-group">
+					<label class="control-label">Grading System</label>
+					<div class="controls">
+						{{ formSys.system }}
+						{% for error in formSys.system.errors %}
+							<p class="text-error">{{ error }}</p>
+						{% endfor %}
+					</div>
+				</div>
+				<div class="control-group">
+					<label class="control-label">Description</label>
+					<div class="controls">
+						{{ formSys.description }}
+						{% for error in formSys.description.errors %}
+							<p class="text-error">{{ error }}</p>
+						{% endfor %}
+					</div>
+				</div>
+				<hr>
+				<div class="control-group">			
+					<div class="row-fluid">
+						<div class="span6">
+							<label class="control-label">Point System</label>		
+							<div class="controls">
+								<h4>Option 1</h4>
+								<br>
+								<div class="well well-small">
+									<p>Here, you can manually enter all the possible grades in your custom grading system. Press the [+] button or ENTER key for each grade ranking from <strong>HIGHEST to LOWEST</strong>.</p>
+									{{ formGrade1.grades }}
+									{% for error in formGrade1.grades.errors %}
+										<p class="text-error">{{ error }}</p>
+									{% endfor %}
+								</div>
+							</div>
+							<button name="option1" type="submit" class="btn btn-success pull-right"><b>Create</b> <i class="fui-new"></i></button> 
+						</div>
+						<div class="span6">
+							<div class="controls">
+								<h4>Option 2</h4>
+								<br>
+								<div class="well well-small">
+									<p>In this option, you can specify the range for the possible grades from <strong>HIGHEST to LOWEST</strong> so that you need not to enter them manually. However, this is only limited to numerical grades with the same intervals.</p>									
+									<div class="row-fluid">
+										<div class="span3">
+											{{ formGrade2.start }}
+											{% for error in formGrade2.start.errors %}
+												<p class="text-error">{{ error }}</p>
+											{% endfor %}
+										</div>
+										<div class="span1"><span class="help-inline mtm"> &mdash;</span></div>
+										<div class="span3">
+											{{ formGrade2.end }}
+											{% for error in formGrade2.end.errors %}
+												<p class="text-error">{{ error }}</p>
+											{% endfor %}
+										</div>
+										<div class="span1"></div>
+										<div class="span3">
+											{{ formGrade2.step }}
+											<span class="palette-paragraph mls">Interval</span>
+											{% for error in formGrade2.step.errors %}
+												<p class="text-error">{{ error }}</p>
+											{% endfor %}
+										</div>
+									</div>
+								</div>
+							</div>  
+							<button name="option2" type="submit" class="btn btn-success pull-right"><b>Create</b> <i class="fui-new"></i></button> 
+						</div>
+					</div>
+				</div>
+			</form>
+			<a href="{% url 'auth:gradesys' %}" class="btn btn-inverse"><i class="fui-arrow-left"><b> Back</b></i></a> 
+		</div>
+	</div>
+</div>
+
+
+{% endblock content %}
+
+{% block custom_script %}
+
+	<script src="{% static 'base/js/jquery-1.8.3.min.js' %}"></script>
+    <script src="{% static 'base/js/bootstrap.min.js' %}"></script>
+    <script src="{% static 'base/js/bootstrap-select.js' %}"></script>
+    <script src="{% static 'base/js/jquery.tagsinput.js' %}"></script>
+    <script src="{% static 'base/js/application.js' %}"></script>
+{% endblock %}

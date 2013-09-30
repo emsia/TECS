@@ -1,0 +1,54 @@
+{% extends "base/base_profile.html" %}
+{% load staticfiles %}
+
+{% block title %}
+TECS: Test Essay Checking Software | Profile
+{% endblock %}
+
+
+
+{% block content %}
+
+<div class="container">
+	<div class="row-fluid">
+		<div class="span3 palette-sun-flower mtl">
+			<div class="content">
+				<center>
+					<img class="img-circle mbl" src="{{MEDIA_URL}}{{avatar}}" style="height: 200px">
+					<h2>{{ user.first_name }} {{ user.last_name }}</h2>
+					<p class="lead">{{ role }}</p>
+				  </center>
+			</div>
+		</div>
+		<div class="span8">
+			<div class="content">
+				<div class="palette palette-midnight-blue">My Profile</div>
+				<div class=" mtm">
+					<div class="content">
+						<dl class="dl-horizontal lead">
+							<dt><strong>Email:</strong></dt>
+							<dd class="mbl"> {{ user.email }}</dd>
+
+							<dt><strong>Address:</strong></dt>
+							<dd>
+								<address>
+									{{ profile.street }}<br>
+									{{ profile.municipality }}<br>
+									{{ profile.province }}
+								</address>
+							</dd>
+							<dt><strong>Contact No.:</strong></dt>
+							<dd class="mbl"> {% if user.phone_number %} {{ user.phone_number }} {% else %} -- {% endif %}</dd>
+						</dl>
+						<hr>
+						<dl class="dl-horizontal lead">
+							<dt><strong>Member<br>since:</strong></dt>
+							<dd class="mbl"> {{ user.date_joined }}</dd>
+						</dl>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div> 
+{% endblock content %}

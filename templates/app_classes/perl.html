@@ -1,0 +1,23 @@
+{% load staticfiles %}
+
+{% block content %}
+<form class="form form-horizontal">
+	<fieldset>
+		<div class="palette-turquoise">
+			<center>
+				<img class="title-icons" style="float: none; padding-bottom:3px; padding-top:5px; margin-right: -5px" src="{% static 'base/img/icons/Mail@2x.png' %}">
+        		<a href="#" type="button" class="btn btn-primary"><b>You have been invited to join this class!</b></a>
+        	</center>
+     	</div>
+
+          <div class="demo-text-box prl" style="border-radius: 0px;">
+            <p>
+            	From: <span style="color: #1abc9c">{{ sender.email }}</span><br/>
+				Subject: Invitation to join {{ studentList.year_level }}-{{ studentList.section }}<br/>
+				Class Key: <span style="color: #1abc9c">{{ studentList.key }}</span><br/><br/><br/>
+				Please <a href="/" style="text-decoration: none">Log-in</a> or <a href="http://localhost:8000/accounts/register/" style="text-decoration: none">Register</a> to tecs.upd.edu.ph and enter the Class Key to enroll in a Class.
+			</p>
+          </div>
+	</fieldset>
+</form>
+{% endblock %}

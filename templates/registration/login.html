@@ -1,0 +1,30 @@
+{% extends "base/base_register.html" %}
+{% load staticfiles %}
+
+{% block title %}
+TECS: Test Essay Checking Software | Register
+{% endblock %}
+
+{% block register %}	
+	<h3>TECS: Test Essay Checking Software</h3>
+	<div class="login-form">
+     	{% if errors %}		
+		<p class="text-error">Your username and password didn't match. Please try again.</p>
+		{% endif %}
+		<form action="" method="post">
+			{% csrf_token %}
+			<div class="control-group">
+				{{ form.username }}
+				<label class="login-field-icon fui-user"></label>
+			</div>
+			<div class="control-group">
+				{{ form.password }}
+        			<label class="login-field-icon fui-lock"></label>
+      			</div>
+      			<button class="btn btn-inverse btn-large btn-block" type="submit">Login</button>
+      			<!--<a href="{% url 'django.contrib.auth.views.login' %}?next={% firstof request.path '/' %}">Login</a>-->
+			<a class="login-link" href="/accounts/password/reset/">Forgot your password?</a>
+			<a class="login-link" href="/accounts/register/">Not yet a member? Sign up here.</a>
+		</form>
+  	</div>
+{% endblock %}

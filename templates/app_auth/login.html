@@ -1,0 +1,34 @@
+{% extends "base/base_login.html" %}
+{% load staticfiles %}
+
+{% block title %}
+TECS: Test Essay Checking Software | Login
+{% endblock %}
+
+{% block login %}
+<div class="login">
+		<div class="login-screen">
+			<h3>TECS: Test Essay Checking Software</h3>
+			<div class="login-form">
+		     	{% if errors %}		
+				<p class="text-error">Invalid username and password combination. Please try again.</p>
+				{% endif %}
+				<form action="" method="post">
+					{% csrf_token %}
+					<div class="control-group">
+						{{ form.username }}
+						<label class="login-field-icon fui-user"></label>
+					</div>
+					<div class="control-group">
+						{{ form.password }}
+                			<label class="login-field-icon fui-lock"></label>
+              			</div>
+              			<button class="btn btn-inverse btn-large btn-block" type="submit">Login</button>
+					<a class="login-link" href="/accounts/password/reset/">Forgot your password?</a>
+					<a class="login-link" href="/accounts/register/">Not yet a member? Sign up here.</a>
+				</form>
+          	</div>
+		</div>
+	</div>
+</div>
+{% endblock %}

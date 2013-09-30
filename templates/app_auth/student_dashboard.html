@@ -1,0 +1,50 @@
+{% extends "base/base.html" %}
+{% load staticfiles %}
+
+{% block title %}
+TECS: Test Essay Checking Software | Home
+{% endblock %}
+
+{% block content %}
+<div class="page-content">
+	<div class="content">
+		<img class="title-icons" src="{% static 'base/img/icons/Dashboard.png' %}">
+		<h3>Dashboard</h3>
+		<hr>
+		<div class="hero-unit">
+			<h1>Hello, {{ request.user.first_name }}</h1>
+			<p>Welcome to TECS: Test Essay Checking Software.</p>
+			
+			<div class="row-fluid demo-tiles login-screen">
+				<div class="row-fluid">				
+					<div class="span4">
+						<div class="tile">
+							<img src="{% static 'base/img/icons/chalkboard-icon.png' %}"  class="tile-image big-illustration">
+							<h3 class="tile-title">My Classes</h3>
+							<div class="palette {% if not class_count %}palette-alizarin{% else %}palette-emerald{% endif %}"><h3>{{ class_count }}</h3></div>
+						</div>
+					</div>
+
+					<div class="span4">
+						<div class="tile">
+							<img src="{% static 'base/img/icons/pencil.png' %}" class="tile-image big-illustration">
+							<h3 class="tile-title">New Exams</h3>
+							<div class="palette {% if in_progress_count %}palette-alizarin{% else %}palette-emerald{% endif %}"><h3>{{ exam_count }}</h3></div>
+						</div>
+					</div>
+
+					<div class="span4">
+					 	<div class="tile">
+							<img src="{% static 'base/img/icons/Pensils@2x.png' %}"  class="tile-image big-illustration">
+							<h3 class="tile-title">Exams In-Progress</h3>
+						 <div class="palette {% if in_progress_count %}palette-alizarin{% else %}palette-emerald{% endif %}"><h3>{{ in_progress_count }}</h3></div>
+						</div>
+					</div>
+				</div>
+			 </div>
+		</div>
+	</div>
+</div>
+{% endblock %}
+
+

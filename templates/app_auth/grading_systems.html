@@ -1,0 +1,123 @@
+{% extends "base/base_settings.html" %}
+{% load staticfiles %}
+
+{% block title %}
+TECS: Test Essay Checking Software | Settings
+{% endblock %}
+
+{% block content %}
+<div class="page-content">
+	<div class="row-fluid">
+		<div class="content">				
+			<p class="pull-right">
+				<a href="{% url 'auth:gradesys_new' %}" class="btn btn-primary"><i class="fui-plus"></i><strong> Create Custom Grading System</strong></a>
+			</p>
+			
+			<img class="title-icons" src="{% static 'base/img/icons/Trophy.png' %}">		
+			<h3 class="title">Grading Systems</h3>
+			<div class="span8">
+				{% if gradingsys.count > 0 %}					
+					<div class="palette palette-carrot">
+						<strong>Custom Grading Systems</strong>
+					</div>
+					<table class="table table-striped">
+						<thead>
+							<tr>
+								<th style="width: 10%"><center>#</center></th>
+								<th style="width: 36%"><center>Name</center></th>
+								<th style="width: 36%"><center>Description</center></th>
+								<th style="width: 7%"><center>View</center></th>
+								<th style="width: 7%"><center>Delete</center></th>
+							</tr>
+						</thead>
+						<tbody>
+							{% for gradeSys in gradingsys %}
+								<tr>
+									<td><center>{{forloop.counter}}</center></td>
+									<td><center>{{gradeSys.system}}</center></td>
+									<td><center>{{gradeSys.description}}</center></td>
+									<td><center><a href="{% url 'auth:grades' gradeSys.id %}" class="view-gradesys btn btn-primary"><span class=""><i class="fui-eye"></i></span></a></center></td>
+									<td><center><button type="button" class="delsys-button btn btn-danger" data-id={{ gradeSys.id }} data-toggle="modal" data-target="#confirm-delete"><i class="fui-cross"></i></span></button></center></td>
+								</tr>
+							{% endfor %}
+						</tbody> 
+					</table>
+				{% endif %}
+
+				{% if gradingsys_admin.count > 0 %}
+					<div class="palette palette-sun-flower">
+						<strong>Preset Grading Systems</strong>
+					</div>
+					<table class="table table-striped">
+						<thead>
+							<tr>
+								<th style="width: 10%"><center>#</center></th>
+								<th style="width: 36%"><center>Name</center></th>
+								<th style="width: 36%"><center>Description</center></th>
+								<th style="width: 14%"><center>View</center></th>
+							</tr>
+						</thead>
+						<tbody>
+							{% for gradeSys in gradingsys_admin %}
+								<tr>
+									<td><center>{{ forloop.counter }}</center></td>
+									<td><center>{{gradeSys.system}}</center></td>
+									<td><center>{{gradeSys.description}}</center></td>
+									<td><center><a href="{% url 'auth:grades' gradeSys.id %}" class="delsys-button view-gradesys btn btn-primary"><span class=""><i class="fui-eye"></i></span></a></center></td>
+								</tr>
+							{% endfor %}
+						</tbody> 
+					</table>
+				{% endif %}
+			</div>
+			<div class="span4 ">
+				<div class="palette palette-midnight-blue mls">
+					<strong>VIEW DETAILS</strong>
+				</div>
+				<div id="gradesys-view" class="mll mtl mrs">
+				</div>		
+			</div>
+		</div>
+	</div>
+</div>
+
+<div id="confirm-delete" class="modal hide fade" data-backdrop="static">
+	<div class="modal-header palette-alizarin">
+		<h3 class="text-white">Confirm Delete</h3>
+	</div>
+	<div class="modal-body">
+		<p>Are you sure you want to delete this grading system?</p>
+		<p>Continuing with this action, however, does not affect any previous exams that used this system. </p>
+		<form action="{% url 'auth:gradesys_delete' %}" method="post">
+			{% csrf_token %}
+			<input type="hidden" id="gradesysid" name="gradesysid" value="">
+		<form>
+	</div>
+	<div class="modal-footer">
+		<button type="submit" name="gradesys-delete" class="btn btn-danger pull-left">Delete <span class="fui-cross"></span></button>
+		<button class="btn btn-inverse" data-dismiss="modal" aria-hidden="true">Close</button>
+	</div>
+</div>
+
+<script>
+	$(function() {
+		$('.view-gradesys').click( function() {
+        	$.get( $(this).attr('href'), function(data) {
+        		$("#gradesys-view").html(data);
+        	});
+       		return false;
+		});
+	});
+
+	$(".delsys-button").on("click", function() {
+		var gradesys_id = $(this).data('id')
+		$("#gradesysid").val(gradesys_id)
+	});
+</script>
+
+{% endblock content %}
+
+
+{% block custom_script %}
+	<script src="{% static 'base/js/flatui-checkbox.js' %}"></script>
+{% endblock %}

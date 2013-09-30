@@ -1,0 +1,65 @@
+{% extends "base/base.html" %}
+{% load staticfiles %}
+
+{% block title %}
+TECS: Test Essay Checking Software | Teacher Classes
+{% endblock %}
+
+{% block content %}
+<div class="page-content">
+		<div class="row-fluid">
+			<div class="content">
+				<img class="title-icons" src="{% static 'base/img/icons/user.png' %}">
+				<h3 class="title">Edit Class Information</h3>
+				<form class="form-horizontal" action="{% url 'classes:edit' class_info.id %}" method="POST"> {% csrf_token %}
+					<fieldset>
+						{% for form in formEdit %}
+						<div class="control-group">
+							<label class="control-label" for="level">{{ form.label_tag }}</label>
+							
+							<div class="controls">
+								{{ form }}
+								{% for error in form.errors %}
+								<p class="text-error">{{ error }}</p>
+								{% endfor %}
+							</div>	
+						</div> 		
+						{% endfor %}
+						<div class="form-actions">  
+							<button type="submit" class="btn btn-primary"><b>Save</b> <i class="fui-check"></i></button> 
+							<button type="reset" class="btn btn-warning"><b>Reset</b> <i class="fui-play"></i></button> 
+							<a href="{% url 'classes:classes' %}" type="button" class="btn btn-danger"><b>Cancel</b>  <i class="fui-cross"></i></a>  
+						</div>   
+		  			</fieldset>
+				</form>
+			</div>
+		</div>
+</div>
+<script>
+	function add_more_text_box(parent_id, child_name, child_id)
+	{
+	  var myTable = document.getElementById(parent_id);
+	  var oDiv, oInput, sss;
+	  oDiv = document.createElement('div');
+	  oDiv.setAttribute('id', 'part'+ child_id);
+	  
+	  oDiv.setAttribute('class', 'control-group');
+	  myTable.appendChild(oDiv);
+	
+	  oInput = document.createElement('input');
+	  oInput.setAttribute('type', 'text');
+	  oInput.setAttribute('required', true);
+	  oInput.setAttribute('name', child_name);
+	  oInput.setAttribute('id', child_id);
+	  oInput.setAttribute('placeholder', 'Required');
+	  oInput.setAttribute('class', 'span3');
+	  oDiv.appendChild(oInput);
+	} 
+	
+	var child_id = 1;
+	function child()
+	{ 
+		return child_id++;
+	}	
+</script>
+{% endblock content %}

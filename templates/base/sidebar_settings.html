@@ -1,0 +1,41 @@
+{% load staticfiles %}
+
+<div class="todo mll mrl">
+	<div class="todo-search">
+		<img class="sidebar-icons" src="{% static 'base/img/icons/Settings.png' %}"><h2>Settings</h2>
+	</div>
+	<ul>
+		<li {% if active_nav == 'PROFILE' %} class="todo-done" {% endif %}>
+			<a href="{% url 'auth:edit_profile' %}" class="sidebar-link">
+				<div class="todo-icon fui-user"></div>
+				<div class="todo-content">
+					<h4 class="todo-name">
+						<strong>Profile</strong>
+					</h4>
+				</div>
+			</a>
+		</li>
+		<li {% if active_nav == 'ACCOUNT' %} class="todo-done" {% endif %}>
+			<a href="{% url 'auth:edit_password' %}" class="sidebar-link">
+				<div class="todo-icon fui-gear"></div>
+				<div class="todo-content">
+					<h4 class="todo-name">
+						<strong>Account</strong>
+					</h4>
+				</div>
+			</a>
+		</li>
+		{% if role == 'TEACHER' %}
+		<li {% if active_nav == 'GRADESYS' %} class="todo-done" {% endif %}>
+			<a href="{% url 'auth:gradesys' %}" class="sidebar-link">
+				<div class="todo-icon fui-check"></div>
+				<div class="todo-content">
+					<h4 class="todo-name">
+						<strong>Grading System</strong>
+					</h4>
+				</div>
+			</a>
+		</li>
+		{% endif %}
+	</ul>
+</div>

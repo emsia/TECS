@@ -1,0 +1,148 @@
+{% extends "base/base.html" %}
+{% load staticfiles %}
+
+{% block title %}
+TECS: Test Essay Checking Software | Home
+{% endblock %}
+
+{% block content %}
+
+<div class="page-content">
+	<div class="row-fluid">
+		<div class="content">
+			<img class="title-icons" src="{% static 'base/img/icons/Pensils@2x.png' %}">
+			<h3>On-going Exams</h3>
+
+			{% if no_on_going_essay_responses %}
+			<br><br>
+			<div class="alert alert-block alert-error">
+				<h4>Oops!</h4>
+				You have no on-going exams.
+			</div>
+
+			{% else %}
+			<table class="table table-striped">
+				<thead>
+					<tr>
+						<th width="15%">Class</th>
+						<th width="20%">Teacher</th>
+						<!--th width="18%">Essay</th-->
+						<th width="15%">Deadline</th>
+						<th width="15%">Duration</th>
+						<th width="20%">Status</th>
+						<th width="15%">Action</th>
+					</tr>
+				</thead>
+				<tbody>
+					{% for essay_response in on_going_essay_responses %}
+					<tr>
+						<td>{{ essay_response.essay.class_name.subject }}</td>
+						<td>{{ essay_response.essay.instructor }}</td>
+						<!--td>{{ essay_response.essay.title }}</td-->
+						<td>{{ essay_response.essay.deadline }}</td>
+						<td>
+							{% if essay_response.essay.duration_hours != 0 %}
+								{{ essay_response.essay.duration_hours }} hour(s)
+								<br>
+							{% endif %}
+							
+							{% if essay_response.essay.duration_minutes != 0 %}
+								{{ essay_response.essay.duration_minutes }} minute(s)
+							{% endif %} 
+
+						</td>
+						<td>
+							{% if essay_response.status == 0 %} 
+								Not yet started 
+							{% elif essay_response.status == 1 %}
+								<i class="icon-play"></i>  Started<br><div id="countdown_{{ essay_response.pk }}" class="text-error"></div>
+							{% elif essay_response.status == 2 %}
+								<p class="text-success"><i class="icon-ok"></i> Submitted</p>
+							{% endif %}
+						</td>
+						<td>
+							{% if essay_response.status == 0 %} 
+								<a href="{% url 'essays:answer' essay_response.id %}">Start</a>
+							{% elif essay_response.status == 1 %}
+								<a href="{% url 'essays:answer' essay_response.id %}">Continue</a>
+							{% elif essay_response.status == 2 %}
+								<a href="{% url 'essays:submission' essay_response.id %}">View Submission</a>
+							{% endif %}
+						</td>
+					</tr>
+					{% endfor %}
+				</tbody>
+			</table>
+			{% endif %}
+
+
+			<img class="title-icons" src="{% static 'base/img/icons/documents.png' %}">
+			<h3>Past Essays</h3>
+			{% if no_past_essay_responses %}
+			<br><br>
+			<div class="alert alert-block alert-error">
+				<h4>Oops!</h4>
+				You have no past essays yet.
+			</div>
+			
+			{% else %}
+			<table class="table table-striped">
+				<thead>
+					<tr>
+						<th width="10%">Class</th>
+						<th width="15%">Subject</th>
+						<th width="25%">Essay</th>
+						<th width="15%">Deadline</th>
+						<th width="15%">Grade</th>
+						<th width="10%"></th>
+					</tr>
+				</thead>
+				<tbody>
+					{% for e in past_essay_responses %}
+					<tr>
+						<td>{{ e.essay.class_name.year_level }}-{{ e.essay.class_name.section }}</td>
+						<td>{{ e.essay.class_name.subject }}</td>
+						<td>{{ e.essay.title }}</td>
+						<td>{{ e.essay.deadline }}</td>
+						<td>
+							{% if e.grade %}
+								{{ e.grade }}
+							{% else %}
+								<p class="muted">No grade yet</p>
+							{% endif %}
+						</td>
+						<td><center><a href="{% url 'essays:submission' e.id %}" class="btn btn-info">View</a></center></td>
+					</tr>
+					{% endfor %}
+				</tbody>
+			</table>
+			{% endif %}
+
+		</div>
+	</div>
+</div>
+
+<script>
+	var time_loaded = new Date().getTime() / 1000;
+
+	function showRemaining() {
+		{% for essay_response in on_going_essay_responses %}
+			var now = new Date().getTime() / 1000;
+			var diff = now - time_loaded;
+			var time_left = {{ essay_response.time_remaining }} - diff;
+
+			var hours = Math.floor( time_left / (60*60) );
+			var minutes = Math.floor( (time_left / 60) % 60 );
+			var seconds = Math.floor(time_left%60);
+
+		 	document.getElementById('countdown_{{ essay_response.pk }}').innerHTML = hours+ ' hour(s) <br />';
+			document.getElementById('countdown_{{ essay_response.pk }}').innerHTML += minutes+ ' minute(s) left<br />';
+			//document.getElementById('countdown_{{ essay_response.pk }}').innerHTML += 'Seconds: ' + seconds+ '<br />';		
+		{% endfor %}
+	}
+	timer = setInterval(showRemaining, 1000);
+</script>
+
+
+{% endblock %}
+

@@ -1,0 +1,107 @@
+{% extends "base/base.html" %}
+{% load staticfiles %}
+
+{% block title %}
+TECS: Test Essay Checking Software | Essay
+{% endblock %}
+
+{% block content %}
+
+<div class="page-content">
+	<div class="row-fluid">
+		<div class="content span8">
+			<div class="row-fluid">
+				<img class="title-icons" src="{% static 'base/img/icons/Clipboard@2x.png' %}">
+				<h3>Essay Submissions</h3>
+			</div>
+			<hr>
+			<div class="row-fluid">
+				<dl class="dl-horizontal">
+					<dt>Essay Title</dt>
+					<dd>{{ essay.title }}</dd>
+
+					<dt>Class</dt>
+					<dd>{{ essay.class_name }}</dd>
+
+					<dt>Instructions</dt>
+					<dd>{{ essay.instructions }}</dd>
+
+					<dt>Min no. of words</dt>
+					<dd>{{ essay.min_words }}</dd>		
+
+					<dt>Start Date</dt>
+					<dd>{{ essay.start_date }}</dd>
+
+					<dt>Deadline</dt>
+					<dd>{{ essay.deadline }}</dd>
+
+					<dt>Duration</dt>
+					<dd>{{ essay.duration_hours }} hour(s) {{ essay.duration_minutes }} minute(s) </dd>
+					
+				</dl>
+			</div>
+			<div class="row-fluid">
+				<table class="table table-striped">
+					<thead>
+						<tr>
+							<th width="40%">Student</th>
+							<th width="30%">Grade</th>
+							<th width="30%">Submisson</th>
+						</tr>
+					</thead>
+					<tbody>
+						{% for essay_response in essay_responses %}
+						<tr>
+							<td>{{ essay_response.student }}</td>
+							<td>{% if essay_response.grade == null %}
+									-- 
+								{% else %}
+									{{  essay_response.grade }}
+								{% endif %}
+							</td>
+							<td>
+								<a href="{% url 'essays:submission' essay_response.id %}" class="btn btn-info">View</a>
+							</td>
+						</tr>
+						{% endfor %}
+					</tbody>
+				</table>
+			</div>
+			<p class="pull-left">
+				<a href="{% url 'essays:list' %}" class="btn btn-inverse"><span class="fui-arrow-left"></span> Back</a>
+			</p>
+			<!--p class="pull-right">
+				<a href="" class="btn btn-success {% if all_graded %}disabled{% endif %}"><span class="fui-check"></span> Release Grades</a>
+			</p-->
+		</div>
+	</div>
+</div>
+
+<form action="" method="post">
+	{% csrf_token %}
+	<div id="cancel-exam" class="modal fade hide" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+		<div class="modal-header">
+			<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+			<h3 id="myModalLabel">Cancel Exam</h3>
+		</div>
+		<div class="modal-body">
+			<p><h4 class="text-error">Warning!</h4></p>
+			<p>You are about to cancel an on-going exam. Please take note that this action can no not be undone.</p>
+
+			<dl class="dl-horizontal">
+				<dt>Essay Title</dt>
+				<dd>{{ essay.title }}</dd>
+
+				<dt>Class</dt>
+				<dd>{{ essay.class_name }}</dd>		
+			</dl>
+			<input type="hidden" name="essay-id" value={{ essay.pk }}>
+		</div>
+		<div class="modal-footer">		
+			<button id="confirm-cancel" type="submit" class="btn btn-danger pull-left"><span class="fui-cross	"></span> Cancel Exam</button>
+			<button class="btn btn-primary" data-dismiss="modal" aria-hidden="true"><span class="fui-arrow-left"></span> Back</button>
+		</div>
+	</div>
+</form>
+
+{% endblock %}

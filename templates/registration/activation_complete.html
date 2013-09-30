@@ -1,0 +1,13 @@
+{% extends "base/base_register.html" %}
+{% load staticfiles %}
+
+{% block title %}
+TECS: Test Essay Checking Software | Register
+{% endblock %}
+
+{% block register %}
+<div class="login-form">
+	<h1>Account Activated</h1>
+	<p>Thanks for signing up! You can now <a href="{% url 'auth:edit_profile' %}">log in</a>. You will be redirected to your profile after logging in and you must accomplish this before you can access any features of the web app.</p>
+</div>
+{% endblock %}

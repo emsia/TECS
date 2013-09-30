@@ -1,0 +1,171 @@
+{% extends "base/base.html" %}
+{% load staticfiles %}
+
+{% block title %}
+TECS: Test Essay Checking Software | Essay
+{% endblock %}
+	
+{% block custom_style %}
+	<style type="text/css">
+		.demo-text-box{
+			color: #000;
+			padding: 7px;
+			border:2px solid;
+			border-radius:0px;
+			border-color:#1abc9c;
+			}
+	
+	</style>
+	<script src="{% static 'app_essays/atd/scripts/jquery.atd.js' %}"></script>
+	<script src="{% static 'app_essays/atd/scripts/csshttprequest.js' %}"></script>
+	<link rel="stylesheet" type="text/css" media="screen" href="{% static 'app_essays/atd/css/atd.css' %}" />
+
+{% endblock %}
+
+{% block content %}	
+<div class="page-content">
+	<div class="span10">
+		<div class="row-fluid">
+			<div class="content">
+				<img class="title-icons" src={% static 'base/img/icons/Retina-Ready@2x.png' %}>
+				<h3 class="title">Review Essay Score</h3>
+
+				{% if not has_submission %}
+				<div class="alert alert-block alert-error">
+					<h4>Oops!</h4>
+					{{ essay_response.student.user.first_name }} did not sumbit an essay.
+				</div>
+				{% endif %}
+
+				<div class="palette-turquoise"></div>	
+				<div id="preview" class="demo-text-box prl">
+					<h4><center><strong> {{ essay_response.essay.title }} </strong></center> </h4>
+					{% autoescape off %}
+					<p>{{ numbered_response }}</p>
+					{% endautoescape %}
+				</div>				
+				<br>
+				<div class="row-fluid">
+					<center><a href="javascript:check()" type="button" class="btn btn-primary">
+						<strong>Check for Spelling and Grammatical Errors</strong> <i class="fui-check-inverted"></i>
+					</a></center>
+				</div>
+				<hr>
+				<form class="form-horizontal" action="" method="post">
+					{% csrf_token %}
+					<fieldset>
+					 	<div class="control-group">
+							<label class="control-label">Grade</label>
+							<div class="controls">
+								{{ er_form.grade }}
+								{% for error in er_form.grade.errors %}
+									<p class="text-error">{{ error }}</p>
+								{% endfor %}
+							</div>
+						</div>
+			   
+						<div class="control-group">
+							<label class="control-label" for="inputcomments">Comments</label>
+							<div class="controls" id= "inputcomments" >								
+							  	<table>
+							  		<thead>
+							  			<th width="10%">From</th>
+							  			<th width="10%">to</th>
+							  			<th width="80%">Comment</th>
+							  		</thead>
+									<tbody>
+							  			{{ c_formset.management_form }}
+							  			{% for c_form in c_formset.forms %}
+							  			<tr class="item">
+											<td>{{ c_form.start }}</td>
+											<td>{{ c_form.end }}</td>
+											<td>{{ c_form.comment }}</td>
+										</tr>
+										{% if c_form.errors %}
+										<tr>
+											<td><p class="text-error">{{ c_form.start.errors.as_text|cut:"* " }}</p></td>
+											<td><p class="text-error">{{ c_form.end.errors.as_text|cut:"* " }}</p></td>
+											<td><p class="text-error">{{ c_form.comment.errors.as_text|cut:"* " }}</p></td>
+										<tr>
+										{% endif %}
+										{% endfor %}										
+									</tbody>
+								</table>
+								<a id="add" href="#" class="btn btn-primary pull-right" ><i class="fui-plus"></i> Add another</a>
+							</div>
+						</div>
+
+						<div class="control-group">  
+							<label class="control-label" for="inputinst">General Feedback</label>  
+							<div class="controls">  
+								{{ er_form.general_feedback }}
+								{% for error in er_form.grade.general_feedback %}
+									<p class="text-error">{{ error }}</p>
+								{% endfor %}
+							</div>  
+						</div>
+					  
+						<div class="form-actions">
+							<a href="#back" role="button" class="btn btn-inverse" data-toggle="modal"><i class="fui-arrow-left"></i><b> Back</b></a> 
+							<a href="#submit-grade" class="btn btn-success pull-right" data-toggle="modal"><i class="fui-check"></i><b> Check Essay</b></a>	
+						</div>
+
+						<div id="submit-grade" class="modal fade hide" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+							<div class="modal-header">
+								<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+								<h3 class="text-warning">Confirm</h3>
+							</div>
+							<div class="modal-body">
+								<p>Are you sure you want to submit?</p>
+							</div>
+							<div class="modal-footer">		
+								<button type="submit" class="btn btn-success pull-left"><i class="fui-check"></i><b> Yes</b></button>
+								<button class="btn btn-inverse" data-dismiss="modal" aria-hidden="true"><i class="fui-cross"></i> Close</button>
+							</div>
+						</div>
+
+					</fieldset>
+				</form>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div id="back" class="modal fade hide" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+	<div class="modal-header">
+		<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+		<h3 class="text-warning">Warning!</h3>
+	</div>
+	<div class="modal-body">
+		<p>You are about to go back to the previous page. If you decide to <strong>continue</strong>, please take note that any changes made will be discarded.</p>
+	</div>
+	<div class="modal-footer">		
+		<a href="{% url 'essays:list' %}" class="btn btn-inverse" aria-hidden="true"><span class="fui-arrow-left"></span> Continue</a>
+		<button class="btn btn-primary" data-dismiss="modal" aria-hidden="true">Close</button>
+	</div>
+</div>
+
+<script language="javascript">
+	 function check()
+	 {
+	    AtD.checkCrossAJAX('preview', 
+	    {
+	       success : function(errorCount) 
+	       {
+	          if (errorCount == 0)
+	          {
+	             alert("No writing errors were found");
+	          }
+	       },
+
+	       error : function(reason)
+	       {
+	          alert(reason);
+	       }
+	    });
+	 }
+
+</script>
+
+<script src="{% static 'app_essays/js/dynamic_form.js' %}"></script>
+{% endblock content %}

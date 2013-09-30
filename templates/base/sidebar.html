@@ -1,0 +1,24 @@
+<div class="sidebar">
+	<ul>
+		<li {% if not active_nav or active_nav == 'DASHBOARD' %} class="active" {% endif %} >
+			<a href="{% url 'classes:dashboard' %}">
+				<div class="sidebar-icon fui-chat"></div>
+				<div class="sidebar-content">DASHBOARD</div>
+			</a>
+		</li>
+
+		<li {% if active_nav == 'CLASSES' %} class="active" {% endif %} >
+			<a href="{% url 'classes:classes' %}">
+				<div class="sidebar-icon fui-list"></div>
+				<div class="sidebar-content">CLASSES</div>
+			</a>
+		</li>
+
+		<li {% if active_nav == 'EXAMS' %} class="active" {% endif %} >
+			<a href="{% url 'essays:list' %}">
+				<div class="sidebar-icon fui-new"></div>
+				<div class="sidebar-content">EXAMS</div>
+			</a>
+		</li>
+	</ul>
+</div>

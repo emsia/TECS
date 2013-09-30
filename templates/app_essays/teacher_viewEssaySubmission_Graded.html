@@ -1,0 +1,122 @@
+{% extends "base/base.html" %}
+{% load staticfiles %}
+
+{% block title %}
+TECS: Test Essay Checking Software | Essay
+{% endblock %}
+	
+{% block custom_style %}
+	<style type="text/css">
+	   .demo-text-box{
+		color: #000;
+		padding: 7px;
+		border:2px solid;
+		border-radius:0px;
+		border-color:#1abc9c;
+		}
+	
+  </style>
+
+{% endblock %}
+
+{% block content %}	
+<div class="page-content">
+	<div class="span10">
+		<div class="row-fluid">
+			<div class="content">
+				<img class="title-icons" src={% static 'base/img/icons/Retina-Ready@2x.png' %}>
+				<h3 class="title">Review Essay Score</h3>
+				<hr>
+				{% if not has_submission %}
+				<div class="alert alert-block alert-error">
+					<h4>Oops!</h4>
+					{{ essay_response.student.user.first_name }} did not sumbit an essay.
+				</div>
+				{% endif %}
+
+				<div class="demo-text-box prl">
+					<h4><center><strong> {{ essay_response.essay.title }} </strong></center> </h4>
+					{% autoescape off %}
+						<p>{{ numbered_response }}</p>
+					{% endautoescape %}
+				</div>
+				<br>
+				<div class="form-horizontal">
+				 	<div class="control-group">
+						<label class="control-label" for="inputfeedback"><strong>Rating</strong></label>
+						<div class="controls" id= "inputfeedback">
+							<span class="help-inline"><h1 class="text-error">{{ essay_response.grade }}</h1></span>
+						</div>
+					</div>
+
+					<div class="control-group">
+						<label class="control-label" for="inputcomments"><strong>Comments</strong></label>
+						<div class="controls">								
+							{% if not comments %}
+							<p class="text-error">No comments were given.</p>
+							{% else %}
+							<table class="table table-bordered table-striped">
+								<thead>
+									<tr>
+										<th width="15%">From <span class="palette-paragraph">Sentence no.</span> </th>
+										<th width="10%">To</th>
+										<th width="80%">Comment</th>
+									</tr>
+								</thead>
+								<tbody>									
+									{% for comment in comments %}
+									<tr class="item">
+										<td>{{ comment.start }}</td>
+										<td>{{ comment.end }}</td>
+										<td>{{ comment.comment }}</td>
+									</tr>
+									{% endfor %}																			
+								</tbody>
+							</table>
+							{% endif %}
+						</div>
+					</div>
+
+					<div class="control-group">  
+						<label class="control-label" for="inputinst"><strong>General Feedback</strong></label>  
+						<div class="controls">  
+							<span class="help-inline">
+								{% if not essay_response.general_feedback %}
+									<p class="text-error">No feedback was given.</p>
+								{% else %}
+									{{ essay_response.general_feedback }}
+								{% endif %}
+							</span>
+						</div>  
+					</div>
+
+					<a href="{% url 'essays:details' essay_response.essay.id %}" class="btn btn-inverse"><i class="fui-arrow-left"></i><b> Back</b></a> 
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script language="javascript">
+	 function check()
+	 {
+	    AtD.checkCrossAJAX('preview', 
+	    {
+	       success : function(errorCount) 
+	       {
+	          if (errorCount == 0)
+	          {
+	             alert("No writing errors were found");
+	          }
+	       },
+
+	       error : function(reason)
+	       {
+	          alert(reason);
+	       }
+	    });
+	 }
+
+</script>
+<script src="{% static 'app_essays/js/dynamic_form.js' %}"></script>
+{% endblock content %}

@@ -1,0 +1,46 @@
+{% load staticfiles %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>TECS: Test Essay Content Software</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  	<link rel="stylesheet" type="text/css" href="{% static 'base/css/style.css' %}" />
+
+<div class="row-fluid">
+	<div class="span3">
+	 <div class="sidebar">
+			<ul>
+				
+				<li {% if active_nav == 'DASHBOARD' %} class="active" {% endif %} >
+					<a href="/aeg/teacher_home/">
+						<div class="sidebar-icon fui-list"></div>
+						<div class="sidebar-content">DASHBOARD</div>
+					</a>
+				</li>
+
+
+				<li {% if active_nav == 'CLASSES' %} class="active" {% endif %} >
+					<a href="/aeg/teacher_class/">
+						<div class="sidebar-icon fui-calendar-solid"></div>
+						<div class="sidebar-content">CLASSES</div>
+					</a>
+				</li>
+
+				<li {% if active_nav == 'EXAMS' %} class="active" {% endif %} >
+					<a href="teacher_addExam.php">
+						<div class="sidebar-icon fui-eye"></div>
+						<div class="sidebar-content">EXAMS</div>
+					</a>
+				</li>
+
+				<li {% if active_nav == 'REPORTS' %} class="active" {% endif %} >
+					<a href="teacher_reports.php">
+						<div class="sidebar-icon fui-cmd"></div>
+						<div class="sidebar-content">REPORTS</div>
+					</a>
+				</li>
+			</ul>
+		</div>
+	</div>

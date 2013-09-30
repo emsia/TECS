@@ -1,0 +1,153 @@
+{% extends "base/base.html" %}
+{% load staticfiles %}
+
+{% block title %}
+TECS: Test Essay Checking Software | Home
+{% endblock %}
+
+{% block content %}
+<head>
+	<script src="{% static 'base/js/jquery.min.js' %}"></script>
+
+	<script>
+	    $(function() {
+		    var tooltips = $( "[title]" ).tooltip();
+		    $(document)(function() {
+		    	tooltips.tooltip( "open" );
+		    })
+	    });
+	</script>
+	
+</head>
+
+<div id="myModal" data-backdrop="static" data-keyboard="false" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-header">
+    <h3 id="myModalLabel">Make Invitation</h3>
+  </div>
+  <form class="form-inline" action="{% url 'classes:inviteStudent' studentList.id %}" method="post">{% csrf_token %}
+	  <div class="modal-body">
+	    	{% for form in formMails %}
+			<div class="control-group">
+				<div class="controls">
+					<div>
+						<p>Please seperate each person by comma. For example:</p>
+						<div style="padding-left: 100px">
+							<i>cheryleighverano@gmail.com, master@yahoo.com</i>
+						</div>
+					</div><br/>
+					{{ form }}
+					{% for error in form.errors %}
+					<p class="text-error">{{ error }}</p>
+					{% endfor %}
+				</div>		
+			</div> 	
+	  		{% endfor %}
+	  	</div>
+	  	<div class="modal-footer">
+		    <button type="submit" class="btn btn-primary pull-left" >Make Invitation <i class="fui-check"></i></button>
+		    <button type="button" class="btn btn-warning" data-dismiss="modal" aria-hidden="true">Cancel <i class="fui-new"></i></button>
+	  </div>
+  </form>
+</div>	
+
+<div class="page-content">
+	<div class="row-fluid">
+		<div class="content">
+			<p class="pull-right">
+				<a href="#myModal" role="button" data-toggle="modal" data-trigger="hover" data-placement="left" title data-original-title="Invite Students" class="btn btn-success"><i class="fui-mail"></i></a>
+				<a href="{% url 'classes:edit' studentList.id %}" data-toggle="tooltip" data-trigger="hover" data-placement="left" title data-original-title="Edit Class Info" class="btn btn-warning"><i class="fui-new"></i></a>
+			</p>
+			<img class="title-icons" src={% static 'base/img/icons/Pocket@2x.png' %}>
+			<h3 class="title">{{ studentList.year_level }}-{{ studentList.section }}: {{ studentList.subject }} for (S.Y. {{ studentList.academic_year }})</h3>
+			
+			{% if mailSend %}
+				<div class="alert alert-block alert-success">
+					Please review the invitation below carefully. You may not cancel an invitation once it has been submitted. If you want to disregard this mail, click <b>"Cancel"</b>. If you are ready to submit your invitation, click <b>"Send Invitation"</b>.
+					<br/><br/>
+					Number of people to Invite: <b>{{ count }}</b>
+				</div>
+
+				<form class="form form-horizontal" action="{% url 'classes:inviteStudent' studentList.id %}" method="POST"> {% csrf_token %}
+					<fieldset>
+						<div class="palette-turquoise">
+							<center>
+								<img class="title-icons" style="float: none; padding-bottom:3px; padding-top:5px; margin-right: -5px" src="{% static 'base/img/icons/Mail@2x.png' %}">
+			            		<div class="btn btn-primary" style="text-shadow:none"><b>You have been invited to join this class!</b></div>
+			            	</center>
+			         	</div>
+
+				          <div class="demo-text-box prl" style="border-radius: 0px;">
+				            <p>
+				            	From: <span style="color: #1abc9c">{{ sender.email }} [{{ sender.last_name }}, {{ sender.first_name }}]</span><br/>
+								Subject: Invitation to join {{ studentList.year_level }}-{{ studentList.section }}<br/>
+								Class Key: <span style="color: #1abc9c">{{ studentList.key }}</span><br/><br/>
+								Please <a href="/" style="text-decoration: none">Log-in</a> or <a href="http://localhost:8000/accounts/register/" style="text-decoration: none">Register</a> to tecs.upd.edu.ph and enter the Class Key to enroll.
+							</p>
+							<div style="display:none">
+								{% for form in formMails %}
+									{{ form }}
+								{% endfor %}
+							</div>
+				          </div>
+
+				        <div class="form-actions">
+		    				<input type="hidden" value="sendNow" name="sendNow" />
+							<button type="submit" class="btn btn-primary"><b>Send Invitation</b><i class="fui-check"></i></button> 
+							<a href="{% url 'classes:viewClass' studentList.id %}" type="button" class="btn btn-danger"><b>Cancel</b><i class="fui-cross"></i></a>
+						</div>
+					</fieldset>
+				</form>
+				{% else %}
+
+			<table class="table table-striped">
+				{% if studentList.student.all.count %}
+					{% if success %}
+						<div {% if succ %} class="alert alert-block alert-success" {% else %} class="alert alert-block alert-error" {% endif %}>
+						<button type="button" class="close" data-dismiss="alert">&times;</button>
+				          <h4><strong>{% if succ %}Success!{% else %}Error!{% endif %}</strong></h4> {{ success }}
+				        </div>
+				    {% endif %}
+				<thead>
+					<tr>
+						<th><center>#</center></th>
+						<th><center>Last Name</center></th>
+						<th><center>First name</center></th>
+						<th><center>Email</center></th>
+						<th><center>Status</center></th>
+						<th><center>Remove</center></th>
+					</tr>
+				</thead>
+				<tbody>
+					{% for student in studentList.student.all %}
+					<tr>
+						<td><center>{{student.id}}</center></td>
+						<td><center>{{student.user.last_name}}</center></td>
+						<td><center>{{student.user.first_name}}</center></td>
+						<td><center>{{student.user.email}}</center></td>
+						<td>{% if student.user.is_active %}<center style="color:#1abc9c">Active</center>
+						{% else %}<center style="color:red">Inactive</center></td>{% endif %}
+						<td><center><a href="{% url 'classes:removeStudent' studentList.id student.id %}" onclick="return confirm('Are you sure you want to remove this student from this class?')" class="btn btn-danger"><span class=""><i class="fui-cross"></i></span></a></center></td>
+					</tr>	
+					{% endfor %}			
+				</tbody>
+				{% elif not success %}
+					<div class="alert alert-block alert-error">
+			          <h4><strong>Oops!</strong></h4>
+			          	You haven't added students yet.
+			        </div>
+				{% else %}
+					<br>
+					<div {% if succ %} class="alert alert-block alert-success" {% else %} class="alert alert-block alert-error" {% endif %}>
+						<button type="button" class="close" data-dismiss="alert">&times;</button>
+			          <h4><strong>{% if succ %}Success!{% else %}Error!{% endif %}</strong></h4> {{ success }}
+			        </div>
+			    {% endif %}
+			</table>
+			{% endif %}
+		</div>
+	</div>
+</div>
+
+<script src="{% static 'base/js/jquery.min.js' %}"></script>
+
+{% endblock %}

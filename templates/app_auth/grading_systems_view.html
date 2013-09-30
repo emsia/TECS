@@ -1,0 +1,10 @@
+
+{% if by_admin == 1 %}
+	<span class="label label-info pull-right">PRESET</span>
+{% endif %}
+<h4 class="mbm"><strong>{{ gradesys.system }}</strong></h4>
+<p>{{ gradesys.description }}</p>					
+<p class="palette-paragraph muted">from highest to lowest</p>
+{% for grade in grades %}
+	<span class="palette palette-green-sea pull-left mrs mbs">{{ grade.name }}</span>
+{% endfor %}

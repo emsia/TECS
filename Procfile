@@ -1,1 +1,1 @@
-web: gunicorn mejango.wsgi
+web: gunicorn AEG.wsgi

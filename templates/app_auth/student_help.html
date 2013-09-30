@@ -1,0 +1,85 @@
+{% extends "base/base.html" %}
+{% load staticfiles %}
+
+{% block title %}
+TECS: Test Essay Checking Software | Grading System
+{% endblock %}
+
+{% block content %}
+<div class="page-content">
+	<div class="row-fluid">
+		<div class="content">
+			<div id='top'>
+			<img class="title-icons" src="{% static 'base/img/icons/Clipboard@2x.png' %}">
+			<h3 class="title">Help Menu</h3>
+			<p> Feeling a little lost? Fear not! For we are here to help you! Just click the links below to find out how to maximize the functionalities of this awesome web app.
+			<ul>
+				<li> <a href="#answer_exam"> Answering an Exam </a></li>
+				<li><a href="#view_exam">Viewing Exam Results</a></li>
+				<li><a href="#enroll">Enrolling to a Class</a></li>
+				<li><a href="#edit_profile">Editing Your Profile</a></li>
+				<li><a href="#change_pw">Changing Your Password</a></li>	
+			</ul>
+			</p>	
+			</div>
+			<hr>
+			<div id="answer_exam">
+			<p>			
+			<h2>Answering an Exam</h2>
+			<ol>
+				<li>From the dahboard, click the 'Exams' button on the navigation bar located at the leftmost side of the screen.</li>
+				<li>In the 'On-going Exams' section, click 'Start' at the last column of the exam that you want to answer.</li>
+				<li>You can find the remaining time that you still have to answer the exam at the upper right corner, just below your name and picture.</li>
+				<li>Carefully read the instructions and exam details below the heading 'Answer Exam'. </li>
+				<li>You can begin your essay by clicking the big box below your teacher's instructions and type your essay there. You can see the number of words you have written so far right above the text box.</li>
+				<li>You can save your progress as draft by clicking the 'Save As Draft' button below the textbox to ensure that you won't lose anything.</li>
+				<li>You may logout anytime during the exam and login and continue your exam when you get back if you wish to go out your exam room to ensure that no one will see your answer while you were away. But note that by doing so, your timer is still running. Make sure to 'Save As Draft' first before logging out to save your progress. </li>
+				<li>When you're done, click the 'Submit' button below the text box. A confirmation box will appear and click 'Yes' if you really wish to submit.By doing so, you may no longer edit your essay and it will be submitted to your teacher for grading. Click 'Close' if you still want to edit or continue your exam.</li>
+			</ol>
+			<a href='#top'>Back To Top</a>
+			</p>
+			</div>
+			<hr>	
+			<div id="view_exam">
+				<h2>Viewing Exam Results</h2>
+				<ol>
+				<li>From the dahboard, click the 'Exams' button on the navigation bar located at the leftmost side of the screen.</li>
+				<li>In the 'Submitted Essays' section, you can already see the grade on the 'Grade' column. If you wish to see additional details such as your teacher's comments and general feedback about your essay, click the button 'View'.</li>
+				</ol>
+			<a href='#top'>Back To Top</a>
+			</div>		
+			<hr>				
+			<div id="enroll">
+				<h2>Enrolling to a Class</h2>
+				<ol>
+					<li>From the dahboard, click the 'Classes' button on the navigation bar located at the leftmost side of the screen.</li>
+					<li>Click the yellow 'Enroll to a Class' button at the upper right corner, just below your name and picture.</li>
+					<li>Select your school and enter the Class Key from the email your teacher have sent you. If you didn't receive any email, ask your teacher to send you another one.</li>
+					<li>Click the 'Enroll' button at the bottom of the page when you're done, click 'Reset' if you want to clear all the fields and start all over again and 'Cancel' if you do not wish to continue your enrollment to the class.</li>
+				</ol>
+			<a href='#top'>Back To Top</a>
+			</div>		
+			<hr>					
+			<div id="edit_profile">
+				<h2>Editing Your Profile</h2>
+				<ol>
+					<li>From anywhere in the site, point to your name at the upper right corner of the page then click 'My Profile'.</li>
+					<li>Edit the fields that you want to change.</li>
+					<li>Click the 'Save Changes' button at the bottom of the page.</li>
+				</ol>
+			<a href='#top'>Back To Top</a>
+			</div>	
+			<hr>						
+			<div id="change_pw">
+				<h2>Changing Your Password</h2>
+				<ol>
+					<li>From anywhere in the site, point to your name at the upper right corner of the page then click 'My Profile'.</li>
+					<li>Enter your old password and new password on the spaces provided.</li>
+					<li>Click the 'Update Password' button at the bottom of the page to update your password or the 'Reset' button if you want to clear the fields and start all over again.</li>
+				</ol>
+			<a href='#top'>Back To Top</a>
+			</div>
+			<hr>
+
+</div></div></div>
+{% endblock %}

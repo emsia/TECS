@@ -1,0 +1,97 @@
+{% extends "base/base.html" %}
+{% load staticfiles %}
+
+{% block title %}
+TECS: Test Essay Checking Software | Grading System
+{% endblock %}
+
+{% block content %}
+<div class="page-content">
+	<div class="row-fluid">
+		<div class="content">
+			<div id='top'>
+			<img class="title-icons" src="{% static 'base/img/icons/Clipboard@2x.png' %}">
+			<h3 class="title">Help Menu</h3>
+			<p> Feeling a little lost? Fear not! For we are here to help you! Just click the links below to find out how to maximize the functionalities of this awesome web app.
+			<ul>
+				<li> <a href="#create_exam"> Creating an Exam </a></li>
+				<li><a href="#check">Manually Checking an Exam</a></li>
+				<li><a href="#create_class">Creating a Class</a></li>
+				<li><a href="#add_students">Inviting Students to an Existing Class</a></li>
+				<li><a href="#edit_profile">Editing Your Profile</a></li>
+				<li><a href="#change_pw">Changing Your Password</a></li>	
+			</ul>
+			</p>	
+			</div>
+			<hr>
+			<div id="create_exam">
+			<p>			
+			<h2>Creating an Exam</h2>
+			<ol>
+				<li>From the 'Dashboard' or the 'Exams' modules, click the button 'New Exam' at the upper right corner just below your name and picture.</li>
+				<li>Fill up all the fields.</li>
+				<li>Click the button 'Start Exam'.</li>
+			</ol>
+			<a href='#top'>Back To Top</a>
+			</p>
+			</div>
+			<hr>	
+			<div id="check">
+				<h2>Manually Checking an Exam</h2>
+				<ol>
+					<li>From the dahboard, click the 'Exams' button on the navigation bar located at the leftmost side of the screen.</li>
+					<li>In the 'Past Exams' section, click 'View' at the last column of the exam that has a remark: 'Needs Grading'.</li>
+					<li>You can find the list of your students and their submissions below the exam details. Click the 'View' button beside the name of the student view and manually check his/her submission.</li>
+					<li>Click the 'Check for Spelling and Grammatical Errors' above the essay to see spelling and grammatical errors. Spelling errors are underlined RED while grammatical errors are underlined GREEN.</li>
+					<li>Fill up the fields below the essay. Click the 'Add another' button to add another comment field.</li>
+					<li>Click 'Check Essay' to save the student's exam result. </li>
+				</ol>
+			<a href='#top'>Back To Top</a>
+			</div>		
+			<hr>				
+			<div id="create_class">
+				<h2>Creating a Class</h2>
+				<ol>
+					<li>From the dahboard, click the 'Classes' button on the navigation bar located at the leftmost side of the screen.</li>
+					<li>Click the '+' button at the upper right corner, just below your name and picture.</li>
+					<li>Fill up all the fields.</li>
+					<li>Click 'Save' when you're done, 'Reset' if you want to clear the form and start over, and 'Cancel' if you do not wish to continue creating a new class. </li>
+				</ol>
+			<a href='#top'>Back To Top</a>
+			</div>	
+			<hr>					
+			<div id="add_students">
+				<h2>Inviting Students to an Existing Class</h2>
+				<ol>
+					<li>From the dahboard, click the 'Classes' button on the navigation bar located at the leftmost side of the screen.</li>
+					<li>Click the 'View' button beside the class that you wish to invite the student/s to.</li>
+					<li> Click the green button with the mail icon at the upper right corner, just below your name and picture.</li>
+					<li> Enter the email addresses of the students that you wish to add separated by comma. </li>
+					<li>Click the 'Send' button when you're done or 'Cancel' if you do not wish to continue inviting students to the class.</li>
+				</ol>
+			<a href='#top'>Back To Top</a>
+			</div>	
+			<hr>					
+			<div id="edit_profile">
+				<h2>Editing Your Profile</h2>
+				<ol>
+					<li>From anywhere in the site, point to your name at the upper right corner of the page then click 'My Profile'.</li>
+					<li>Edit the fields that you want to change.</li>
+					<li>Click the 'Save Changes' button at the bottom of the page.</li>
+				</ol>
+			<a href='#top'>Back To Top</a>
+			</div>	
+			<hr>						
+			<div id="change_pw">
+				<h2>Changing Your Password</h2>
+				<ol>
+					<li>From anywhere in the site, point to your name at the upper right corner of the page then click 'My Profile'.</li>
+					<li>Enter your old password and new password on the spaces provided.</li>
+					<li>Click the 'Update Password' button at the bottom of the page to update your password or the 'Reset' button if you want to clear the fields and start all over again.</li>
+				</ol>
+			<a href='#top'>Back To Top</a>
+			</div>
+			<hr>
+
+</div></div></div>
+{% endblock %}

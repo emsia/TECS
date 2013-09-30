@@ -1,0 +1,153 @@
+{% extends "base/base.html" %}
+{% load staticfiles %}
+
+{% block title %}
+TECS: Test Essay Checking Software | Essay
+{% endblock %}
+	
+{% block custom_style %}
+	<style type="text/css">
+	   .demo-text-box{
+		color: #000;
+		padding: 7px;
+		border:2px solid;
+		border-radius:0px;
+		border-color:#1abc9c;
+		}
+	
+  </style>
+
+{% endblock %}
+
+{% block content %}	
+<div class="page-content">
+	<div class="span10">
+		<div class="row-fluid">
+			<div class="content">
+				<img class="title-icons" src={% static 'base/img/icons/notes.png' %}>
+				<h3 class="title">My Submission</h3>
+				<hr>
+
+				{% if not essay_response.grade  %}
+					<div class="alert alert-warning">
+						<h4>STATUS: Not yet graded</h4>
+					</div>
+				{% endif %}
+
+				<dl class="dl-horizontal">
+					<dt>Essay Title</dt>
+					<dd>{{ essay_response.essay.title }}</dd>
+
+					<dt>Instructions</dt>
+					<dd>{{ essay_response.essay.instructions }}</dd>
+
+					<dt>Duration</dt>
+					<dd>{{ essay_response.essay.duration_hours }} hr(s) {% if essay_response.essay.duration_minutes > 0%} {{ essay_response.essay.duration_minutes }} min(s) {% endif %}</dd>		
+
+					<dt>Min. no. of words</dt>
+					<dd>{{ essay_response.essay.min_words }}</dd>
+				</dl>
+
+				<dl class="dl-horizontal">
+					<dt>Time Started</dt>
+					<dd>{{ essay_response.time_started }}</dd>
+					<dt>Time Submitted</dt>
+					<dd>{{ essay_response.time_finished }}</dd>
+				</dl>
+
+				{% if not has_submission %}
+				<div class="alert alert-block alert-error">
+					<h4>Oops!</h4>
+					You did not sumbit an essay.
+				</div>
+				{% endif %}
+
+				<div class="demo-text-box prl">
+					<h4><center><strong> {{ essay_response.essay.title }} </strong></center> </h4>
+					{% autoescape off %}
+						<p>{{ numbered_response }}</p>
+					{% endautoescape %}
+				</div>
+				<br>
+
+
+				{% if essay_response.grade  %}
+				<div class="form-horizontal">
+				 	<div class="control-group">
+						<label class="control-label" for="inputfeedback"><strong>Rating</strong></label>
+						<div class="controls" id= "inputfeedback">
+							<span class="help-inline"><h1 class="text-error">{{ essay_response.grade }}</h1></span>
+						</div>
+					</div>
+
+					<div class="control-group">
+						<label class="control-label" for="inputcomments"><strong>Comments</strong></label>
+						<div class="controls">								
+							{% if not comments %}
+							<p class="text-error">No comments were given.</p>
+							{% else %}
+							<table class="table table-bordered table-striped">
+								<thead>
+									<tr>
+										<th width="15%">From <span class="palette-paragraph">Sentence no.</span> </th>
+										<th width="10%">To</th>
+										<th width="80%">Comment</th>
+									</tr>
+								</thead>
+								<tbody>									
+									{% for comment in comments %}
+									<tr class="item">
+										<td>{{ comment.start }}</td>
+										<td>{{ comment.end }}</td>
+										<td>{{ comment.comment }}</td>
+									</tr>
+									{% endfor %}																			
+								</tbody>
+							</table>
+							{% endif %}
+						</div>
+					</div>
+
+					<div class="control-group">  
+						<label class="control-label" for="inputinst"><strong>General Feedback</strong></label>  
+						<div class="controls">  
+							<span class="help-inline">
+								{% if not essay_response.general_feedback %}
+									<p class="text-error">No feedback was given.</p>
+								{% else %}
+									{{ essay_response.general_feedback }}
+								{% endif %}
+							</span>
+						</div>  
+					</div>
+					{% endif %}
+					<a href="{% url 'essays:list' %}" class="btn btn-inverse"><i class="fui-arrow-left"></i><b> Back</b></a> 
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script language="javascript">
+	 function check()
+	 {
+	    AtD.checkCrossAJAX('preview', 
+	    {
+	       success : function(errorCount) 
+	       {
+	          if (errorCount == 0)
+	          {
+	             alert("No writing errors were found");
+	          }
+	       },
+
+	       error : function(reason)
+	       {
+	          alert(reason);
+	       }
+	    });
+	 }
+
+</script>
+<script src="{% static 'app_essays/js/dynamic_form.js' %}"></script>
+{% endblock content %}

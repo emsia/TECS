@@ -1,0 +1,206 @@
+{% extends "base/base.html" %}
+{% load staticfiles %}
+
+{% block title %}
+TECS: Test Essay Checking Software | Home
+{% endblock %}
+
+{% block custom_style %}
+<link rel="stylesheet" href="{% static 'base/css/jquery.countdown.css' %}">	
+<script type="text/javascript" src="{% static 'base/js/jquery.countdown.js' %}"></script>
+
+<style>
+	.noDays { 		
+		width: 240px; 
+		height: 45px; 
+	}
+	#save-text {
+		display: none;
+	}
+</style>
+
+<script>
+	$( document ).ready(function() {
+		count()
+	});
+</script>
+
+
+
+
+{% endblock %}
+
+{% block content %}
+<div class="page-content">
+	<div class="span10">
+		<div class="row-fluid">
+			<div class="span12 content">
+				<div class="row-fluid">
+					<div class="span8">
+						<img class="title-icons" src={% static 'base/img/icons/hangouts.png' %}>
+						<h3 class="title">Answer Exam</h3>
+					</div>
+					<div class="span4">
+						<span class="noDays btn btn-danger pull-right"></span>
+					</div>
+				</div>
+				<form id="essay-response-form" class="form-horizontal" action="" method="post">
+					{% csrf_token %}
+					<fieldset>
+						<dl class="dl-horizontal">
+							<dt>Essay Title</dt>
+							<dd>{{ essay_response.essay.title }}</dd>
+
+							<dt>Instructions</dt>
+							<dd>{{ essay_response.essay.instructions }}</dd>
+
+							<dt>Duration</dt>
+							<dd>{{ essay_response.essay.duration_hours }} hr(s) {% if essay_response.essay.duration_minutes > 0%} {{ essay_response.essay.duration_minutes }} min(s) {% endif %}</dd>		
+
+							<dt>Min. no. of words</dt>
+							<dd>{{ essay_response.essay.min_words }}</dd>					
+						</dl>
+						<span id="save-text" class="pull-left"><h3></h3></span>
+						<div class="span3 pull-right">
+							<input class="wcount span3" type="text" id="word_count" disabled="" value="Word Count: 0"> 
+						</div>
+
+						{{ form.response }}
+
+						<div class="form-actions">  
+							<button id="draft-button" name="draft" type="submit" class="btn btn-primary"><b>Save As Draft</b> <i class="fui-new"></i></button> 
+							<a href="#submit-essay" class="btn btn-success" data-toggle="modal"><b>Submit</b> <i class="fui-check"></i></a> 
+						</div>
+
+						<div id="submit-essay" class="modal fade hide" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+							<div class="modal-header">
+								<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+								<h3 class="text-warning">Confirm Submission</h3>
+							</div>
+							<div id="submit-essay-mbody" class="modal-body">
+								<p>Are you sure you want to submit?</p>
+							</div>
+							<div class="modal-footer">		
+								<button id="final-button" type="submit" name="final" class="btn btn-success pull-left"><i class="fui-check"></i><b> Yes</b></button>
+								<button class="btn btn-inverse" data-dismiss="modal" aria-hidden="true"><i class="fui-cross"></i> Close</button>
+							</div>
+						</div>
+					</fieldset>
+				</form>
+
+				<!-- SHOW MODAL WHEN TIME IS UP -->
+				<div id="time-out" class="modal hide fade" data-backdrop="static">
+					<div class="modal-header palette-alizarin">
+						<h3 class="text-white">Time's up!</h3>
+					</div>
+					<div class="modal-body">
+						<p>You ran out of time.</p> 
+						<p>Your current progress had been automatically submitted to your teacher. </p>
+					</div>
+					<div class="modal-footer">
+						<a href="{% url 'essays:submission' essay_response.pk %}" class="btn btn-primary">View Submission <span class="fui-arrow-right"></span></a>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script type="text/javascript">
+	$(function () {
+		var liftoffTime = {{ essay_response.time_remaining }};
+		$('.noDays').countdown({until: liftoffTime, format: 'HMS'});
+	});
+</script>
+
+<script>
+	var output = document.getElementById('word_count');
+	var count =0;
+</script>
+
+<script>
+	function count(){
+		var txtVal = $('#id_response').val();
+		var words = txtVal.trim().replace(/\s+/gi, ' ').split(' ').length;
+		var chars = txtVal.length;
+		if(chars===0){
+			words=0;
+		}
+		output.setAttribute('value', 'Word Count: '+words);
+	}
+
+	$('#id_response').on('keyup propertychange', function(){ 
+		count();
+	});
+</script>
+
+
+<script type="text/javascript">
+	$("essay-response-form").submit(function() { return false; });
+
+	var frm = $('#essay-response-form');
+	$('#draft-button').click(function (event) {
+		$.ajax({
+			type: frm.attr('method'),
+			url: frm.attr('action'),
+			data: frm.serialize() + "&submission_type=DRAFT",
+			success: function (data) {
+				prevattr = $("#save-text").attr('class');
+				if(data.has_errors == 0) {
+					$("#save-text").attr('class', 'text-success ' + prevattr )
+				}
+				else {
+					$("#save-text").attr('class', 'text-error ' + prevattr )
+				}
+				$("#save-text").children().html(data.message)
+				$("#save-text").fadeIn().delay(5000).fadeOut();
+			},
+			error: function (xhr, ajaxOptions, thrownError) {
+				 alert(xhr.status+' '+thrownError);
+			}
+		});
+		return false;
+	});
+</script>
+
+<script>
+//CHECK IF TIME RUNS OUT. IF YES, DISPLAY MESSAGE SHOWING TIME IS UP.
+	var time_remaining = {{ essay_response.time_remaining }};
+	var refreshIntervalId = setInterval(timeout_checker,1000);
+
+	function timeout_checker () {
+		time_remaining = time_remaining - 1
+		if(time_remaining <= 0) {
+			clearInterval(refreshIntervalId);
+			
+		//SUBMIT ESSAY RESPONSE AS FINAL
+			var frm = $('#essay-response-form');
+			$.ajax({
+				type: frm.attr('method'),
+				url: frm.attr('action'),
+				data: frm.serialize() + "&submission_type=FINAL",
+				success: function (data) {
+					$("#time-out").modal('show');
+				},
+				error: function (xhr, ajaxOptions, thrownError) {
+					 alert(xhr.status+' '+thrownError);
+				}
+			});
+		}
+	}
+</script>
+
+<script>
+	$("#submit-essay").on('show', function () {
+		var txtVal = $('#id_response').val();
+		var words = txtVal.trim().replace(/\s+/gi, ' ').split(' ').length;
+
+		if($("#min-words-error").length == 0 && words < {{ essay_response.essay.min_words }}) {
+			$( "#submit-essay-mbody" ).append("<p id='min-words-error' class='text-error'>Your essay did not meet the minimum number of words required.</p>");
+		}
+		else {
+			$("#min-words-error").remove()
+		}
+	})
+</script>
+{% endblock %}

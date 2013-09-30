@@ -1,0 +1,139 @@
+{% extends "base/base.html" %}
+{% load staticfiles %}
+
+{% block title %}
+TECS: Test Essay Checking Software | Essay
+{% endblock %}
+
+{% block content %}
+
+<div class="page-content">
+	<div class="row-fluid">
+		<div class="content">
+			<p class="pull-right">
+				<a href="{% url 'essays:new' %}" class="btn btn-large btn-primary"><i class="fui-plus"></i> New Exam</a>
+			</p>
+			<img class="title-icons" src="{% static 'base/img/icons/Pensils@2x.png' %}">
+			<h3>On-going Exams</h3>
+			
+			{% if no_on_going_essays %}
+			<br><br>
+			<div class="alert alert-block alert-error">
+				<h4>Oops!</h4>
+				You have no on-going exams.
+			</div>
+			
+			{% else %}
+			{% if success %}
+			<br><br>
+			<div class="alert alert-block alert-success">
+				<button type="button" class="close" data-dismiss="alert">&times;</button>
+				<h4>Success!</h4>
+					{{ success }}
+			</div>
+			{% endif %}
+			<table class="table table-striped">
+				<thead>
+					<tr>
+						<th width="10%">Class</th>
+						<th width="15%">Subject</th>
+						<th width="25%">Essay</th>
+						<th width="15%">Start</th>
+						<th width="15%">Deadline</th>
+						<th width="10%"></th>
+					</tr>
+				</thead>
+				<tbody>
+					{% for essay in on_going_essays %}
+					<tr>
+						<td>{{ essay.class_name.year_level }}-{{ essay.class_name.section }}</td>
+						<td>{{ essay.class_name.subject }}</td>
+						<td>{{ essay.title }}</td>
+						<td>{{ essay.start_date }}</td>
+						<td>{{ essay.deadline }}</td>
+						<td><center><a href="{% url 'essays:details' essay.id %}" class="btn btn-info">View</a></center></td>
+					</tr>
+					{% endfor %}
+				</tbody>
+			</table>
+			{% endif %}
+
+
+			{% if not no_on_queue_essays %}
+			<div class="row-fluidr">
+				<img class="title-icons" src="{% static 'base/img/icons/Watches@2x.png' %}">
+				<h3>Queued Exams</h3>
+			</div>
+			<table class="table table-striped">
+				<thead>
+					<tr>
+						<th width="10%">Class</th>
+						<th width="15%">Subject</th>
+						<th width="25%">Essay</th>
+						<th width="15%">Start</th>
+						<th width="15%">Deadline</th>
+						<th width="10%"></th>
+					</tr>
+				</thead>
+				<tbody>
+					{% for essay in on_queue_essays %}
+					<tr>
+						<td>{{ essay.class_name.year_level }}-{{ essay.class_name.section }}</td>
+						<td>{{ essay.class_name.subject }}</td>
+						<td>{{ essay.title }}</td>
+						<td>{{ essay.start_date }}</td>
+						<td>{{ essay.deadline }}</td>
+						<td><center><a href="{% url 'essays:details' essay.id %}" class="btn btn-info">View</a></center></td>
+					</tr>
+					{% endfor %}
+				</tbody>
+			</table>
+
+			{% endif %}
+
+			<img class="title-icons" src="{% static 'base/img/icons/documents.png' %}">
+			<h3>Past Exams</h3>
+			
+			{% if no_past_essays %}
+			<br><br>
+			<div class="alert alert-block alert-error">
+				<h4>Oops!</h4>
+				You have no past exams.
+			</div>
+			
+			{% else %}
+			<table class="table table-striped">
+				<thead>
+					<tr>
+						<th width="10%">Class</th>
+						<th width="12%">Subject</th>
+						<th width="20%">Essay</th>
+						<th width="12%">Start</th>
+						<th width="12%">Deadline</th>
+						<th width="15%">Remarks</th>
+						<th width="9%"></th>
+					</tr>
+				</thead>
+				<tbody>
+					{% for essay in past_essays %}
+					<tr>
+						<td>{{ essay.class_name.year_level }}-{{ essay.class_name.section }}</td>
+						<td>{{ essay.class_name.subject }}</td>
+						<td>{{ essay.title }}</td>
+						<td>{{ essay.start_date }}</td>
+						<td>{{ essay.deadline }}</td>
+						<td>
+							{% if not essay.is_all_graded %}
+								<p class="text-error">Needs Grading</p>
+							{% endif %}
+						</td>
+						<td><center><a href="{% url 'essays:details' essay.id %}" class="btn btn-info">View</a></center></td>
+					</tr>
+					{% endfor %}
+				</tbody>
+			</table>
+			{% endif %}
+		</div>
+	</div>
+</div>
+{% endblock %}

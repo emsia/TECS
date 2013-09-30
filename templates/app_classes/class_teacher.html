@@ -1,0 +1,83 @@
+{% extends "base/base.html" %}
+{% load staticfiles %}
+
+{% block title %}
+TECS: Test Essay Checking Software | Teacher Classes
+{% endblock %}
+
+{% block content %}
+<head>
+	<script src="{% static 'base/js/jquery.min.js' %}"></script>
+	<script>
+	    $(function() {
+		    var tooltips = $( "[title]" ).tooltip();
+		    $(document)(function() {
+		    	tooltips.tooltip( "open" );
+		    })
+	    });
+	</script>
+</head>
+<div class="page-content">
+	<div class="row-fluid">
+		<div class="content">
+			{% if power %}
+			<p class="pull-right">
+				<a href="{% url 'classes:add' %}" data-toggle="tooltip" data-trigger="hover" data-placement="left" title data-original-title="Add New Class" class="btn btn-warning"><i class="fui-plus"></i></a>
+			</p>
+			{% endif %}
+			<img class="title-icons" src="{% static 'base/img/icons/Clipboard@2x.png' %}">
+			<h3 class="title">My Classes</h3>
+			
+			{% if hasClasses %}
+				<div class="alert alert-block alert-error">
+		          <h4><strong>Oops!</strong></h4>
+		          {{ hasClasses }}
+		        </div>
+		    {% else %}
+			{% if success %}
+				<br>
+				<div class="alert alert-block alert-success">
+					<button type="button" class="close" data-dismiss="alert">&times;</button>
+		          <h4><strong>Success!</strong></h4> {{ success }}
+		        </div>
+		    {% endif %}
+			{% if error %}
+				<br>
+				<div class="alert alert-block alert-error">
+					<button type="button" class="close" data-dismiss="alert">&times;</button>
+		          <h4><strong>Warning!</strong></h4>
+		          {{ error }}
+		        </div>
+		    {% endif %}
+
+			<table class="table table-striped">
+				<thead>
+					<tr>
+						<th style="width: 3px"><center>#</center></th>
+						<th style="width: 53px"><center>School Name</center></th>
+						<th style="width: 20px"><center>Class Name</center></th>
+						<th style="width: 15px"><center>Subject Name</center></th>
+						<th style="width: 3px"><center>Students</center></th>
+						<th style="width: 3px"><center>View</center></th>
+						<th style="width: 3px"><center>Delete</center></th>
+					</tr>
+				</thead>
+				<tbody>
+					{% for classes in sections %}
+						<tr>
+							<td><center>{{forloop.counter}}</center></td>
+							<td><center>{{classes.school.name}}</center></td>
+							<td><center>{{classes.year_level}} - {{classes.section}}</center></td>
+							<td><center>{{classes.subject}}</center></td>
+							<td><center>{{classes.student.all.count }}</center></td>
+							<td><center><a href="{% url 'classes:viewClass' classes.id %}" class="btn btn-primary"><span class=""><i class="fui-location"></i></span></a></center></td>
+							<td><center><a href="{% url 'classes:delete' classes.id %}" onclick="return confirm('Are you sure you want to delete this class?')" class="btn btn-danger"><span class=""><i class="fui-cross"></i></span></a></center></td>
+						</tr>
+					{% endfor %}
+				</tbody>
+			</table>
+			{% endif %}
+		</div>
+	</div>
+</div>
+{% endblock content %}
