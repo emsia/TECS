@@ -9,8 +9,8 @@
      	</div>
 
           <div style="color: #000; padding: 7px; border: 2px solid; border-color: #1abc9c; padding-right: 20px;">
-            <p>
-            	From: <span style="color: #1abc9c; text-decoration: none;">{{ sender.email }}</span><br/>
+            <p style="text-decoration:none; border-color: #1abc9c;">
+            	From: <a style="color: #1abc9c; text-decoration: none;">{{ sender.email }}</a><br/>
 				Subject: Invitation to join {{ studentList.year_level }}-{{ studentList.section }}<br/>
 				Class Key: <span style="color: #1abc9c">{{ studentList.key }}</span><br/><br/><br/>
 				Please <a href="/" style="color: #1abc9c; text-decoration: none;">Log-in</a> or <a href="http://localhost:8000/accounts/register/" style="color: #1abc9c; text-decoration: none">Register</a> to tecs.upd.edu.ph and enter the Class Key to enroll in a Class.
