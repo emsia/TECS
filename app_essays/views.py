@@ -241,7 +241,7 @@ def essay_submission(request, essay_response_id):
 						return redirect('essays:list')
 				else:
 					er_form = EssayResponseGradeForm()
-					er_form.fields['grade'].queryset = Grade.objects.filter(grading_system = essay_response.essay.grading_system).order_by('from_value')
+					er_form.fields['grade'].queryset = Grade.objects.filter(grading_system = essay_response.essay.grading_system).order_by('value')
 					c_formset = EssayCommentFormSet()
 
 				c = {'er_form': er_form,
