@@ -7,3 +7,4 @@ psycopg2==2.5.1
 static==0.4
 wsgiref==0.1.2
 http://pyyaml.org/download/pyyaml/PyYAML-3.10.tar.gz
+http://pypi.python.org/packages/source/n/nltk/nltk-2.0.1rc1.tar.gz
