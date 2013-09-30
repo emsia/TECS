@@ -1,10 +1,27 @@
 {% load staticfiles %}
-<link href="{% static 'base/css/bootstrap.css' %}" rel="stylesheet" media="screen">
-<link href="{% static 'base/css/bootstrap-responsive.css' %}" rel="stylesheet" media="screen">
-<link href="{% static 'base/css/flat-ui.css' %}" rel="stylesheet" media="screen">
-<link href="{% static 'base/css/style.css' %}" rel="stylesheet" media="screen">
-<link rel="shortcut icon" type="text/css" href="{% static 'base/img/icons/favicon.ico' %}" />
-  		
+<style>
+	.palette-turquoise {
+  		background-color: #1abc9c;
+	}
+	.title-icons {
+		float: left;
+		height: 50px;
+		margin-right: 10px;
+	}
+	.btn.btn-primary {
+		background-color: #1abc9c;
+	}
+	.demo-text-box {
+		color: #000;
+		padding: 7px;
+		border: 2px solid;
+		border-radius: 25px;
+		border-color: #1abc9c;
+	}
+	.prl, .phl, .pal {
+		padding-right: 20px;
+	}
+</style>	
 {% block content %}
 <form class="form form-horizontal">
 	<fieldset>
