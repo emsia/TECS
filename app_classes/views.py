@@ -16,6 +16,7 @@ from django.core.mail import EmailMessage
 from django.template.loader import render_to_string, get_template
 from django.template import Context
 from .forms import MailForm, MailForm2
+from email.MIMEImage import MIMEImage
 
 @login_required(redirect_field_name='', login_url='/')
 def dashboard(request):
@@ -110,7 +111,7 @@ def submit(request):
 				})
 			)
 			if mail:
-				fp = open('./static/base/img/icons/Mail@2x.png', 'rb')
+				fp = open('../static/base/img/icons/Mail@2x.png', 'rb')
 				msgImage = MIMEImage(fp.read())
 				fp.close()
 
