@@ -81,7 +81,7 @@ TECS: Test Essay Checking Software | Home
 				            	From: <span style="color: #1abc9c">{{ sender.email }} [{{ sender.last_name }}, {{ sender.first_name }}]</span><br/>
 								Subject: Invitation to join {{ studentList.year_level }}-{{ studentList.section }}<br/>
 								Class Key: <span style="color: #1abc9c">{{ studentList.key }}</span><br/><br/>
-								Please <a href="/" style="text-decoration: none">Log-in</a> or <a href="http://localhost:8000/accounts/register/" style="text-decoration: none">Register</a> to tecs.upd.edu.ph and enter the Class Key to enroll.
+								Please <a href="tecs.herokuapp.com" style="color: #1abc9c; text-decoration: none;">Log-in</a> or Register to <a href="http://tecs.herokuapp.com/accounts/register/" style="color: #1abc9c; text-decoration: none">tecs.herokuapp.com</a> and enter the Class Key to enroll in a Class.
 							</p>
 							<div style="display:none">
 								{% for form in formMails %}
