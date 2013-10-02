@@ -112,6 +112,7 @@ def submit(request):
 			if mail:
 				mailSend = EmailMessage('Invitation to join Class', template, 'fsvaeg@gmail.com', mail )
 				mailSend.content_subtype = "html"  # Main content is now text/html
+				mailSend.attach_file('./static/base/img/icons/Mail@2x.png')
 				mailSend.send()
 			#send_mail('Subject', 'You are invited to class '+ yearType_info + '-' + section_info + ' ' + subject_info + '. The key class is: ' + random_data, 'fsvaeg@gmail.com', mail)
 			
