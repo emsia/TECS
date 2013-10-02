@@ -110,9 +110,15 @@ def submit(request):
 				})
 			)
 			if mail:
+				fp = open('./static/base/img/icons/Mail@2x.png', 'rb')
+				msgImage = MIMEImage(fp.read())
+				fp.close()
+
+				msgImage.add_header('Content-ID', '<image1>')
+
 				mailSend = EmailMessage('Invitation to join Class', template, 'fsvaeg@gmail.com', mail )
 				mailSend.content_subtype = "html"  # Main content is now text/html
-				mailSend.attach_file('./static/base/img/icons/Mail@2x.png')
+				mailSend.attach(msgImage)
 				mailSend.send()
 			#send_mail('Subject', 'You are invited to class '+ yearType_info + '-' + section_info + ' ' + subject_info + '. The key class is: ' + random_data, 'fsvaeg@gmail.com', mail)
 			
@@ -212,8 +218,15 @@ def inviteStudent(request, class_id):
 			
 			count = len(mail)
 			if sendNow == 'sendNow':
+				fp = open('./static/base/img/icons/Mail@2x.png', 'rb')
+				msgImage = MIMEImage(fp.read())
+				fp.close()
+
+				msgImage.add_header('Content-ID', '<image1>')
+
 				mailSend = EmailMessage('Invitation to join Class', template, 'fsvaeg@gmail.com', mail )
 				mailSend.content_subtype = "html"  # Main content is now text/html
+				mailSend.attach(msgImage)
 				mailSend.send()
 				success = True
 				message = 'Invitations were sent successfully.'
