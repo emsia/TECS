@@ -151,8 +151,8 @@ def edit(request, class_id):
 	return render(request, 'app_classes/teacher_editClass.html', {'avatar':avatar, 'active_nav':'CLASSES', 'class_info':class_info, 'formEdit':formEdit})
 			
 @login_required(redirect_field_name='', login_url='/')
-def delete(request, class_id):
-	class_info = get_object_or_404(Class, pk=class_id)
+def delete(request):
+	class_info = get_object_or_404(Class, pk=request.POST['class_id'])
 	class_info.delete()
 	return class_teacher(request, 0, 'You successfully deleted a class.')
 
