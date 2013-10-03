@@ -123,13 +123,14 @@ def profile_edit(request, success=None):
 				teacher.school.add(school)
 		else:
 			student = Student.objects.filter(user=request.user)
+			school = School.objects.get(id=request.POST['school'])
 			if not student.exists():
-				student = Student.objects.create(user=request.user, school=request.POST['school'])
+				student = Student.objects.create(user=request.user, school=school)
 			else:
 				student = Student.objects.get(user=request.user)
-				student.school = request.POST['school']
+				student.school = school
 				student.save()
-				
+
 		if formProfile.is_valid():
 			temp = formProfile.cleaned_data
 			if user_info.exists():
