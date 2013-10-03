@@ -157,12 +157,13 @@ def profile_edit(request, success=None):
 			return redirect("auth:profile")
 
 	if user_info.exists():
-		schoolForm = schoolForStudent(initial={'school':Student.objects.get(user=request.user).school})
 		user_info = user_info.get(user_id=request.user.id)
 
 		if request.user.is_staff:
 			schoolForm = schoolForTeacher(initial={'school':Teacher.objects.get(user=request.user).school.values_list('id',flat=True)})
-		
+		else:
+			schoolForm = schoolForStudent(initial={'school':Student.objects.get(user=request.user).school})
+
 		avatar = user_info.avatar
 		formProfile = ProfileForm(initial={
 			'last_name':request.user.last_name, 'first_name':request.user.first_name, 'email':request.user.email, 'avatar':user_info.avatar,
