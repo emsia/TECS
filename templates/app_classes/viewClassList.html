@@ -126,7 +126,7 @@ TECS: Test Essay Checking Software | Home
 						<td><center>{{student.user.email}}</center></td>
 						<td>{% if student.user.is_active %}<center style="color:#1abc9c">Active</center>
 						{% else %}<center style="color:red">Inactive</center></td>{% endif %} 
-						<td><center><button type="button" class="delsys-button btn btn-danger" data-classid={{ studentList.id }} data-studentid={{ student.id }} data-toggle="modal" data-target="#confirm-delete"><i class="fui-cross"></i></span></button><</center></td>
+						<td><center><button type="button" class="delsys-button btn btn-danger" data-classid={{ studentList.id }} data-studentid={{ student.id }} data-toggle="modal" data-target="#confirm-delete"><i class="fui-cross"></i></span></button></center></td>
 					</tr>	
 					{% endfor %}			
 				</tbody>
@@ -153,8 +153,8 @@ TECS: Test Essay Checking Software | Home
 		<h3 class="text-white">Confirm Delete</h3>
 	</div>
 	<div class="modal-body">
-		<p>Are you sure you want to delete this Class?</p>
-		<p>Continuing with this action, will erase all the students who enroll in this class. </p>
+		<p>Are you sure you want to delete this student from the class?</p>
+		<p>Continuing with this action, will erase his/her account on this class. </p>
 		<form action="{% url 'classes:removeStudent' %}" method="post">
 			{% csrf_token %}
 			<input type="hidden" id="class_id" name="class_id" value="">
