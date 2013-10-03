@@ -274,7 +274,7 @@ class RegistrationProfile(models.Model):
         message = render_to_string('registration/activation_email.html',
                                    ctx_dict)
 
-        mailSend = EmailMessage(subject, message, 'fsvaeg@gmail.com', self.user.email )
+        mailSend = EmailMessage(subject, message, 'fsvaeg@gmail.com', [self.user.email] )
         mailSend.content_subtype = "html"  # Main content is now text/html
         mailSend.attach(msgImage)
         mailSend.send()
