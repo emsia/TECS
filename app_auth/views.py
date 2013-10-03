@@ -158,6 +158,7 @@ def profile_edit(request, success=None):
 			USER_info.username = temp['username']
 			USER_info.save()
 			return redirect("auth:profile")
+			
 	if user_info.exists():
 		schoolForm = schoolForStudent()
 		user_info = user_info.get(user_id=request.user.id)
