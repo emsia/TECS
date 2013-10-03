@@ -10,6 +10,7 @@ from django.db import transaction
 from django.template.loader import render_to_string
 from django.utils.translation import ugettext_lazy as _
 from email.MIMEImage import MIMEImage
+from django.core.mail import EmailMessage
 
 try:
     from django.contrib.auth import get_user_model
@@ -272,8 +273,9 @@ class RegistrationProfile(models.Model):
         
         message = render_to_string('registration/activation_email.html',
                                    ctx_dict)
-        message.content_subtype = "html"  # Main content is now text/html
-        message.attach(msgImage)
-        
-        self.user.email_user(subject, message, settings.DEFAULT_FROM_EMAIL)
+
+        mailSend = EmailMessage(subject, message, 'fsvaeg@gmail.com', self.user.email )
+        mailSend.content_subtype = "html"  # Main content is now text/html
+        mailSend.attach(msgImage)
+        mailSend.send()
     
