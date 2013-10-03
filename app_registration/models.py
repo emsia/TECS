@@ -258,7 +258,7 @@ class RegistrationProfile(models.Model):
 
         """
 
-        fp = open('../static/base/img/icons/Mail@2x.png', 'rb')
+        fp = open('./static/base/img/icons/Mail@2x.png', 'rb')
         msgImage = MIMEImage(fp.read())
         fp.close()
         msgImage.add_header('Content-ID', '<image1>')
