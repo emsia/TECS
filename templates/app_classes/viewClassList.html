@@ -125,8 +125,8 @@ TECS: Test Essay Checking Software | Home
 						<td><center>{{student.user.first_name}}</center></td>
 						<td><center>{{student.user.email}}</center></td>
 						<td>{% if student.user.is_active %}<center style="color:#1abc9c">Active</center>
-						{% else %}<center style="color:red">Inactive</center></td>{% endif %}
-						<td><center><a href="{% url 'classes:removeStudent' studentList.id student.id %}" onclick="return confirm('Are you sure you want to remove this student from this class?')" class="btn btn-danger"><span class=""><i class="fui-cross"></i></span></a></center></td>
+						{% else %}<center style="color:red">Inactive</center></td>{% endif %} 
+						<td><center><button type="button" class="delsys-button btn btn-danger" data-classid={{ studentList.id }} data-studentid={{ student.id }} data-toggle="modal" data-target="#confirm-delete"><i class="fui-cross"></i></span></button><</center></td>
 					</tr>	
 					{% endfor %}			
 				</tbody>
@@ -147,6 +147,34 @@ TECS: Test Essay Checking Software | Home
 		</div>
 	</div>
 </div>
+
+<div id="confirm-delete" class="modal hide fade" data-backdrop="static">
+	<div class="modal-header palette-alizarin">
+		<h3 class="text-white">Confirm Delete</h3>
+	</div>
+	<div class="modal-body">
+		<p>Are you sure you want to delete this Class?</p>
+		<p>Continuing with this action, will erase all the students who enroll in this class. </p>
+		<form action="{% url 'classes:removeStudent' %}" method="post">
+			{% csrf_token %}
+			<input type="hidden" id="class_id" name="class_id" value="">
+			<input type="hidden" id="student_id" name="student_id" value="">
+		<form>
+	</div>
+	<div class="modal-footer">
+		<button type="submit" name="gradesys-delete" class="btn btn-danger pull-left">Delete <span class="fui-cross"></span></button>
+		<button class="btn btn-inverse" data-dismiss="modal" aria-hidden="true">Close</button>
+	</div>
+</div>
+
+<script>
+	$(".delsys-button").on("click", function() {
+		var classid = $(this).data('classid')
+		var studid = $(this).data('studentid')
+		$("#class_id").val(classid)
+		$("#student_id").val(studid)
+	});
+</script>
 
 <script src="{% static 'base/js/jquery.min.js' %}"></script>
 

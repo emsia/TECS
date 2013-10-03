@@ -185,9 +185,9 @@ def enroll(request):
 	return render(request, 'app_classes/enrollClass.html', {'active_nav':'CLASSES','avatar':avatar, 'formEnroll':formEnroll, 'error':err})
 
 @login_required(redirect_field_name='', login_url='/')
-def removeStudent(request, class_id, student_id):
-	class_info = get_object_or_404(Class, pk=class_id)
-	student = get_object_or_404(Student, pk=student_id)
+def removeStudent(request):
+	class_info = get_object_or_404(Class, pk=request.POST['class_id'])
+	student = get_object_or_404(Student, pk=request.POST['student_id'])
 	class_info.student.remove(student)
 	return viewClassList(request, class_id, 'You successfully removed a student.')
 

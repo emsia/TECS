@@ -11,6 +11,6 @@ urlpatterns = patterns('',
 	url(r'^classes/(?P<class_id>\d+)/viewClass/$', views.viewClassList, name='viewClass'),
 	# ex: /polls/5/vote/
     url(r'^classes/delete/$', views.delete, name='delete'),
-    url(r'^classes/(?P<class_id>\d+)/(?P<student_id>\d+)/removeStudent/$', views.removeStudent, name='removeStudent'),
+    url(r'^classes/removeStudent/$', views.removeStudent, name='removeStudent'),
     url(r'^classes/(?P<class_id>\d+)/inviteStudent/$', views.inviteStudent, name='inviteStudent'),
 )
