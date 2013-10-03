@@ -164,7 +164,7 @@ def profile_edit(request, success=None):
 			schoolForm = schoolForTeacher(initial={'school':Teacher.objects.get(user=request.user).school.values_list('id',flat=True)})
 		
 		avatar = user_info.avatar
-		schoolForm = schoolForStudent(initial={'school':Student.objects.get(user=request.user).school})
+		schoolForm = schoolForStudent(initial={'school':Student.objects.get(user=request.user).school.values_list('id',flat=True)})
 		formProfile = ProfileForm(initial={
 			'last_name':request.user.last_name, 'first_name':request.user.first_name, 'email':request.user.email, 'avatar':user_info.avatar,
 			'username': request.user.username, 'street':user_info.street, 'municipality':user_info.municipality,
