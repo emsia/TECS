@@ -163,6 +163,7 @@ def profile_edit(request, success=None):
 			return redirect("auth:profile")
 
 	if user_info.exists():
+		schoolForm = schoolForStudent()
 		user_info = user_info.get(user_id=request.user.id)
 		role = UserProfile.objects.get(user_id = request.user.id).role
 
@@ -170,13 +171,19 @@ def profile_edit(request, success=None):
 			schoolForm = schoolForTeacher(initial={'school':Teacher.objects.get(user=request.user).school.values_list('id',flat=True)})
 		else:
 			schoolForm = schoolForStudent(initial={'school':Student.objects.get(user=request.user).school})
-
 		avatar = user_info.avatar
-		formProfile = ProfileForm(initial={
-			'last_name':request.user.last_name, 'first_name':request.user.first_name, 'email':request.user.email, 'avatar':user_info.avatar,
-			'username': request.user.username, 'street':user_info.street, 'municipality':user_info.municipality,
-			'province': user_info.province, 'phone_number': user_info.phone_number
-		})
+		if not power:
+			try:
+				schoolForm = schoolForStudent(initial={'school':Student.objects.get(user=request.user).school})
+			except:
+				pass
+			if request.user.is_staff:
+				schoolForm = schoolForTeacher(initial={'school':Teacher.objects.get(user=request.user).school.values_list('id',flat=True)})
+			formProfile = ProfileForm(initial={
+				'last_name':request.user.last_name, 'first_name':request.user.first_name, 'email':request.user.email, 'avatar':user_info.avatar,
+				'username': request.user.username, 'street':user_info.street, 'municipality':user_info.municipality,
+				'province': user_info.province, 'phone_number': user_info.phone_number
+			})
 	else:
 		role = None
 		schoolForm = schoolForStudent()
