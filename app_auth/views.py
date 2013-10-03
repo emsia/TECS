@@ -136,9 +136,9 @@ def profile_edit(request, success=None):
 				userProfile_info = user_info.get(user_id=request.user.id)
 				userProfile_info.avatar = userProfile_info.avatar
 
-				if not temp['avatar']:
+				if userProfile_info.avatar is None:
 					userProfile_info.avatar = 'images/avatars/user.png'
-				else:
+				elif temp['avatar']:
 					userProfile_info.avatar = temp['avatar']	
 				
 				userProfile_info.street = temp['street']
