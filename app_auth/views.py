@@ -186,7 +186,8 @@ def profile_edit(request, success=None):
 
 		formProfile = ProfileForm(initial={'last_name':request.user.last_name, 'role':role, 'first_name':request.user.first_name, 'email':request.user.email,
 			'username': request.user.username,})
-	return render(request, 'app_auth/profile_edit.html', {'avatar': avatar, 'active_nav':'PROFILE', 'success':success, 'formProfile':formProfile, 'schoolForm':schoolForm})
+		
+	return render(request, 'app_auth/profile_edit.html', {'avatar': avatar, 'role':role, 'role':role, 'active_nav':'PROFILE', 'success':success, 'formProfile':formProfile, 'schoolForm':schoolForm})
 
 @login_required(redirect_field_name='', login_url='/')
 def password_edit(request, success=None):
