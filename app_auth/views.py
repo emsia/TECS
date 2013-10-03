@@ -139,7 +139,7 @@ def profile_edit(request, success=None):
 				userProfile_info = user_info.get(user_id=request.user.id)
 				userProfile_info.avatar = userProfile_info.avatar
 
-				if userProfile_info.avatar is None:
+				if userProfile_info.avatar is None or not temp['avatar']:
 					userProfile_info.avatar = 'images/avatars/user.png'
 				elif temp['avatar']:
 					userProfile_info.avatar = temp['avatar']	
@@ -186,7 +186,7 @@ def profile_edit(request, success=None):
 
 		formProfile = ProfileForm(initial={'last_name':request.user.last_name, 'role':role, 'first_name':request.user.first_name, 'email':request.user.email,
 			'username': request.user.username,})
-		
+
 	return render(request, 'app_auth/profile_edit.html', {'avatar': avatar, 'role':role, 'role':role, 'active_nav':'PROFILE', 'success':success, 'formProfile':formProfile, 'schoolForm':schoolForm})
 
 @login_required(redirect_field_name='', login_url='/')
