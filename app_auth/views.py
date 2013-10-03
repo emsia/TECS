@@ -102,13 +102,14 @@ def profile_view(request):
 @login_required(redirect_field_name='', login_url='/')
 def profile_edit(request, success=None):
 	user_info = UserProfile.objects.filter(user_id = request.user.id)
-
+	power = False
 	if request.method == "POST":
 		formProfile = ProfileForm(request.POST, request.FILES)
 		schoolForm = schoolForStudent(request.POST)
 		if request.user.is_staff:
 			schoolForm = schoolForTeacher(request.POST)
-
+		power = True
+		
 		if schoolForm.is_valid():
 			if request.user.is_staff:
 				temp = schoolForm.cleaned_data['school']
