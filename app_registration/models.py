@@ -9,6 +9,7 @@ from django.db import models
 from django.db import transaction
 from django.template.loader import render_to_string
 from django.utils.translation import ugettext_lazy as _
+from email.MIMEImage import MIMEImage
 
 try:
     from django.contrib.auth import get_user_model
@@ -255,6 +256,12 @@ class RegistrationProfile(models.Model):
             framework for details regarding these objects' interfaces.
 
         """
+
+        fp = open('../static/base/img/icons/Mail@2x.png', 'rb')
+        msgImage = MIMEImage(fp.read())
+        fp.close()
+        msgImage.add_header('Content-ID', '<image1>')
+
         ctx_dict = {'activation_key': self.activation_key,
                     'expiration_days': settings.ACCOUNT_ACTIVATION_DAYS,
                     'site': site}
@@ -263,8 +270,10 @@ class RegistrationProfile(models.Model):
         # Email subject *must not* contain newlines
         subject = ''.join(subject.splitlines())
         
-        message = render_to_string('registration/activation_email.txt',
+        message = render_to_string('registration/activation_email.html',
                                    ctx_dict)
+        message.content_subtype = "html"  # Main content is now text/html
+        message.attach(msgImage)
         
         self.user.email_user(subject, message, settings.DEFAULT_FROM_EMAIL)
     
