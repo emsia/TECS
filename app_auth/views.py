@@ -109,27 +109,28 @@ def profile_edit(request, success=None):
 		if request.user.is_staff:
 			schoolForm = schoolForTeacher(request.POST)
 
-		if request.user.is_staff:
-			temp = schoolForm.cleaned_data['school']
-			teacher = Teacher.objects.filter(user=request.user)
-			if not teacher.exists():
-				teacher = Teacher.objects.create(user=request.user)
-				teacher.save()
+		if schoolForm.is_valid():
+			if request.user.is_staff:
+				temp = schoolForm.cleaned_data['school']
+				teacher = Teacher.objects.filter(user=request.user)
+				if not teacher.exists():
+					teacher = Teacher.objects.create(user=request.user)
+					teacher.save()
+				else:
+					teacher = teacher.get(user=request.user)
+					teacher.school.clear()
+				for school in temp:
+					print(school)
+					teacher.school.add(school)
 			else:
-				teacher = teacher.get(user=request.user)
-				teacher.school.clear()
-			for school in temp:
-				print(school)
-				teacher.school.add(school)
-		else:
-			student = Student.objects.filter(user=request.user)
-			school = School.objects.get(id=request.POST['school'])
-			if not student.exists():
-				student = Student.objects.create(user=request.user, school=school)
-			else:
-				student = Student.objects.get(user=request.user)
-				student.school = school
-				student.save()
+				student = Student.objects.filter(user=request.user)
+				school = School.objects.get(id=request.POST['school'])
+				if not student.exists():
+					student = Student.objects.create(user=request.user, school=school)
+				else:
+					student = Student.objects.get(user=request.user)
+					student.school = school
+					student.save()
 
 		if formProfile.is_valid():
 			temp = formProfile.cleaned_data
