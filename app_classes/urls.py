@@ -12,5 +12,5 @@ urlpatterns = patterns('',
 	# ex: /polls/5/vote/
     url(r'^classes/delete/$', views.delete, name='delete'),
     url(r'^classes/removeStudent/$', views.removeStudent, name='removeStudent'),
-    url(r'^classes/(?P<class_id>\d+)/inviteStudent/$', views.inviteStudent, name='inviteStudent'),
+    url(r'^classes/inviteStudent/$', views.inviteStudent, name='inviteStudent'),
 )
