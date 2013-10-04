@@ -62,7 +62,7 @@ TECS: Test Essay Checking Software | Home
 				<tbody>
 					{% for section in sections %}
 					<tr>
-						<td><center>{{section.id}}</center></td>
+						<td><center>{{forloop.counter}}</center></td>
 						<td><center>{{section.year_level}} - {{section.section}}</center></td>
 						<td><center>{{section.subject}}</center></td>
 						<td><center>{{section.teacher.user.last_name}}, {{section.teacher.user.first_name}}</center></td>
