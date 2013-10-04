@@ -28,7 +28,7 @@ def dashboard(request):
 	return render(request, 'app_classes/dashboard2.html', {'avatar':avatar, 'active_nav':'DASHBOARD'})
 		
 @login_required(redirect_field_name='', login_url='/')
-def class_teacher(request, err=None, success=None):
+def class_teacher(request, err=None, success=None, formStud=None):
 	User_Profile = UserProfile.objects.filter(user_id = request.user.id)
 	if not User_Profile.exists():
 		return redirect("/profile")
@@ -45,6 +45,7 @@ def class_teacher(request, err=None, success=None):
 		if student.exists():
 			link = 'app_classes/viewClasses.html'
 			sections = Class.objects.filter(student=student)
+			formEnroll = formStud or EnrollForm()
 		else:
 			sections = None
 			power = False
@@ -52,7 +53,7 @@ def class_teacher(request, err=None, success=None):
 	if power and (sections is None or not sections.exists()):
 		hasClasses = 'You don\'t have Classes yet'
 	avatar = User_Profile.avatar
-	return render(request, link, {'avatar':avatar, 'active_nav':'CLASSES', 'sections':sections, 'error': err, 'success':success, 'hasClasses':hasClasses, 'power':power})
+	return render(request, link, {'avatar':avatar, 'active_nav':'CLASSES', 'formEnroll':formEnroll, 'sections':sections, 'error': err, 'success':success, 'hasClasses':hasClasses, 'power':power})
 
 @login_required(redirect_field_name='', login_url='/')
 def teacher_addNewClass(request, add_form=None, email_form=None):
@@ -182,7 +183,7 @@ def enroll(request):
 			err = 'Invalid Key Combination.'
 	else:
 		formEnroll = EnrollForm()
-	return render(request, 'app_classes/enrollClass.html', {'active_nav':'CLASSES','avatar':avatar, 'formEnroll':formEnroll, 'error':err})
+	return class_teacher(request, err, 0, formEnroll)
 
 @login_required(redirect_field_name='', login_url='/')
 def removeStudent(request):
