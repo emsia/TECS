@@ -68,7 +68,7 @@ TECS: Test Essay Checking Software | Home
 					Number of people to Invite: <b>{{ count }}</b>
 				</div>
 
-				<form class="form form-horizontal" action="{% url 'classes:inviteStudent' studentList.id %}" method="POST"> {% csrf_token %}
+				<form class="form form-horizontal" action="{% url 'classes:inviteStudent' %}" method="POST"> {% csrf_token %}
 					<fieldset>
 						<div class="palette-turquoise">
 							<center>
@@ -90,7 +90,7 @@ TECS: Test Essay Checking Software | Home
 								{% endfor %}
 							</div>
 				          </div>
-
+				        <input type="hidden" id="cid" name="cid" value={{ studentList.id }} >
 				        <div class="form-actions">
 		    				<input type="hidden" value="sendNow" name="sendNow" />
 							<button type="submit" class="btn btn-primary"><b>Send Invitation</b><i class="fui-check"></i></button> 
