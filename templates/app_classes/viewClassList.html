@@ -20,11 +20,11 @@ TECS: Test Essay Checking Software | Home
 	
 </head>
 
-<div id="myModal" data-backdrop="static" data-keyboard="false" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+<div id="myModal" class="modal hide fade" data-backdrop="static">
   <div class="modal-header palette-emerald">
     <h3 class="text-white">Make Invitation</h3>
   </div>
-  <div class="modal-body">
+  	<div class="modal-body">
 		<form class="form-inline" action="{% url 'classes:inviteStudent' %}" method="post">{% csrf_token %}
     	{% for form in formMails %}
 		<div class="control-group">
@@ -45,10 +45,10 @@ TECS: Test Essay Checking Software | Home
   		<input type="hidden" id="class_id" name="class_id" value={{ studentList.id }}>
   		</form>
   	</div>
-  	<div class="modal-footer">
-	    <button type="submit" class="btn btn-primary pull-left" >Make Invitation <i class="fui-check"></i></button>
+	<div class="modal-footer">
+	    <button type="submit" name="gradesys-send"  class="btn btn-primary pull-left" >Make Invitation <span class="fui-check"></span></button>
 	    <button type="button" class="btn btn-warning" data-dismiss="modal" aria-hidden="true">Cancel <i class="fui-new"></i></button>
-  </div>
+  	</div>
 </div>	
 
 <div class="page-content">
