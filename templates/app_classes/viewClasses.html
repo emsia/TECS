@@ -19,30 +19,6 @@ TECS: Test Essay Checking Software | Home
 	</script>
 	
 </head>
-<div id="myModal" class="modal hide fade" data-backdrop="static">
-	<form action="{% url 'classes:enroll' %}" method="post">{% csrf_token %}
-	<div class="modal-header palette-emerald">
-		<h3 class="text-white">Enroll to Class</h3>
-	</div>
-	<div class="modal-body">
-		{% for form in formEnroll %}
-		<div class="control-group">
-			<label class="control-label" for="level">{{ form.label_tag }}</label>
-			<div class="controls">
-				{{ form }}
-				{% for error in form.errors %}
-				<p class="text-error">{{ error }}</p>
-				{% endfor %}
-			</div>	
-		</div> 
-		{% endfor %}
-	</div>
-	<div class="form-actions"> 
-		<button type="submit" name="gradesys-send"  class="btn btn-primary pull-left" >Enroll <span class="fui-check"></span></button>
-		<button type="button" class="btn btn-warning" data-dismiss="modal" aria-hidden="true">Cancel <i class="fui-new"></i></button>
-	</div>
-	</form>
-</div>
 
 <div class="page-content">
 	<div class="row-fluid">
@@ -91,6 +67,31 @@ TECS: Test Essay Checking Software | Home
 				</tbody>
 			</table>
 			{% endif %}
+	</div>
+</div>
+
+<div id="myModal" class="modal hide fade" data-backdrop="static">
+	<div class="modal-header palette-emerald">
+		<h3 class="text-white">Enroll to Class</h3>
+	</div>
+	<div class="modal-body">
+		<form action="{% url 'classes:enroll' %}" method="post">{% csrf_token %}
+		{% for form in formEnroll %}
+		<div class="control-group">
+			<label class="control-label" for="level">{{ form.label_tag }}</label>
+			<div class="controls">
+				{{ form }}
+				{% for error in form.errors %}
+				<p class="text-error">{{ error }}</p>
+				{% endfor %}
+			</div>	
+		</div> 
+		{% endfor %}
+		<form>
+	</div>
+	<div class="modal-footer"> 
+		<button type="submit" name="gradesys-send"  class="btn btn-primary pull-left" >Enroll <span class="fui-check"></span></button>
+		<button type="button" class="btn btn-warning" data-dismiss="modal" aria-hidden="true">Cancel <i class="fui-new"></i></button>
 	</div>
 </div>
 
