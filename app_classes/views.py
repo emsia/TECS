@@ -193,7 +193,8 @@ def removeStudent(request):
 
 @login_required(redirect_field_name='', login_url='/')
 def inviteStudent(request):
-	class_info = get_object_or_404(Class, pk=request.POST['cid'])
+	class_id = request.POST['cid']
+	class_info = get_object_or_404(Class, pk=class_id)
 	sender = request.user
 	avatar = UserProfile.objects.get(user_id = request.user.id).avatar
 	message = 'Invalid Email address(es)'
