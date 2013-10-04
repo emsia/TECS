@@ -8,6 +8,7 @@ TECS: Test Essay Checking Software | Home
 {% block content %}
 <head>
 	<script src="{% static 'base/js/jquery.min.js' %}"></script>
+
 	<script>
 	    $(function() {
 		    var tooltips = $( "[title]" ).tooltip();
@@ -16,6 +17,7 @@ TECS: Test Essay Checking Software | Home
 		    })
 	    });
 	</script>
+	
 </head>
 <div id="myModal" class="modal hide fade" data-backdrop="static">
 	<form action="{% url 'classes:enroll' %}" method="post">{% csrf_token %}
@@ -46,7 +48,7 @@ TECS: Test Essay Checking Software | Home
 	<div class="row-fluid">
 		<div class="content">
 			<p class="pull-right">
-				<a href="#myModal" data-toggle="tooltip" data-placement="left" title data-original-title="Enroll to a Class" class="btn btn-warning"><i class="fui-cmd"></i></a>
+				<a href="#myModal" role="button" data-toggle="modal" data-placement="left" title data-original-title="Enroll to a Class" class="btn btn-warning"><i class="fui-cmd"></i></a>
 			</p>
 			<img class="title-icons" src={% static 'base/img/icons/Clipboard@2x.png' %}>
 			<h3 class="title">My Classes</h3>
@@ -91,4 +93,6 @@ TECS: Test Essay Checking Software | Home
 			{% endif %}
 	</div>
 </div>
+
+<script src="{% static 'base/js/jquery.min.js' %}"></script>
 {% endblock %}
