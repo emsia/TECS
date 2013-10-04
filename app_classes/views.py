@@ -189,7 +189,7 @@ def removeStudent(request):
 	class_info = get_object_or_404(Class, pk=request.POST['class_id'])
 	student = get_object_or_404(Student, pk=request.POST['student_id'])
 	class_info.student.remove(student)
-	return viewClassList(request, class_id, 'You successfully removed a student.')
+	return viewClassList(request, request.POST['class_id'], 'You successfully removed a student.')
 
 @login_required(redirect_field_name='', login_url='/')
 def inviteStudent(request):
