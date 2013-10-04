@@ -84,14 +84,14 @@ TECS: Test Essay Checking Software | Home
 	<div class="modal-body">
 		<form class="form form-horizontal" action="{% url 'classes:enroll' %}" method="post">{% csrf_token %}
 		{% for form in formEnroll %}
-		<div class="control-group">
+		<div class="control-group"><center>
 			<label class="control-label" for="level">{{ form.label_tag }}</label>
 			<div class="controls">
 				{{ form }}
 				{% for error in form.errors %}
 				<p class="text-error">{{ error }}</p>
 				{% endfor %}
-			</div>	
+			</div></center>
 		</div> 
 		{% endfor %}
 	</div>
