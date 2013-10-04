@@ -28,6 +28,12 @@ TECS: Test Essay Checking Software | Home
 			</p>
 			<img class="title-icons" src={% static 'base/img/icons/Clipboard@2x.png' %}>
 			<h3 class="title">My Classes</h3>
+			{% if error %}
+				<div class="alert alert-block alert-error">
+		          <h4><strong>Oops!</strong></h4>
+		          {{ hasClasses }}
+		        </div>
+		    {% endif %}
 			{% if hasClasses %}
 				<div class="alert alert-block alert-error">
 		          <h4><strong>Oops!</strong></h4>
@@ -87,7 +93,6 @@ TECS: Test Essay Checking Software | Home
 			</div>	
 		</div> 
 		{% endfor %}
-		<form>
 	</div>
 	<div class="modal-footer"> 
 		<button type="submit" name="gradesys-send"  class="btn btn-primary pull-left" >Enroll <span class="fui-check"></span></button>
