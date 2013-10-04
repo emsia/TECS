@@ -181,6 +181,8 @@ def enroll(request):
 				class_info.student.add(student)
 				return class_teacher(request, 0, 'You are added to the class.')
 			err = 'Invalid Key Combination.'
+		else:
+			err = 'There is unfilled form field.'
 	else:
 		formEnroll = EnrollForm()
 	return class_teacher(request, err, 0, formEnroll)
