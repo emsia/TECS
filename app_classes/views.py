@@ -37,6 +37,7 @@ def class_teacher(request, err=None, success=None, formStud=None):
 	teacher = Teacher.objects.filter(user=request.user)
 	hasClasses = None
 	power = True
+	formEnroll = formStud or EnrollForm()
 	link = 'app_classes/class_teacher.html'
 	if teacher.exists():
 		sections = Class.objects.filter(teacher=teacher)
@@ -45,7 +46,6 @@ def class_teacher(request, err=None, success=None, formStud=None):
 		if student.exists():
 			link = 'app_classes/viewClasses.html'
 			sections = Class.objects.filter(student=student)
-			formEnroll = formStud or EnrollForm()
 		else:
 			sections = None
 			power = False
