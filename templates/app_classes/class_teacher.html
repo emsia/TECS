@@ -69,7 +69,7 @@ TECS: Test Essay Checking Software | Teacher Classes
 							<td><center>{{classes.year_level}} - {{classes.section}}</center></td>
 							<td><center>{{classes.subject}}</center></td>
 							<td><center>{{classes.student.all.count }}</center></td>
-							<td><center><a href="{% url 'classes:viewClass' classes.id %}" class="btn btn-primary"><span class=""><i class="fui-location"></i></span></a></center></td>
+							<td><center><a href="{% url 'classes:viewClass' classes.id %}" class="btn btn-primary"><span class=""><span class="fui-location"></span></span></a></center></td>
 							<td><center><button type="button" class="delsys-button btn btn-danger" data-id={{ classes.id }} data-toggle="modal" data-target="#confirm-delete"><i class="fui-cross"></i></span></button></center></td>
 						</tr>
 					{% endfor %}
