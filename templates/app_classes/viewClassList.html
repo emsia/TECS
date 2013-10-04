@@ -22,7 +22,7 @@ TECS: Test Essay Checking Software | Home
 
 <div id="myModal" data-backdrop="static" data-keyboard="false" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
   <div class="modal-header palette-emerald">
-    <h3 id="myModalLabel" style="color: white">Make Invitation</h3>
+    <h3 class="text-white">Make Invitation</h3>
   </div>
   <div class="modal-body">
 		<form class="form-inline" action="{% url 'classes:inviteStudent' %}" method="post">{% csrf_token %}
@@ -45,7 +45,7 @@ TECS: Test Essay Checking Software | Home
   		<input type="hidden" id="class_id" name="class_id" value={{ studentList.id }}>
   		</form>
   	</div>
-  	<div class="modal-footer palette-nephritis">
+  	<div class="modal-footer">
 	    <button type="submit" class="btn btn-primary pull-left" >Make Invitation <i class="fui-check"></i></button>
 	    <button type="button" class="btn btn-warning" data-dismiss="modal" aria-hidden="true">Cancel <i class="fui-new"></i></button>
   </div>
