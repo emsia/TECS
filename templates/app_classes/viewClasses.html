@@ -82,18 +82,19 @@ TECS: Test Essay Checking Software | Home
 		<h3 class="text-white">Enroll to Class</h3>
 	</div>
 	<div class="modal-body">
-		<form class="form form-horizontal" action="{% url 'classes:enroll' %}" method="post">{% csrf_token %}
+		<form class="form form-horizontal" action="{% url 'classes:enroll' %}" method="post">{% csrf_token %}<center>
 		{% for form in formEnroll %}
-		<div class="control-group"><center>
+		<div class="control-group">
 			<label class="control-label" for="level">{{ form.label_tag }}</label>
 			<div class="controls">
 				{{ form }}
 				{% for error in form.errors %}
 				<p class="text-error">{{ error }}</p>
 				{% endfor %}
-			</div></center>
+			</div>
 		</div> 
 		{% endfor %}
+		</center>
 	</div>
 	<div class="modal-footer"> 
 		<button type="submit" name="gradesys-send"  class="btn btn-primary pull-left" >Enroll <span class="fui-check"></span></button>
