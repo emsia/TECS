@@ -25,7 +25,7 @@ TECS: Test Essay Checking Software | Home
 		<h3 class="text-white">Make Invitation</h3>
 	</div>
 	<div class="modal-body">
-		<form action="." method="post">{% csrf_token %}
+		<form action="{% url 'classes:inviteStudent' %}" method="post">{% csrf_token %}
 		{% for form in formMails %}
 		<div class="control-group">
 			<div class="controls">
@@ -46,7 +46,7 @@ TECS: Test Essay Checking Software | Home
 		</form>
 	</div>
 	<div class="modal-footer"> 
-		<a href="{% url 'classes:inviteStudent' %}" name="gradesys-send"  class="btn btn-primary pull-left" >Make Invitation <span class="fui-check"></span></a>
+		<button type="submit" name="gradesys-send"  class="btn btn-primary pull-left" >Make Invitation <span class="fui-check"></span></button>
 		<button type="button" class="btn btn-warning" data-dismiss="modal" aria-hidden="true">Cancel <i class="fui-new"></i></button>
 	</div>
 </div>	
