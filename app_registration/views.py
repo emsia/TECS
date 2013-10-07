@@ -239,7 +239,7 @@ def password_reset_confirm(request, uidb36=None, token=None,
     UserModel = get_user_model()
     assert uidb36 is not None and token is not None  # checked by URLconf
     if post_reset_redirect is None:
-        post_reset_redirect = reverse('password_reset_complete')
+        post_reset_redirect = reverse('app_registration.views.password_reset_complete')
     try:
         uid_int = base36_to_int(uidb36)
         user = UserModel._default_manager.get(pk=uid_int)
