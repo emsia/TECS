@@ -6,7 +6,7 @@ PROJECT_DIR = os.path.dirname(__file__) # this is not Django setting.
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-DEBUG = True
+DEBUG = False
 
 TEMPLATE_DEBUG = DEBUG
 
