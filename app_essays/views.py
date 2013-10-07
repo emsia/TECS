@@ -45,7 +45,7 @@ def new_essay(request):
                 'title': cd['title'],
             }
 
-			fp = open('./static/base/img/icons/notes .png', 'rb')
+			fp = open('./static/base/img/icons/notes.png', 'rb')
 			msgImage = MIMEImage(fp.read())
 			fp.close()
 			msgImage.add_header('Content-ID', '<image1>')
