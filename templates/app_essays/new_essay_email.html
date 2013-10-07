@@ -10,6 +10,8 @@
      	</div>
 
       <div style="padding: 7px; border: 2px solid; font-family: 'Lato', sans-serif; line-height: 1.231; font-size: 14px; border-color: #1abc9c; padding-right: 20px;">
-        	{{ user.last_name }}, {{ user.first_name }} has sent an exam in class {{ class }}.	
+        	{{ user.last_name }}, {{ user.first_name }} has sent an exam in class {{ class }} entitled "{{ title }}".<br/><br/><br/>
+
+        	Please <a href="tecs.herokuapp.com" style="color: #1abc9c; text-decoration: none;">Log-in</a> or Register to <a href="http://tecs.herokuapp.com/accounts/register/" style="color: #1abc9c; text-decoration: none">tecs.herokuapp.com</a> to start the examination.
       </div>
 {% endblock %}

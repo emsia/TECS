@@ -42,6 +42,7 @@ def new_essay(request):
 			c = {
                 'user': request.user,
                 'class': Class.objects.get(pk=Essay.objects.get(pk=data.pk).class_name.pk),
+                'title': cd['title'],
             }
 
 			fp = open('./static/base/img/icons/pencil.png', 'rb')
