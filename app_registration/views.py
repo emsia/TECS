@@ -14,6 +14,7 @@ from django.contrib.auth import get_user_model
 from django.utils.http import base36_to_int, is_safe_url
 from app_registration import signals
 from django.shortcuts import resolve_url
+from django.http import HttpResponseRedirect
 from app_registration.forms import RegistrationForm, PasswordResetForm, SetPasswordForm
 from django.views.decorators.debug import sensitive_post_parameters
 from django.views.decorators.cache import never_cache
