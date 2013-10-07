@@ -17,6 +17,7 @@ from app_registration.forms import RegistrationForm, PasswordResetForm, SetPassw
 from django.views.decorators.debug import sensitive_post_parameters
 from django.views.decorators.cache import never_cache
 from django.views.decorators.csrf import csrf_protect
+from django.contrib.auth.tokens import default_token_generator
 
 class _RequestPassingFormView(FormView):
     """
