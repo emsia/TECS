@@ -1,1 +1,1 @@
-Activate your account - you have {{ expiration_days }} days!
+[TECS] Account Activation
