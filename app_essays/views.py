@@ -45,9 +45,9 @@ def new_essay(request):
             }
 
 			fp = open('./static/base/img/icons/pencil.png', 'rb')
-            msgImage = MIMEImage(fp.read())
-            fp.close()
-            msgImage.add_header('Content-ID', '<image1>')
+			msgImage = MIMEImage(fp.read())
+			fp.close()
+			msgImage.add_header('Content-ID', '<image1>')
 
             email = render_to_string('app_essays/new_essay_email.html', c)		
 
