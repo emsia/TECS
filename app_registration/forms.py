@@ -175,7 +175,7 @@ class PasswordResetForm(forms.Form):
 
             c = {
                 'email': user.email,
-                'domain': domain,
+                'domain': 'tecs.herokuapp.com',
                 'site_name': 'tecs.herokuapp.com',
                 'uid': int_to_base36(user.pk),
                 'user': user,
