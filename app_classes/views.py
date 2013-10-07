@@ -118,7 +118,7 @@ def submit(request):
 
 				msgImage.add_header('Content-ID', '<image1>')
 
-				mailSend = EmailMessage('Invitation to join Class', template, 'fsvaeg@gmail.com', mail )
+				mailSend = EmailMessage('[TECS] Invitation to join Class', template, 'fsvaeg@gmail.com', mail )
 				mailSend.content_subtype = "html"  # Main content is now text/html
 				mailSend.attach(msgImage)
 				mailSend.send()
@@ -229,7 +229,7 @@ def inviteStudent(request):
 
 				msgImage.add_header('Content-ID', '<image1>')
 
-				mailSend = EmailMessage('Invitation to join Class', template, 'fsvaeg@gmail.com', mail )
+				mailSend = EmailMessage('[TECS] Invitation to join Class', template, 'fsvaeg@gmail.com', mail )
 				mailSend.content_subtype = "html"  # Main content is now text/html
 				mailSend.attach(msgImage)
 				mailSend.send()
