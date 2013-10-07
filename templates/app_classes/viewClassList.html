@@ -21,11 +21,11 @@ TECS: Test Essay Checking Software | Home
 </head>
 
 <div id="myModal" class="modal hide fade" data-backdrop="static">
-	<form action="{% url 'classes:inviteStudent' %}" method="post">{% csrf_token %}
 	<div class="modal-header palette-emerald">
 		<h3 class="text-white">Make Invitation</h3>
 	</div>
 	<div class="modal-body">
+		<form action="." method="post">{% csrf_token %}
 		{% for form in formMails %}
 		<div class="control-group">
 			<div class="controls">
@@ -43,12 +43,12 @@ TECS: Test Essay Checking Software | Home
 		</div> 	
 		{% endfor %}
 		<input type="hidden" id="cid" name="cid" value={{ studentList.id }} >
+		</form>
 	</div>
 	<div class="modal-footer"> 
-		<button type="submit" name="gradesys-send"  class="btn btn-primary pull-left" >Make Invitation <span class="fui-check"></span></button>
+		<a href="{% url 'classes:inviteStudent' %}" name="gradesys-send"  class="btn btn-primary pull-left" >Make Invitation <span class="fui-check"></span></a>
 		<button type="button" class="btn btn-warning" data-dismiss="modal" aria-hidden="true">Cancel <i class="fui-new"></i></button>
 	</div>
-	</form>
 </div>	
 
 <div class="page-content">
