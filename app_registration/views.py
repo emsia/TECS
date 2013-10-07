@@ -8,6 +8,7 @@ from django.views.generic.base import TemplateView
 from django.views.generic.edit import FormView
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
+from django.template.response import TemplateResponse
 from app_auth.models import UserProfile, Teacher, Student
 from django.contrib.auth import get_user_model
 from django.utils.http import base36_to_int, is_safe_url
