@@ -3586,6 +3586,7 @@ body.vjs-full-window {
 .login-icon {
   position: relative;
   width: 96px;
+  vertical-align: middle;
 }
 .login-icon > img {
   display: block;
