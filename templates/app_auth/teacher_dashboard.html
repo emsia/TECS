@@ -26,7 +26,7 @@ TECS: Test Essay Checking Software | Home
 					</div>
 
 					<div class="span4">
-						<div class="tile"><a href="{% url 'essays:essays' %}">
+						<div class="tile"><a href="{% url 'essays:list' %}">
 							<img src="{% static 'base/img/icons/Pensils@2x.png' %}" class="tile-image big-illustration">
 							<h3 class="tile-title">Ongoing-Exams</h3>
 							<div class="palette palette-emerald"><h3>{{ exam_count }}</h3></div>
@@ -34,7 +34,7 @@ TECS: Test Essay Checking Software | Home
 					</div>
 
 					<div class="span4">
-					 	<div class="tile"><a href="{% url 'essays:essays' %}">
+					 	<div class="tile"><a href="{% url 'essays:list' %}">
 							<img src="{% static 'base/img/icons/Retina-Ready@2x.png' %}"  class="tile-image big-illustration">
 							<h3 class="tile-title">Needs Grading</h3>
 						 <div class="palette {% if needs_grading_count %}palette-alizarin{% else %}palette-emerald{% endif %}"><h3>{{ needs_grading_count }}</h3></div>
