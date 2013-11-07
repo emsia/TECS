@@ -17,28 +17,28 @@ TECS: Test Essay Checking Software | Home
 			
 			<div class="row-fluid demo-tiles login-screen">
 				<div class="row-fluid">				
-					<div class="span4">
+					<div class="span4"><a href="{{ url 'app_classes:classes' }}">
 						<div class="tile">
 							<img src="{% static 'base/img/icons/chalkboard-icon.png' %}"  class="tile-image big-illustration">
 							<h3 class="tile-title">My Classes</h3>
 							<div class="palette {% if not class_count %}palette-alizarin{% else %}palette-emerald{% endif %}"><h3>{{ class_count }}</h3></div>
-						</div>
+						</a></div>
 					</div>
 
 					<div class="span4">
-						<div class="tile">
+						<div class="tile"><a href="{{ url 'app_essays:essays' }}">
 							<img src="{% static 'base/img/icons/Pensils@2x.png' %}" class="tile-image big-illustration">
 							<h3 class="tile-title">Ongoing-Exams</h3>
 							<div class="palette palette-emerald"><h3>{{ exam_count }}</h3></div>
-						</div>
+						</a></div>
 					</div>
 
 					<div class="span4">
-					 	<div class="tile">
+					 	<div class="tile"><a href="{{ url 'app_essays:essays' }}">
 							<img src="{% static 'base/img/icons/Retina-Ready@2x.png' %}"  class="tile-image big-illustration">
 							<h3 class="tile-title">Needs Grading</h3>
 						 <div class="palette {% if needs_grading_count %}palette-alizarin{% else %}palette-emerald{% endif %}"><h3>{{ needs_grading_count }}</h3></div>
-						</div>
+						</a></div>
 					</div>
 				</div>
 			 </div>
