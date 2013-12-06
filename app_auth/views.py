@@ -345,3 +345,12 @@ def help(request):
 	elif len(Student.objects.filter(user_id = request.user.id)) > 0:
 		return render(request, 'app_auth/student_help.html', {'avatar':avatar, 'active_nav':'DASHBOARD'})
 
+def graderList(request):
+	User_Profile = UserProfile.objects.filter(user_id = request.user.id)
+	if not User_Profile.exists():
+		return redirect("/profile")
+	avatar = User_Profile.get(user_id=request.user.id).avatar
+	if len(Teacher.objects.filter(user_id = request.user.id)) > 0:
+		return render(request, 'app_auth/teacher_help.html', {'avatar':avatar, 'active_nav':'DASHBOARD'})
+	elif len(Student.objects.filter(user_id = request.user.id)) > 0:
+		return render(request, 'app_auth/graded.html', {'avatar':avatar, 'active_nav':'DASHBOARD'})

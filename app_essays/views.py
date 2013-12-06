@@ -285,4 +285,79 @@ def time_remaining_ajax(request, essay_response_id):
 	essay_response = get_object_or_404(EssayResponse, pk=essay_response_id, status=2,student=get_object_or_404(Student, user=request.user))
 	data = {'time_remaining':essay_response.time_remaining}
 	return HttpResponse(json.dumps(data), content_type="application/json")
+
+def graderList(request):
+
+	active_nav = "EXAMS"
+	avatar = UserProfile.objects.get(user_id = request.user.id).avatar
+	essay_response = get_object_or_404(EssayResponse, pk=3, status=2)
+	numbered_response = ''
+
+	if essay_response.response.isspace() or essay_response.response.strip() == '':
+		has_submission = 0
+
+	else:
+		has_submission = 1
+		tokenizer = nltk.data.load('nltk:tokenizers/punkt/english.pickle')
+
+		index = 1
+		for paragraph in re.split('[\n\r]+', essay_response.response):
+			sentences = tokenizer.tokenize(paragraph.strip())		
+			numbered_response = numbered_response +"<p>"
+			for i, sentence in enumerate(sentences):
+				sentences[i] = '<sup>'+ str(index) +'</sup> ' + sentence
+				index+=1
+			numbered_response = numbered_response+''.join(sentences)+"</p>"
+
+	#IF USER IS A TEACHER
+	if len(Teacher.objects.filter(user_id = request.user.id)) > 0:
+		if not essay_response.essay.instructor == get_object_or_404(Teacher, user=request.user):
+			raise Http404
+		else:	
+			if essay_response.grade == None:
+				#SPELLING AND GRAMMAR CHECKER
+				#c = pycurl.Curl()
+				#url_param = "http://localhost:8081/?language=en-US&text="+urllib.quote_plus(essay_response.response)
+				#c.setopt(c.URL, str(url_param))
+				#c.perform()
+
+				class EvaluateEssayFormSet(BaseFormSet):
+					def __init__(self, *args, **kwargs):
+						super(EvaluateEssayFormSet, self).__init__(*args, **kwargs)
+						for form in self.forms:
+							form.empty_permitted = True
+
+				EssayCommentFormSet = formset_factory(EssayCommentForm, formset=EvaluateEssayFormSet)
+				if request.method == 'POST': # If the form has been submitted...
+					er_form = EssayResponseGradeForm(request.POST) # A form bound to the POST data
+					er_form.fields['grade'].queryset = Grade.objects.filter(grading_system = essay_response.essay.grading_system).order_by('value')
+					c_formset = EssayCommentFormSet(request.POST, request.FILES)
+
+					if er_form.is_valid() and c_formset.is_valid():
+						cd = er_form.cleaned_data
+						essay_response.grade = cd['grade']
+						essay_response.general_feedback = cd['general_feedback']
+						essay_response.save()
+
+						#if c_formset.empty_permitted and not c_formset.has_changed():
+						for form in c_formset.forms:
+							if form.empty_permitted and form.has_changed():
+								c = form.save(commit=False)
+								c.essay = essay_response
+								c.save()
+						return redirect('essays:list')
+				else:
+					er_form = EssayResponseGradeForm()
+					er_form.fields['grade'].queryset = Grade.objects.filter(grading_system = essay_response.essay.grading_system).order_by('value')
+					c_formset = EssayCommentFormSet()
+
+				c = {'er_form': er_form,
+					 'c_formset': c_formset,
+					}
+				c.update(csrf(request))
+				return render(request, 'app_auth/graded.html', {'avatar':avatar, 'active_nav':'EXAMS', 'essay_response':essay_response, 'has_submission':has_submission, 'er_form':er_form, 'c_formset':c_formset, 'numbered_response':numbered_response})
+			
+			else:
+				comments = EssayComment.objects.filter(essay=essay_response)
+				return render(request, 'app_auth/graded.html', {'avatar':avatar, 'active_nav':'EXAMS', 'essay_response':essay_response, 'has_submission':has_submission, 'comments':comments, 'numbered_response':numbered_response})
 	

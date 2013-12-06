@@ -20,7 +20,7 @@ from django.template.loader import render_to_string
 from django.contrib.auth.tokens import default_token_generator
 from django.contrib.sites.models import get_current_site
 from django.contrib.auth.hashers import (
-    MAXIMUM_PASSWORD_LENGTH, UNUSABLE_PASSWORD, identify_hasher,
+    identify_hasher,
 )
 
 class RegistrationForm(forms.Form):
@@ -150,7 +150,7 @@ class PasswordResetForm(forms.Form):
         if not any(user.is_active for user in self.users_cache):
             # none of the filtered users are active
             raise forms.ValidationError(self.error_messages['unknown'])
-        if any((user.password == UNUSABLE_PASSWORD)
+        if any((user.password is Null)
                for user in self.users_cache):
             raise forms.ValidationError(self.error_messages['unusable'])
         return email
@@ -210,12 +210,12 @@ class SetPasswordForm(forms.Form):
     new_password1 = forms.CharField(
         label=_("New password"),
         widget=forms.PasswordInput,
-        max_length=MAXIMUM_PASSWORD_LENGTH,
+        max_length=25,
     )
     new_password2 = forms.CharField(
         label=_("New password confirmation"),
         widget=forms.PasswordInput,
-        max_length=MAXIMUM_PASSWORD_LENGTH,
+        max_length=25,
     )
 
     def __init__(self, user, *args, **kwargs):

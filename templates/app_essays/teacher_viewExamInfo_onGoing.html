@@ -43,8 +43,8 @@ TECS: Test Essay Checking Software | Essay
 					
 				</dl>
 			</div>
-			<div class="row-fluid">
-				<table class="table table-striped">
+			<div id="tbgraded" style="display:none" class="row-fluid">
+				<table  class="table table-striped">
 					<thead>
 						<tr>
 							<th width="20%">Student</th>
@@ -81,8 +81,44 @@ TECS: Test Essay Checking Software | Essay
 					</tbody>
 				</table>
 			</div>
+			<div id="tbnotgraded" class="row-fluid">
+
+				<table id="tbnotgraded" class="table table-striped">
+					<thead>
+						<tr>
+							<th width="20%">Student</th>
+							<th width="20%">Status</th>
+							<th width="15%">Submisson</th>
+						</tr>
+					</thead>
+					<tbody>
+						{% for essay_response in essay_responses %}
+						<tr>
+							<td>{{ essay_response.student }}</td>
+							<td>
+								{% if essay_response.status == 2 %} 
+									OK
+								{% else %}
+									No response yet
+								{% endif %}</td>
+							
+							<td>
+								{% if essay_response.status != 2 %}	
+									<a href="" class="btn btn-small disabled">View</a>
+								{% else %}
+									<a href="{% url 'essays:submission' essay_response.id %}" class="btn btn-info">View</a>
+								{% endif %}
+							</td>
+						</tr>
+						{% endfor %}
+					</tbody>
+				</table>
+			</div>
 			<p class="pull-left">
 				<a href="{% url 'essays:list' %}" class="btn btn-inverse"><span class="fui-arrow-left"></span> Back</a>
+			</p>
+			<p class="pull-right">
+				<a href="{% url 'essays:graderList' %}" id="autogradebutton" class="btn btn-primary"><span class="fui-check"></span> Start Automated Scoring</a>
 			</p>
 		</div>
 	</div>
@@ -115,4 +151,17 @@ TECS: Test Essay Checking Software | Essay
 	</div>
 </form>
 
+
+
 {% endblock %}
+
+<script>
+
+		$('#autogradebutton').click( function() {
+			alert(1);
+        		$("#tbnotgraded").hide();
+        		$("#tbgraded").show();
+		});
+
+
+</script>

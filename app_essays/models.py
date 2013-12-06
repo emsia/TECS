@@ -23,7 +23,7 @@ class Grade(models.Model):
 	value = models.IntegerField()	
 	
 	def __str__(self):
-		return u'%s = %s' % (self.name, self.value)
+		return u'%s' % (self.name)
 
 class Essay(models.Model):
 	title = models.CharField(max_length=100)
