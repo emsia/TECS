@@ -9,10 +9,10 @@ urlpatterns = patterns('',
 	url(r'^profile/$', views.profile_view, name='profile'),
 	url(r'^help/$', views.help,  name='help'),
 	url(r'^settings/profile/$', views.profile_edit, name='edit_profile'),
+	url(r'^settings/profiler/$', views.edit_SU_Admin, name='edit_SU_Admin'),
 	url(r'^settings/account/$', views.password_edit, name='edit_password'),
 	url(r'^settings/grading-system/$', views.grading_system, name='gradesys'),
 	url(r'^settings/grading-system/new$', views.grading_system_new, name='gradesys_new'),
 	url(r'^settings/grading-system/(?P<gradeSys_id>\d+)/$', views.grading_system_view, name='grades'),
 	url(r'^settings/grading-system/delete/$', views.grading_system_delete, name='gradesys_delete'),
-
 )

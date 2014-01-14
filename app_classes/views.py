@@ -242,7 +242,7 @@ def inviteTeachers(request):
 
 				msgImage.add_header('Content-ID', '<image1>')
 
-				mailSend = EmailMessage('[TECS] Invitation to Join '+school, template, 'fsvaeg@gmail.com', mail )
+				mailSend = EmailMessage('[TECS] Invitation to Join '+school.name, template, 'fsvaeg@gmail.com', mail )
 				mailSend.content_subtype = "html"  # Main content is now text/html
 				mailSend.attach(msgImage)
 				mailSend.send()

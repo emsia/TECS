@@ -90,6 +90,13 @@ def user_logout(request):
 
 @login_required(redirect_field_name='', login_url='/')
 def profile_view(request):
+	User_Profile = UserProfile.objects.filter(user_id = request.user.id)
+
+	if not User_Profile.exists():
+		if len(Admin.objects.filter(user_id = request.user.id)) > 0 or len(SUadmin.objects.filter(user_id = request.user.id)):
+			return redirect('auth:edit_SU_Admin')
+		return redirect('auth:edit_profile')
+	
 	avatar = UserProfile.objects.get(user_id=request.user.id).avatar
 	role = UserProfile.objects.get(user_id = request.user.id).role
 	profile = UserProfile.objects.get(user=request.user)
@@ -101,8 +108,68 @@ def profile_view(request):
 
 
 @login_required(redirect_field_name='', login_url='/')
+def edit_SU_Admin(request, success=None):
+	user_info = UserProfile.objects.filter(user_id = request.user.id)
+	power = False
+	if request.method == "POST":
+		formProfile = ProfileForm(request.POST, request.FILES)
+		power = True
+
+		if formProfile.is_valid():
+			temp = formProfile.cleaned_data
+			if user_info.exists():
+				#userProfile update
+				userProfile_info = user_info.get(user_id=request.user.id)
+				userProfile_info.avatar = userProfile_info.avatar
+
+				if userProfile_info.avatar is None or not temp['avatar']:
+					userProfile_info.avatar = 'images/avatars/user.png'
+				elif temp['avatar']:
+					userProfile_info.avatar = temp['avatar']	
+				
+				userProfile_info.street = temp['street']
+				userProfile_info.municipality = temp['municipality']
+				userProfile_info.province = temp['province']
+				userProfile_info.phone_number = temp['phone_number']
+				userProfile_info.save()
+
+			else:	
+				UserProfile.objects.create(avatar=temp['avatar'], user_id=request.user.id, street=temp['street'], municipality=temp['municipality'], province=temp['province'], phone_number=temp['phone_number'])
+			
+			#user update
+			USER_info = User.objects.get(id=request.user.id)
+			USER_info.last_name = temp['last_name']
+			USER_info.first_name = temp['first_name']
+			USER_info.email = temp['email']
+			USER_info.username = temp['username']
+			USER_info.save()
+			return redirect("auth:profile")
+
+	if user_info.exists():
+		user_info = user_info.get(user_id=request.user.id)
+		role = UserProfile.objects.get(user_id = request.user.id).role
+		avatar = user_info.avatar
+		if not power:
+			formProfile = ProfileForm(initial={
+				'last_name':request.user.last_name, 'first_name':request.user.first_name, 'email':request.user.email, 'avatar':user_info.avatar,
+				'username': request.user.username, 'street':user_info.street, 'municipality':user_info.municipality,
+				'province': user_info.province, 'phone_number': user_info.phone_number
+			})
+	else:
+		role = None
+		avatar = 'images/avatars/user.png'
+
+		formProfile = ProfileForm(initial={'last_name':request.user.last_name, 'role':role, 'first_name':request.user.first_name, 'email':request.user.email,
+			'username': request.user.username,})
+
+	return render(request, 'app_auth/adminSUA_edit.html', {'avatar': avatar, 'role':role, 'active_nav':'PROFILE', 'success':success, 'formProfile':formProfile})
+
+
+@login_required(redirect_field_name='', login_url='/')
 def profile_edit(request, success=None):
 	user_info = UserProfile.objects.filter(user_id = request.user.id)
+	if len(Admin.objects.filter(user_id = request.user.id)) > 0 or len(SUadmin.objects.filter(user_id = request.user.id)):
+		return redirect('auth:edit_SU_Admin')
 	power = False
 	if request.method == "POST":
 		formProfile = ProfileForm(request.POST, request.FILES)
@@ -201,10 +268,11 @@ def profile_edit(request, success=None):
 @login_required(redirect_field_name='', login_url='/')
 def password_edit(request, success=None):
 	user_info = UserProfile.objects.filter(user_id = request.user.id)
-	role = UserProfile.objects.get(user_id = request.user.id).role
 
 	if not user_info.exists():
 		return redirect("/profile")
+
+	role = UserProfile.objects.get(user_id = request.user.id).role
 	user_info = user_info.get(user_id = request.user.id)
 	avatar = user_info.avatar
 	err = None
@@ -318,6 +386,8 @@ def dashboard(request, email_form=None):
 	User_Profile = UserProfile.objects.filter(user_id = request.user.id)
 
 	if not User_Profile.exists():
+		if len(Admin.objects.filter(user_id = request.user.id)) > 0 or len(SUadmin.objects.filter(user_id = request.user.id)):
+			return redirect('auth:edit_SU_Admin')
 		return redirect('auth:edit_profile')
 	else:
 		role = User_Profile.get(user_id=request.user.id).role

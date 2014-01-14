@@ -19,7 +19,7 @@ class UserProfile(models.Model):
 			return 'TEACHER'
 		elif len(Student.objects.filter(user_id = self.user.id)) > 0:
 			return 'STUDENT'
-		elif len(Admin.objects.filter(user_id = self.user.id)) > 0:
+		elif len(Admin.objects.filter(user_id = self.user.id)) > 0 or len(SUadmin.objects.filter(user_id = self.user.id)) > 0:
 			return 'ADMIN'
 
 class School(models.Model):

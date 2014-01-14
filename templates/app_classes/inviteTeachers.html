@@ -34,7 +34,7 @@ TECS: Test Essay Checking Software | Home
 					Number of people to Invite: <b>{{ count }}</b>
 				</div>
 
-				<form class="form form-horizontal" action="{% url 'classes:inviteStudent' %}" method="POST"> {% csrf_token %}
+				<form class="form form-horizontal" action="{% url 'classes:inviteTeachers' %}" method="POST"> {% csrf_token %}
 					<fieldset>
 						<div class="palette-turquoise">
 							<center>
