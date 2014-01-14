@@ -33,30 +33,40 @@ TECS: Test Essay Checking Software | Home
 			<img class="title-icons" src={% static 'base/img/icons/Pocket@2x.png' %}>
 			<h3 class="title">Add New Teachers</h3>
 			<hr>
-			<table class="table table-striped" id="teacher">
-					{% if success %}
-						<div {% if succ %} class="alert alert-block alert-success" {% else %} class="alert alert-block alert-error" {% endif %}>
-						<button type="button" class="close" data-dismiss="alert">&times;</button>
-				          <h4><strong>{% if succ %}Success!{% else %}Error!{% endif %}</strong></h4> {{ success }}
-				        </div>
-				    {% endif %}
-				<thead>
-					<tr>
-						<th><center>Last Name</center></th>
-						<th><center>First name</center></th>
-						<th><center>Email</center></th>
-						<th><center>Remove</center></th>
-					</tr>
-				</thead>
-				<tbody>
-					<tr>
-						<td><input class="span7 cap" name="last[]" type="text"></td>
-						<td><input class="span7 cap" name="first[]" type="text"></td>
-						<td><input class="span7" name="email[]" type="text"></td>
-						<td style="text-align: center"><button type="button" class="delsys-button btn btn-danger fui-cross" onclick="deleteRow(this)"></button></td>
-					</tr>			
-				</tbody>
-			</table>
+			<form class="form-horizontal" action="{% url 'classes:submitTeachers' %}" method="post">{% csrf_token %}
+				<table class="table table-striped" id="teacher">
+						{% if success %}
+							<div {% if succ %} class="alert alert-block alert-success" {% else %} class="alert alert-block alert-error" {% endif %}>
+							<button type="button" class="close" data-dismiss="alert">&times;</button>
+					          <h4><strong>{% if succ %}Success!{% else %}Error!{% endif %}</strong></h4> {{ success }}
+					        </div>
+					    {% endif %}
+					<thead>
+						<tr>
+							<th><center>Last Name</center></th>
+							<th><center>First name</center></th>
+							<th><center>Username</center></th>
+							<th><center>Email</center></th>
+							<th><center>Remove</center></th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							{% for emailForm in teacherAdd_form %}
+							<td>{{ emailForm }}</td>
+							{% endfor %}
+							<td style="text-align: center"><button type="button" class="delsys-button btn btn-danger fui-cross" onclick="deleteRow(this)"></button></td>
+						</tr>			
+					</tbody>
+				</table>
+
+				<hr>
+				<div style="text-align: center">
+					<input type="hidden" value="{{ next_url }}" name="next_url" />
+					<button type="submit" class="btn btn-success"><b>Save</b><i class="fui-check"></i></button> 
+					<a href="{% url 'auth:dashboard' %}" type="button" class="btn btn-warning"><b>Cancel</b><i class="fui-cross"></i></a>
+				</div>
+			</form>
 		</div>
 	</div>
 </div>

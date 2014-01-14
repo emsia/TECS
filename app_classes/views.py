@@ -9,6 +9,8 @@ from app_auth.models import Admin
 from django.shortcuts import render, get_object_or_404
 from app_auth.models import UserProfile, Teacher, School, Student
 from django.db.models import Count
+from django.core.validators import validate_email
+from django.core.exceptions import ValidationError
 from django import forms
 from django.forms.widgets import Textarea
 from django.utils import timezone
@@ -16,7 +18,7 @@ from django.contrib.auth.decorators import login_required
 from django.core.mail import EmailMessage
 from django.template.loader import render_to_string, get_template
 from django.template import Context
-from .forms import MailForm, MailForm2
+from .forms import MailForm, MailForm2, teacherAdd
 from email.MIMEImage import MIMEImage
 
 @login_required(redirect_field_name='', login_url='/')
@@ -70,11 +72,85 @@ def teacher_addNewClass(request, add_form=None, email_form=None):
 def add_teacher(request, add_form=None, email_form=None):
 	avatar = UserProfile.objects.get(user_id = request.user.id).avatar
 	addClass_form = add_form or ClassForm()
+	teacherAdd_form = teacherAdd()
 	teacher = Teacher.objects.filter(user=request.user)
 	name = Class.objects.filter(teacher=teacher)
 	formMails = email_form or MailForm()
 	return render(request, 'app_classes/add_teacher.html', 
-			{'addClassForm' : addClass_form, 'formMails':formMails,'next_url': '/classes', 'avatar':avatar, 'active_nav':'ADD_TEACHER', 'name':name})
+			{'addClassForm' : addClass_form, 'teacherAdd_form':teacherAdd_form, 'formMails':formMails,'next_url': '/classes', 'avatar':avatar, 'active_nav':'ADD_TEACHER', 'name':name})
+
+@login_required(redirect_field_name='', login_url='/')
+def submitTeachers(request):
+	if request.method == "POST":
+		form_class = teacherAdd(data=request.POST)
+		print form_class
+		mails = request.POST.getlist('email')
+		message = ''
+		for email in mails:
+			try:
+				validate_email(email)
+				pass
+			except ValidationError:
+				message = 'Please input correct'
+		form_class = ClassForm(data=request.POST)
+		formMails = MailForm(data=request.POST)
+		success_url = request.POST.get("next_url", "/")
+
+		if form_class.is_valid() and formMails.is_valid():
+			forms = form_class.cleaned_data
+			school_info = forms['school']
+			subject_info = forms['subject']
+			yearType_info = forms['year_level']
+			section_info = forms['section']
+			academicYear_info = forms['academic_year']
+
+			emails = formMails.cleaned_data
+			mail = []
+			for email in emails.values():
+				mail = email
+
+			#rendered = render_to_string("users/emails/data.txt", {'data': data})
+			try:
+				teacher = Teacher.objects.get(user=request.user)
+			except Teacher.DoesNotExist:
+				return class_teacher(request, 'You don\'t have permission to add Classes.')
+
+			class_info = Class.objects.filter(school=school_info).filter(section=section_info).filter(subject=subject_info).filter(teacher=teacher).filter(year_level=yearType_info).filter(academic_year=academicYear_info)
+			if class_info.exists():
+				return class_teacher(request, 'That Class already exists.')
+
+			form = form_class.save(commit=False)
+			form.teacher = teacher
+			form.date_created = timezone.now()
+			form.is_active = True
+
+			random_data = os.urandom(128)
+			random_data = hashlib.md5(random_data).hexdigest()[:16]
+			form.key = random_data
+			form.save()
+
+			template = get_template('app_classes/perl.html').render(
+				Context({
+					'sender': request.user,
+					'studentList': form,
+				})
+			)
+			if mail:
+				fp = open('./static/base/img/icons/Mail@2x.png', 'rb')
+				msgImage = MIMEImage(fp.read())
+				fp.close()
+
+				msgImage.add_header('Content-ID', '<image1>')
+
+				mailSend = EmailMessage('[TECS] Invitation to join Class', template, 'fsvaeg@gmail.com', mail )
+				mailSend.content_subtype = "html"  # Main content is now text/html
+				mailSend.attach(msgImage)
+				mailSend.send()
+			#send_mail('Subject', 'You are invited to class '+ yearType_info + '-' + section_info + ' ' + subject_info + '. The key class is: ' + random_data, 'fsvaeg@gmail.com', mail)
+			
+			return redirect(success_url)
+		else:
+			return teacher_addNewClass(request, form_class, formMails)
 
 @login_required(redirect_field_name='', login_url='/')
 def submit(request):

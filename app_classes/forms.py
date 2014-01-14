@@ -33,3 +33,9 @@ class MailForm2(forms.Form):
     def cleaned_emails(self):
         data = self.cleaned_data.get('emails', [])
         return data.split(',')
+
+class teacherAdd(forms.Form):
+    last_name = forms.CharField( label='Last Name', widget=forms.TextInput(attrs={'type':'text', 'class': 'span6 cap', 'placeholder': 'Required'}))
+    first_name = forms.CharField( label='First Name', widget=forms.TextInput(attrs={'type':'text', 'class': 'span6 cap', 'placeholder': 'Required'}))
+    username = forms.CharField( label='Username', widget=forms.TextInput(attrs={'type':'text', 'class': 'span6', 'placeholder': 'Required'}))
+    email = forms.CharField( label='Email', widget=forms.TextInput(attrs={'type':'text', 'class': 'span6', 'placeholder': 'Required'}))
