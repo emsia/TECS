@@ -206,58 +206,6 @@ def removeStudent(request):
 	return viewClassList(request, request.POST['class_id'], 'You successfully removed a student.')
 
 @login_required(redirect_field_name='', login_url='/')
-def inviteTeachers(request):
-	sender = request.user
-	avatar = UserProfile.objects.get(user_id = request.user.id).avatar
-	admin = Admin.objects.get(user_id = request.user.id)
-	school = admin.school
-	key = admin.school.key
-	message = 'Invalid Email address(es)'
-	success = False
-	mail = None
-	count = 0
-
-	if request.method == "POST":
-		formMails = MailForm2(data=request.POST)
-		sendNow = request.POST.get('sendNow')
-
-		template = get_template('app_classes/teacherSend.html').render(
-			Context({
-				'sender': sender,
-				'school': school,
-				'key' : key
-			})
-		)
-		if formMails.is_valid():
-			emails = formMails.cleaned_data
-			mail = []
-			for email in emails.values():
-				mail = email
-			
-			count = len(mail)
-			if sendNow == 'sendNow':
-				fp = open('./static/base/img/icons/Mail@2x.png', 'rb')
-				msgImage = MIMEImage(fp.read())
-				fp.close()
-
-				msgImage.add_header('Content-ID', '<image1>')
-
-				mailSend = EmailMessage('[TECS] Invitation to Join '+school.name, template, 'fsvaeg@gmail.com', mail )
-				mailSend.content_subtype = "html"  # Main content is now text/html
-				mailSend.attach(msgImage)
-				mailSend.send()
-				success = True
-				message = 'Invitations were sent successfully.'
-				return viewClassList(request, class_id, message, success)
-		else:
-			return viewClassList(request, class_id, message, success)
-	else:
-		formMails = MailForm2()
-
-	#return viewClassList(request, class_id, message, success)
-	return render(request, 'app_classes/inviteTeachers.html', {'mails':mail, 'active_nav':'DASHBOARD', 'count':count, 'key':key, 'formMails':formMails,'sender':sender,'avatar':avatar, 'school':school, 'mailSend':True})
-
-@login_required(redirect_field_name='', login_url='/')
 def inviteStudent(request):
 	class_id = request.POST['cid']
 	class_info = get_object_or_404(Class, pk=class_id)

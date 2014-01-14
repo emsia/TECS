@@ -117,7 +117,6 @@ def edit_SU_Admin(request, success=None):
 	power = False
 	if request.method == "POST":
 		formProfile = ProfileForm(request.POST, request.FILES)
-		power = True
 
 		if formProfile.is_valid():
 			temp = formProfile.cleaned_data
@@ -128,7 +127,7 @@ def edit_SU_Admin(request, success=None):
 
 				if userProfile_info.avatar is None or not temp['avatar']:
 					userProfile_info.avatar = 'images/avatars/user.png'
-				elif temp['avatar']:
+				elif temp['avatar'] is not None:
 					userProfile_info.avatar = temp['avatar']	
 				
 				userProfile_info.street = temp['street']
@@ -137,7 +136,9 @@ def edit_SU_Admin(request, success=None):
 				userProfile_info.phone_number = temp['phone_number']
 				userProfile_info.save()
 
-			else:	
+			else:
+				if temp['avatar'] is None:
+					temp['avatar'] = 'images/avatars/user.png'
 				UserProfile.objects.create(avatar=temp['avatar'], user_id=request.user.id, street=temp['street'], municipality=temp['municipality'], province=temp['province'], phone_number=temp['phone_number'])
 			
 			#user update
@@ -178,7 +179,7 @@ def profile_edit(request, success=None):
 	if request.method == "POST":
 		formProfile = ProfileForm(request.POST, request.FILES)
 		schoolForm = schoolForStudent(request.POST)
-		if request.user.is_staff:
+		if len(Teacher.objects.filter(user_id = request.user.id)) > 0:
 			schoolForm = schoolForTeacher(request.POST)
 		power = True
 		
@@ -214,7 +215,7 @@ def profile_edit(request, success=None):
 
 				if userProfile_info.avatar is None or not temp['avatar']:
 					userProfile_info.avatar = 'images/avatars/user.png'
-				elif temp['avatar']:
+				elif temp['avatar'] is not None:
 					userProfile_info.avatar = temp['avatar']	
 				
 				userProfile_info.street = temp['street']
@@ -223,7 +224,9 @@ def profile_edit(request, success=None):
 				userProfile_info.phone_number = temp['phone_number']
 				userProfile_info.save()
 
-			else:	
+			else:
+				if temp['avatar'] is None:
+					temp['avatar'] = 'images/avatars/user.png'
 				UserProfile.objects.create(avatar=temp['avatar'], user_id=request.user.id, street=temp['street'], municipality=temp['municipality'], province=temp['province'], phone_number=temp['phone_number'])
 			
 			#user update
@@ -260,7 +263,7 @@ def profile_edit(request, success=None):
 	else:
 		role = None
 		schoolForm = schoolForStudent()
-		if request.user.is_staff:
+		if len(Teacher.objects.filter(user_id = request.user.id)) > 0:
 			schoolForm = schoolForTeacher()
 		avatar = 'images/avatars/user.png'
 
@@ -412,8 +415,7 @@ def dashboard(request, email_form=None):
 	elif len(Admin.objects.filter(user_id = request.user.id)) > 0:
 		teacher_list = Teacher.objects.filter(school=Admin.objects.get(user=request.user).school)
 		classList = Class.objects.filter(teacher=teacher_list)
-		formMails = email_form or MailForm()
-		return render(request, 'app_auth/admin_dashboard.html', {'avatar': avatar, 'role':role, 'formMails':formMails, 'teacher_list':teacher_list, 'classList':classList})
+		return render(request, 'app_auth/admin_dashboard.html', {'avatar': avatar, 'role':role, 'teacher_list':teacher_list, 'classList':classList})
 
 	elif len(SUadmin.objects.filter(user_id = request.user.id)) > 0:
 		school_list = School.objects.filter().count()

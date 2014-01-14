@@ -19,35 +19,6 @@ TECS: Test Essay Checking Software | Home
 	</script>
 	
 </head>
-<div id="myModal" class="modal hide fade" data-backdrop="static">
-	<div class="modal-header palette-orange">
-		<h3 class="text-white">Make Invitation</h3>
-	</div>
-	<div class="modal-body">
-		<form action="{% url 'classes:inviteTeachers' %}" method="post">{% csrf_token %}
-		{% for form in formMails %}
-		<div class="control-group">
-			<div class="controls">
-				<div>
-					<p>Please seperate each person by comma. For example:</p>
-					<div style="padding-left: 100px">
-					<i>cheryleighverano@gmail.com, master@yahoo.com</i>
-					</div>
-				</div><br/>
-				{{ form }}
-				{% for error in form.errors %}
-				<p class="text-error">{{ error }}</p>
-				{% endfor %}
-			</div>		
-		</div> 	
-		{% endfor %}
-	</div>
-	<div class="modal-footer"> 
-		<button type="submit" name="gradesys-send"  class="btn btn-warning pull-left" >Make Invitation <span class="fui-check"></span></button>
-		<button type="button" class="btn btn-warning" data-dismiss="modal" aria-hidden="true">Cancel <i class="fui-new"></i></button>
-	</div>
-	</form>
-</div>	
 
 <div class="page-content">
 	<div class="content">

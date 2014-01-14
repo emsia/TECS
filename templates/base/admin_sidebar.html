@@ -6,5 +6,12 @@
 				<div class="sidebar-content">TEACHERS</div>
 			</a>
 		</li>
+
+		<li {% if active_nav == 'ADD_TEACHER' %} class="active" {% endif %} >
+			<a href="{% url 'classes:add_teacher' %}">
+				<div class="sidebar-icon fui-gear"></div>
+				<div class="sidebar-content">ADD TEACHERS</div>
+			</a>
+		</li>
 	</ul>
 </div>
