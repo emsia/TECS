@@ -1,0 +1,106 @@
+{% extends "base/base.html" %}
+{% load staticfiles %}
+
+{% block title %}
+TECS: Test Essay Checking Software | SUadmin Add Schools
+{% endblock %}
+
+
+{% block content %}
+<head>
+    <style>
+		#myModal {    
+		    width: 70%;
+		    margin-left: -30%;
+		    left: 45%;
+		}
+	</style>
+</head>	
+<div class="page-content">
+	<div class="row-fluid">
+	<div id="myModal" data-backdrop="static" data-keyboard="false" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+	  <div class="modal-header">
+	    <h3 id="myModalLabel">Send Invitation</h3>
+	  </div>
+	  <div class="modal-body">
+	  		<section>
+	  			Number of people to invite: <b>1</b>
+	  		</section><br/>
+	    	<div style="margin-top: 10px; padding: 8px 35px 8px 14px; margin-bottom: 10px; text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5); background-color: #f2dede;  -webkit-border-radius: 4px; -moz-border-radius: 4px; border-radius: 4px;">		
+				
+				<th style="width: 800px">
+					<center>
+					<div style=" font-size: 25px; color: #b94a48; font-weight: bold;" >You have been assigned to administer this school.</div>
+					</center>
+				</th>
+			</div>
+			<div class="alert alert-success">
+		  			<b>From:</b> &nbsp; &nbsp; {{ name.suadmin.user.email }}<br/>
+		  			<b>Subject:</b> Invitation to join the class <b>{{name.year_level}} - {{name.section}}</b><br/><br/>
+			  		This invitation expires in 30 days.<br/><br/>
+					<button style="margin-left: 89%" class="btn btn-success" >Join this School</button>
+	  		</div>
+	  </div>
+	  <div class="modal-footer">
+	    <button type="button" class="btn btn-warning" data-dismiss="modal" aria-hidden="true">Back <i class="fui-new"></i></button>
+	    <input type="text" name="course_id" id="course_id" value="" />
+	  </div>
+	</div>
+
+	<div class="content">
+		<img class="title-icons" src="{% static 'base/img/icons/plus.png' %}">
+		<h3 class="title">Add New School</h3>
+		<form class="form-horizontal span11" action="{% url 'schools:submitSchool' %}" method="post">{% csrf_token %}
+			{% for form in addSchoolForm %}
+				<div class="control-group">
+					<label class="control-label" for="level">{{ form.label_tag }}</label>
+					<div class="controls">
+						{{ form }}
+						{% for error in form.errors %}
+						<p class="text-error">{{ error }}</p>
+						{% endfor %}
+						
+					</div>		
+				</div> 
+			{% endfor %}
+
+			{% for emailForm in formMails %}
+				<div class="control-group">
+					<label class="control-label" for="level">{{ emailForm.label_tag }}</label>
+					<div class="controls">
+						<div><br/>
+							<p>Please seperate each person by comma. For example:</p>
+							<div style="padding-left: 25px">
+								<i>cheryleighverano@gmail.com, master@yahoo.com</i>
+							</div>
+						</div><br/>
+						{{ emailForm }}
+						{% for error in emailForm.errors %}
+						<p class="text-error">{{ error }}</p>
+						{% endfor %}
+						
+					</div>		
+				</div> 
+			{% endfor %}
+			<div class="form-actions">
+				<input type="hidden" value="{{ next_url }}" name="next_url" />
+				<button type="submit" class="btn btn-primary"><b>Save</b><i class="fui-check"></i></button> 
+				<button type="reset" class="btn btn-warning"><b>Reset</b><i class="fui-play"></i></button> 
+				<a  type="button" class="btn btn-danger"><b>Cancel</b><i class="fui-cross"></i></a>
+			</div>
+		</form>
+	</div>
+</div>
+</div>
+
+<script>
+
+    $(document).on("click", ".choose", function () {
+    	var year = $(this).data('year_level');
+    	var section = $(this).data('section');
+	    $(".modal-body #CourseName").val( CourseName );
+	    $(".modal-footer #course_id").val( section );
+	    $(".modal-footer #CourseName2").val( CourseName );
+	});
+</script>
+{% endblock content %}

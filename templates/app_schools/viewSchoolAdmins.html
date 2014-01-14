@@ -1,0 +1,181 @@
+{% extends "base/base.html" %}
+{% load staticfiles %}
+
+{% block title %}
+TECS: Test Essay Checking Software | Home
+{% endblock %}
+
+{% block content %}
+<head>
+	<script src="{% static 'base/js/jquery.min.js' %}"></script>
+
+	<script>
+	    $(function() {
+		    var tooltips = $( "[title]" ).tooltip();
+		    $(document)(function() {
+		    	tooltips.tooltip( "open" );
+		    })
+	    });
+	</script>
+	
+</head>
+
+<div id="myModal" class="modal hide fade" data-backdrop="static">
+	<div class="modal-header palette-emerald">
+		<h3 class="text-white">Make Invitation</h3>
+	</div>
+	<div class="modal-body">
+		<form action="{% url 'schools:inviteadmin' %}" method="post">{% csrf_token %}
+		{% for form in formMails %}
+		<div class="control-group">
+			<div class="controls">
+				<div>
+					<p>Please seperate each person by comma. For example:</p>
+					<div style="padding-left: 100px">
+					<i>cheryleighverano@gmail.com, master@yahoo.com</i>
+					</div>
+				</div><br/>
+				{{ form }}
+				{% for error in form.errors %}
+				<p class="text-error">{{ error }}</p>
+				{% endfor %}
+			</div>		
+		</div> 	
+		{% endfor %}
+		<input type="hidden" id="cid" name="cid" value={{ adminList.id }} >
+	</div>
+	<div class="modal-footer"> 
+		<button type="submit" name="gradesys-send"  class="btn btn-primary pull-left" >Make Invitation <span class="fui-check"></span></button>
+		<button type="button" class="btn btn-warning" data-dismiss="modal" aria-hidden="true">Cancel <i class="fui-new"></i></button>
+	</div>
+	</form>
+</div>	
+
+<div class="page-content">
+	<div class="row-fluid">
+		<div class="content">
+			<p class="pull-right">
+				<a href="#myModal" role="button" data-toggle="modal" data-trigger="hover" data-placement="left" title data-original-title="Invite Admins" class="btn btn-success sentMail "><i class="fui-mail"></i></a>
+				<a href="{% url 'schools:edit' adminList.id %}" data-toggle="tooltip" data-trigger="hover" data-placement="left" title data-original-title="Edit School Info" class="btn btn-warning"><i class="fui-new"></i></a>
+			</p>
+			<img class="title-icons" src={% static 'base/img/icons/Pocket@2x.png' %}>
+			<h3 class="title">{{ adminList.school }}</h3>
+			
+			{% if mailSend %}
+				<div class="alert alert-block alert-success">
+					Please review the invitation below carefully. You may not cancel an invitation once it has been submitted. If you want to disregard this mail, click <b>"Cancel"</b>. If you are ready to submit your invitation, click <b>"Send Invitation"</b>.
+					<br/><br/>
+					Number of people to Invite: <b>{{ count }}</b>
+				</div>
+
+				<form class="form form-horizontal" action="{% url 'schools:inviteAdmin' %}" method="POST"> {% csrf_token %}
+					<fieldset>
+						<div class="palette-turquoise">
+							<center>
+								<img class="title-icons" style="float: none; padding-bottom:3px; padding-top:5px; margin-right: -5px" src="{% static 'base/img/icons/Mail@2x.png' %}">
+			            		<div class="btn btn-primary" style="text-shadow:none"><b>You have been assigned to administer this school.</b></div>
+			            	</center>
+			         	</div>
+
+				          <div class="demo-text-box prl" style="border-radius: 0px;">
+				            <p>
+				            	From: <span style="color: #1abc9c">{{ sender.email }} [{{ sender.last_name }}, {{ sender.first_name }}]</span><br/>
+								Subject: Invitation to join {{ adminList.shool }}<br/>
+								School Key: <span style="color: #1abc9c">{{ adminList.key }}</span><br/><br/>
+								Please <a href="tecs.herokuapp.com" style="color: #1abc9c; text-decoration: none;">Log-in</a> or Register to <a href="http://tecs.herokuapp.com/accounts/register/" style="color: #1abc9c; text-decoration: none">tecs.herokuapp.com</a> and enter the School Key to enroll in a School.
+							</p>
+							<div style="display:none">
+								{% for form in formMails %}
+									{{ form }}
+								{% endfor %}
+							</div>
+				          </div>
+				        <input type="hidden" id="cid" name="cid" value={{ adminList.id }} >
+				        <div class="form-actions">
+		    				<input type="hidden" value="sendNow" name="sendNow" />
+							<button type="submit" class="btn btn-primary"><b>Send Invitation</b><i class="fui-check"></i></button> 
+							<a href="{% url 'schools:viewSchool' adminList.id %}" type="button" class="btn btn-danger"><b>Cancel</b><i class="fui-cross"></i></a>
+						</div>
+					</fieldset>
+				</form>
+				{% else %}
+
+			<table class="table table-striped">
+				{% if adminList.admin.all.count %}
+					{% if success %}
+						<div {% if succ %} class="alert alert-block alert-success" {% else %} class="alert alert-block alert-error" {% endif %}>
+						<button type="button" class="close" data-dismiss="alert">&times;</button>
+				          <h4><strong>{% if succ %}Success!{% else %}Error!{% endif %}</strong></h4> {{ success }}
+				        </div>
+				    {% endif %}
+				<thead>
+					<tr>
+						<th><center>#</center></th>
+						<th><center>Last Name</center></th>
+						<th><center>First name</center></th>
+						<th><center>Email</center></th>
+						<th><center>Status</center></th>
+						<th><center>Remove</center></th>
+					</tr>
+				</thead>
+				<tbody>
+					{% for admin in adminList.admin.all %}
+					<tr>
+						<td><center>{{admin.id}}</center></td>
+						<td><center>{{admin.user.last_name}}</center></td>
+						<td><center>{{admin.user.first_name}}</center></td>
+						<td><center>{{admin.user.email}}</center></td>
+						<td>{% if admin.user.is_active %}<center style="color:#1abc9c">Active</center>
+						{% else %}<center style="color:red">Inactive</center></td>{% endif %} 
+						<td><center><button type="button" class="delsys-button btn btn-danger" data-classid={{ adminList.id }} data-adminid={{ admin.id }} data-toggle="modal" data-target="#confirm-delete"><i class="fui-cross"></i></span></button></center></td>
+					</tr>	
+					{% endfor %}			
+				</tbody>
+				{% elif not success %}
+					<div class="alert alert-block alert-error">
+			          <h4><strong>Oops!</strong></h4>
+			          	You haven't added admins yet.
+			        </div>
+				{% else %}
+					<br>
+					<div {% if succ %} class="alert alert-block alert-success" {% else %} class="alert alert-block alert-error" {% endif %}>
+						<button type="button" class="close" data-dismiss="alert">&times;</button>
+			          <h4><strong>{% if succ %}Success!{% else %}Error!{% endif %}</strong></h4> {{ success }}
+			        </div>
+			    {% endif %}
+			</table>
+			{% endif %}
+		</div>
+	</div>
+</div>
+
+<div id="confirm-delete" class="modal hide fade" data-backdrop="static">
+		<div class="modal-header palette-alizarin">
+			<h3 class="text-white">Confirm Delete</h3>
+		</div>
+		<div class="modal-body">
+			<p>Are you sure you want to delete this admin from the school?</p>
+			<p>Continuing with this action, will erase his/her account on this school. </p>
+			<form action="{% url 'schools:removeadmin' %}" method="post">{% csrf_token %}
+				<input type="hidden" id="school_id" name="school_id" value="">
+				<input type="hidden" id="admin_id" name="admin_id" value="">
+			<form>
+		</div>
+		<div class="modal-footer">
+			<button type="submit" name="gradesys-delete" class="btn btn-danger pull-left">Delete <span class="fui-cross"></span></button>
+			<button class="btn btn-inverse" data-dismiss="modal" aria-hidden="true">Close</button>
+		</div>
+</div>
+
+<script>
+	$(".delsys-button").on("click", function() {
+		var schoolid = $(this).data('schoolid')
+		var adid = $(this).data('adminid')
+		$("#school_id").val(schoolid)
+		$("#admin_id").val(adid)
+	});
+</script>
+
+<script src="{% static 'base/js/jquery.min.js' %}"></script>
+
+{% endblock %}

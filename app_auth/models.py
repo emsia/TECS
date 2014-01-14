@@ -22,11 +22,18 @@ class UserProfile(models.Model):
 		elif len(Admin.objects.filter(user_id = self.user.id)) > 0:
 			return 'ADMIN'
 
+class SUadmin(models.Model):
+	user = models.ForeignKey(User)
+
+	def __str__(self):
+		return u'%s, %s' % (self.user.last_name, self.user.first_name)
+
 class School(models.Model):
 	name = models.CharField(max_length=100)
 	short_name = models.CharField(max_length=20)
 	address = models.TextField()
 	key = models.CharField(max_length=32)
+	suadmin = models.ForeignKey(SUadmin, related_name= 'sa', blank=True, null=True)
 
 	def __str__(self):
 		return self.name
@@ -48,19 +55,14 @@ class Student(models.Model):
 	def __str__(self):
 		return u'%s, %s' % (self.user.last_name, self.user.first_name)
 
-class SUadmin(models.Model):
-	user = models.ForeignKey(User)
-
-	def __str__(self):
-		return u'%s, %s' % (self.user.last_name, self.user.first_name)
 
 class Admin(models.Model):
 	user = models.ForeignKey(User)
 	school = models.ForeignKey(School, blank=True, null=True)
 
 	def __str__(self):
-		return u'%s, %s' % (self.user.last_name, self.user.first_name)	
-			
+		return u'%s, %s' % (self.user.last_name, self.user.first_name)
+
 class passwordForm(ModelForm):
 	class Meta:
 		model = User
