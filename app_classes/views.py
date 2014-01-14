@@ -5,6 +5,7 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponseRedirect
 from django.contrib.auth.decorators import login_required
 from app_classes.models import Class, ClassForm, EditForm, EnrollForm
+from app_auth.models import Admin
 from django.shortcuts import render, get_object_or_404
 from app_auth.models import UserProfile, Teacher, School, Student
 from django.db.models import Count
@@ -64,6 +65,16 @@ def teacher_addNewClass(request, add_form=None, email_form=None):
 	formMails = email_form or MailForm()
 	return render(request, 'app_classes/teacher_addNewClass.html', 
 			{'addClassForm' : addClass_form, 'formMails':formMails,'next_url': '/classes', 'avatar':avatar, 'active_nav':'CLASSES', 'name':name})
+
+@login_required(redirect_field_name='', login_url='/')
+def add_teacher(request, add_form=None, email_form=None):
+	avatar = UserProfile.objects.get(user_id = request.user.id).avatar
+	addClass_form = add_form or ClassForm()
+	teacher = Teacher.objects.filter(user=request.user)
+	name = Class.objects.filter(teacher=teacher)
+	formMails = email_form or MailForm()
+	return render(request, 'app_classes/add_teacher.html', 
+			{'addClassForm' : addClass_form, 'formMails':formMails,'next_url': '/classes', 'avatar':avatar, 'active_nav':'ADD_TEACHER', 'name':name})
 
 @login_required(redirect_field_name='', login_url='/')
 def submit(request):
@@ -193,6 +204,58 @@ def removeStudent(request):
 	student = get_object_or_404(Student, pk=request.POST['student_id'])
 	class_info.student.remove(student)
 	return viewClassList(request, request.POST['class_id'], 'You successfully removed a student.')
+
+@login_required(redirect_field_name='', login_url='/')
+def inviteTeachers(request):
+	sender = request.user
+	avatar = UserProfile.objects.get(user_id = request.user.id).avatar
+	admin = Admin.objects.get(user_id = request.user.id)
+	school = admin.school
+	key = admin.school.key
+	message = 'Invalid Email address(es)'
+	success = False
+	mail = None
+	count = 0
+
+	if request.method == "POST":
+		formMails = MailForm2(data=request.POST)
+		sendNow = request.POST.get('sendNow')
+
+		template = get_template('app_classes/teacherSend.html').render(
+			Context({
+				'sender': sender,
+				'school': school,
+				'key' : key
+			})
+		)
+		if formMails.is_valid():
+			emails = formMails.cleaned_data
+			mail = []
+			for email in emails.values():
+				mail = email
+			
+			count = len(mail)
+			if sendNow == 'sendNow':
+				fp = open('./static/base/img/icons/Mail@2x.png', 'rb')
+				msgImage = MIMEImage(fp.read())
+				fp.close()
+
+				msgImage.add_header('Content-ID', '<image1>')
+
+				mailSend = EmailMessage('[TECS] Invitation to Join '+school, template, 'fsvaeg@gmail.com', mail )
+				mailSend.content_subtype = "html"  # Main content is now text/html
+				mailSend.attach(msgImage)
+				mailSend.send()
+				success = True
+				message = 'Invitations were sent successfully.'
+				return viewClassList(request, class_id, message, success)
+		else:
+			return viewClassList(request, class_id, message, success)
+	else:
+		formMails = MailForm2()
+
+	#return viewClassList(request, class_id, message, success)
+	return render(request, 'app_classes/inviteTeachers.html', {'mails':mail, 'active_nav':'DASHBOARD', 'count':count, 'key':key, 'formMails':formMails,'sender':sender,'avatar':avatar, 'school':school, 'mailSend':True})
 
 @login_required(redirect_field_name='', login_url='/')
 def inviteStudent(request):

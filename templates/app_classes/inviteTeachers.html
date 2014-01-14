@@ -1,0 +1,76 @@
+{% extends "base/base_admin.html" %}
+{% load staticfiles %}
+
+{% block title %}
+TECS: Test Essay Checking Software | Home
+{% endblock %}
+
+{% block content %}
+<head>
+	<script src="{% static 'base/js/jquery.min.js' %}"></script>
+
+	<script>
+	    $(function() {
+		    var tooltips = $( "[title]" ).tooltip();
+		    $(document)(function() {
+		    	tooltips.tooltip( "open" );
+		    })
+	    });
+	</script>
+	
+</head>
+
+
+<div class="page-content">
+	<div class="row-fluid">
+		<div class="content">
+			<img class="title-icons" src={% static 'base/img/icons/Pocket@2x.png' %}>
+			<h3 class="title">Invite Teachers to {{ school }}</h3>
+			
+			{% if mailSend %}
+				<div class="alert alert-block alert-success">
+					Please review the invitation below carefully. You may not cancel an invitation once it has been submitted. If you want to disregard this mail, click <b>"Cancel"</b>. If you are ready to submit your invitation, click <b>"Send Invitation"</b>.
+					<br/><br/>
+					Number of people to Invite: <b>{{ count }}</b>
+				</div>
+
+				<form class="form form-horizontal" action="{% url 'classes:inviteStudent' %}" method="POST"> {% csrf_token %}
+					<fieldset>
+						<div class="palette-turquoise">
+							<center>
+								<img class="title-icons" style="float: none; padding-bottom:3px; padding-top:5px; margin-right: -5px" src="{% static 'base/img/icons/Mail@2x.png' %}">
+			            		<div class="btn btn-primary" style="text-shadow:none"><b>You have been invited to join {{ school }}</b></div>
+			            	</center>
+			         	</div>
+
+				          <div class="demo-text-box prl" style="border-radius: 0px;">
+				            <p>
+				            	From: <span style="color: #1abc9c">{{ sender.email }} [{{ sender.last_name }}, {{ sender.first_name }}]</span><br/>
+								Subject: Invitation to Join {{ school }}<br/>
+								School Key: <span style="color: #1abc9c">{{ key }}</span><br/><br/>
+								Please Register to <a href="http://tecs.herokuapp.com/accounts/register/" style="color: #1abc9c; text-decoration: none">tecs.herokuapp.com</a> and enter the School Key to join {{ school }}.
+							</p>
+							<div style="display:none">
+								{% for form in formMails %}
+									{{ form }}
+								{% endfor %}
+							</div>
+				          </div>
+				        <hr>
+				        <div class="form-action">
+				        	<center>
+		    				<input type="hidden" value="sendNow" name="sendNow" />
+							<button type="submit" class="btn btn-primary"><b>Send Invitation</b><i class="fui-check"></i></button> 
+							<a href="{% url 'auth:dashboard' %}" type="button" class="btn btn-danger"><b>Cancel</b><i class="fui-cross"></i></a>
+							</center>
+						</div>
+					</fieldset>
+				</form>
+			{% endif %}
+		</div>
+	</div>
+</div>
+
+<script src="{% static 'base/js/jquery.min.js' %}"></script>
+
+{% endblock %}

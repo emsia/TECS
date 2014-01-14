@@ -1,5 +1,5 @@
 # Django settings for mejango project.
-import dj_database_url
+#import dj_database_url
 import os
 
 PROJECT_DIR = os.path.dirname(__file__) # this is not Django setting.

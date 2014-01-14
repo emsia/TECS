@@ -18,13 +18,14 @@ from django.contrib.auth.models import User, check_password
 from django.http import HttpResponseRedirect
 from django.views.generic.edit import FormView
 from django.core.context_processors import csrf
-from app_auth.models import UserProfile, passwordForm, Student, Teacher, School
+from app_auth.models import UserProfile, passwordForm, Student, Teacher, School, Admin, SUadmin
 from app_classes.models import Class
 from app_essays.models import Essay, EssayResponse
 from app_essays.models import GradingSystem, GradeSysForm, Grade
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
 from .forms import LoginForm, PasswordForm, ProfileForm, schoolForStudent, schoolForTeacher, GradeForm_Option1, GradeForm_Option2
+from app_classes.forms import MailForm
 
 import numpy
 
@@ -313,7 +314,7 @@ def login_on_activation(sender, user, request, **kwargs):
     login(request,user)
 signals.user_activated.connect(login_on_activation)
 
-def dashboard(request):
+def dashboard(request, email_form=None):
 	User_Profile = UserProfile.objects.filter(user_id = request.user.id)
 
 	if not User_Profile.exists():
@@ -333,6 +334,11 @@ def dashboard(request):
 		exam_count = EssayResponse.objects.filter(~Q(essay__status=0), student=Student.objects.get(user_id = request.user.id)).filter(essay__start_date__lte=timezone.now(), essay__deadline__gte=timezone.now()).count()
 		in_progress_count = EssayResponse.objects.filter(~Q(essay__status=1), student=Student.objects.get(user_id = request.user.id)).filter(essay__start_date__lte=timezone.now(), essay__deadline__gte=timezone.now()).count()
 		return render(request, 'app_auth/student_dashboard.html', {'avatar': avatar, 'role':role, 'class_count':class_count, 'exam_count':exam_count, 'in_progress_count':in_progress_count})
+	elif len(Admin.objects.filter(user_id = request.user.id)) > 0:
+		teacher_list = Teacher.objects.filter(school=Admin.objects.get(user=request.user).school)
+		classList = Class.objects.filter(teacher=teacher_list)
+		formMails = email_form or MailForm()
+		return render(request, 'app_auth/admin_dashboard.html', {'avatar': avatar, 'role':role, 'formMails':formMails, 'teacher_list':teacher_list, 'classList':classList})
 
 @login_required(redirect_field_name='', login_url='/')
 def help(request):

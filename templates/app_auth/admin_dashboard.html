@@ -1,0 +1,102 @@
+{% extends "base/base_admin.html" %}
+{% load staticfiles %}
+
+{% block title %}
+TECS: Test Essay Checking Software | Home
+{% endblock %}
+
+{% block content %}
+<head>
+	<script src="{% static 'base/js/jquery.min.js' %}"></script>
+
+	<script>
+	    $(function() {
+		    var tooltips = $( "[title]" ).tooltip();
+		    $(document)(function() {
+		    	tooltips.tooltip( "open" );
+		    })
+	    });
+	</script>
+	
+</head>
+<div id="myModal" class="modal hide fade" data-backdrop="static">
+	<div class="modal-header palette-orange">
+		<h3 class="text-white">Make Invitation</h3>
+	</div>
+	<div class="modal-body">
+		<form action="{% url 'classes:inviteTeachers' %}" method="post">{% csrf_token %}
+		{% for form in formMails %}
+		<div class="control-group">
+			<div class="controls">
+				<div>
+					<p>Please seperate each person by comma. For example:</p>
+					<div style="padding-left: 100px">
+					<i>cheryleighverano@gmail.com, master@yahoo.com</i>
+					</div>
+				</div><br/>
+				{{ form }}
+				{% for error in form.errors %}
+				<p class="text-error">{{ error }}</p>
+				{% endfor %}
+			</div>		
+		</div> 	
+		{% endfor %}
+	</div>
+	<div class="modal-footer"> 
+		<button type="submit" name="gradesys-send"  class="btn btn-warning pull-left" >Make Invitation <span class="fui-check"></span></button>
+		<button type="button" class="btn btn-warning" data-dismiss="modal" aria-hidden="true">Cancel <i class="fui-new"></i></button>
+	</div>
+	</form>
+</div>	
+
+<div class="page-content">
+	<div class="content">
+		<img class="title-icons" src="{% static 'base/img/icons/Dashboard.png' %}">
+		<h3>Dashboard</h3>
+		<hr>
+		<div class="hero-unit">
+			<h1>Hello, {{ request.user.first_name }}</h1>
+			<p>Welcome to TECS: Test Essay Checking Software.</p>
+		</div>
+				<div class="row-fluid">
+					<p class="pull-right">
+						<a href="#myModal" role="button" data-toggle="modal" data-trigger="hover" data-placement="left" title data-original-title="Invite Teachers" class="btn btn-success sentMail "><i class="fui-mail"></i></a>
+						<a data-toggle="tooltip" data-trigger="hover" data-placement="left" title data-original-title="Edit School Info" class="btn btn-warning"><i class="fui-new"></i></a>
+					</p>
+					<img class="title-icons" src="{% static 'base/img/icons/Clipboard@2x.png' %}">
+					<h3 class="title">Teachers List</h3>	
+					<table class="table table-striped">
+						<thead>
+							<tr>
+								<th style="width: 3px"><center>#</center></th>
+								<th style="width: 53px"><center>Teachers' Name</center></th>
+								<th style="width: 20px"><center>Class Name</center></th>
+								<th style="width: 15px"><center>Subject Name</center></th>
+								<th style="width: 3px"><center>No. Students</center></th>
+								<th style="width: 3px"><center>View</center></th>
+								<th style="width: 3px"><center>Delete</center></th>
+							</tr>
+						</thead>
+						<tbody>
+							{% for teachers in teacher_list %}
+								<tr>
+									<td><center>{{forloop.counter}}</center></td>
+									<td><center>{{teachers.user.last_name}}, {{teachers.user.first_name}}</center></td>
+									<td><center>{% for class in classList %}{% if teachers.user.id == class.teacher.user.id %}{{ class.section }}{% endif %}{% endfor %}</center></td>
+									<td><center>{% for class in classList %}{% if teachers.user.id == class.teacher.user.id %}{{ class.subject }}{% endif %}{% endfor %}</center></td>
+									<td><center>{% for class in classList %}{% if teachers.user.id == class.teacher.user.id %}{{ class.student.all.count }}{% endif %}{% endfor %}</center></td>
+									<td><center><a class="btn btn-primary"><i class="fui-location"></i></a></center></td>
+									<td><center><button type="button" class="delsys-button btn btn-danger" data-id={{ classes.id }} data-toggle="modal" data-target="#confirm-delete"><i class="fui-cross"></i></button></center></td>
+								</tr>
+							{% endfor %}
+						</tbody>
+						</table>
+				</div>
+	</div>
+
+
+</div>
+<script src="{% static 'base/js/jquery.min.js' %}"></script>
+{% endblock %}
+
+
