@@ -149,6 +149,7 @@ INSTALLED_APPS = (
 	'app_essays',
 	'app_registration',
 	'app_captcha',
+    'app_schools'
 )
 
 ACCOUNT_ACTIVATION_DAYS = 7 # One-week activation window;

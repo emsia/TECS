@@ -1,0 +1,102 @@
+{% extends "base/base.html" %}
+{% load staticfiles %}
+
+{% block title %}
+TECS: Test Essay Checking Software | Home
+{% endblock %}
+
+{% block content %}
+<head>
+	<script src="{% static 'base/js/jquery.min.js' %}"></script>
+
+	<script>
+	    $(function() {
+		    var tooltips = $( "[title]" ).tooltip();
+		    $(document)(function() {
+		    	tooltips.tooltip( "open" );
+		    })
+	    });
+	</script>
+	
+</head>
+
+<div class="page-content">
+	<div class="row-fluid">
+		<div class="content">
+			<img class="title-icons" src={% static 'base/img/icons/Clipboard@2x.png' %}>
+			<h3 class="title">My Schools</h3>
+			{% if error %}
+				<div class="alert alert-block alert-error">
+					<button type="button" class="close" data-dismiss="alert">&times;</button>
+		          <h4><strong>Oops!</strong></h4>
+		          {{ error }}
+		        </div>
+		    {% endif %}
+			{% if hasSchools %}
+				<div class="alert alert-block alert-error">
+		          <h4><strong>Oops!</strong></h4>
+		          {{ hasSchools }}
+		        </div>
+		    {% else %}
+		    {% if success %}
+				<br>
+				<div class="alert alert-block alert-success">
+					<button type="button" class="close" data-dismiss="alert">&times;</button>
+		          <h4><strong>Success!</strong></h4> {{ success }}
+		        </div>
+		    {% endif %}
+			<table class="table table-striped">
+				<thead>
+					<tr>
+						<th><center>#</center></th>
+						<th><center>School Name</center></th>
+						<th><center>Admins</center></th>
+						<th><center>Academic Year</center></th>
+						<th><center>Status</center></th>
+					</tr>
+				</thead>
+				<tbody>
+					{% for section in sections %}
+					<tr>
+						<td><center>{{forloop.counter}}</center></td>
+						<td><center>{{section.year_level}} - {{section.section}}</center></td>
+						<td><center>{{section.subject}}</center></td>
+						<td><center>{{section.teacher.user.last_name}}, {{section.teacher.user.first_name}}</center></td>
+						<td><center>{{section.academic_year}}</td>
+						{% if section.is_active %}<td style="color:#1abc9c"><center>Active</td>
+						{% else %}<td style="color:red" ><center>Inactive</td>{% endif %}
+					</tr>	
+					{% endfor %}			
+				</tbody>
+			</table>
+			{% endif %}
+	</div>
+</div>
+
+<div id="myModal" class="modal hide fade" data-backdrop="static">
+	<div class="modal-header palette-emerald">
+		<h3 class="text-white">Enroll to School</h3>
+	</div>
+	<div class="modal-body">
+		<form class="form form-horizontal" action="{% url 'Schools:enroll' %}" method="post">{% csrf_token %}<center>
+		{% for form in formEnroll %}
+		<div class="control-group">
+			<label class="control-label" for="level">{{ form.label_tag }}</label>
+			<div class="controls">
+				{{ form }}
+				{% for error in form.errors %}
+				<p class="text-error">{{ error }}</p>
+				{% endfor %}
+			</div>
+		</div> 
+		{% endfor %}
+		</center>
+	</div>
+	<div class="modal-footer"> 
+		<button type="submit" name="gradesys-send"  class="btn btn-primary pull-left" >Enroll <span class="fui-check"></span></button>
+		<button type="button" class="btn btn-warning" data-dismiss="modal" aria-hidden="true">Cancel <i class="fui-new"></i></button>
+	</div>
+</div>
+
+<script src="{% static 'base/js/jquery.min.js' %}"></script>
+{% endblock %}
