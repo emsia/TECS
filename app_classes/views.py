@@ -1,20 +1,25 @@
 
 import os
 import hashlib
+import random
+from django.contrib.auth.models import User
 from django.shortcuts import render, redirect
 from django.http import HttpResponseRedirect
 from django.contrib.auth.decorators import login_required
 from app_classes.models import Class, ClassForm, EditForm, EnrollForm
 from app_auth.models import Admin
+from app_registration.models import RegistrationProfile
 from django.shortcuts import render, get_object_or_404
 from app_auth.models import UserProfile, Teacher, School, Student
 from django.db.models import Count
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
 from django import forms
+from django.contrib.sites.models import RequestSite
+from django.contrib.sites.models import Site
+
 from django.forms.widgets import Textarea
 from django.utils import timezone
-from django.contrib.auth.decorators import login_required
 from django.core.mail import EmailMessage
 from django.template.loader import render_to_string, get_template
 from django.template import Context
@@ -83,74 +88,42 @@ def add_teacher(request, add_form=None, email_form=None):
 def submitTeachers(request):
 	if request.method == "POST":
 		form_class = teacherAdd(data=request.POST)
-		print form_class
 		mails = request.POST.getlist('email')
+		usernames = request.POST.getlist('username')
+		success_url = request.POST.get("next_url", "/")
+
+		#print mails: check proper email addresses
 		message = ''
 		for email in mails:
 			try:
 				validate_email(email)
 				pass
 			except ValidationError:
-				message = 'Please input correct'
-		form_class = ClassForm(data=request.POST)
-		formMails = MailForm(data=request.POST)
+				message = 'Please input valid emails'
 		success_url = request.POST.get("next_url", "/")
 
-		if form_class.is_valid() and formMails.is_valid():
-			forms = form_class.cleaned_data
-			school_info = forms['school']
-			subject_info = forms['subject']
-			yearType_info = forms['year_level']
-			section_info = forms['section']
-			academicYear_info = forms['academic_year']
+		count = 0
+		school = Admin.objects.get(user=request.user).school
+		for usernaming in usernames:
+			existing = User.objects.filter(username__iexact=usernaming)
+			if not existing.exists():
+				salt = hashlib.sha1(str(random.random())).hexdigest()[:5]
+				usernaming = usernaming.encode('utf-8')
+				password_preset = hashlib.md5(salt+usernaming).hexdigest()[:8]
+				if Site._meta.installed:
+					site = Site.objects.get_current()
+				else:
+					site = RequestSite(request)
 
-			emails = formMails.cleaned_data
-			mail = []
-			for email in emails.values():
-				mail = email
+				new_user = RegistrationProfile.objects.create_inactive_user(usernaming, mails[count], password_preset, site)
+				teacher = Teacher.objects.create(user=new_user)
+				teacher.save()
+				teacher.school.add(school)
+				count = count + 1
 
-			#rendered = render_to_string("users/emails/data.txt", {'data': data})
-			try:
-				teacher = Teacher.objects.get(user=request.user)
-			except Teacher.DoesNotExist:
-				return class_teacher(request, 'You don\'t have permission to add Classes.')
-
-			class_info = Class.objects.filter(school=school_info).filter(section=section_info).filter(subject=subject_info).filter(teacher=teacher).filter(year_level=yearType_info).filter(academic_year=academicYear_info)
-			if class_info.exists():
-				return class_teacher(request, 'That Class already exists.')
-
-			form = form_class.save(commit=False)
-			form.teacher = teacher
-			form.date_created = timezone.now()
-			form.is_active = True
-
-			random_data = os.urandom(128)
-			random_data = hashlib.md5(random_data).hexdigest()[:16]
-			form.key = random_data
-			form.save()
-
-			template = get_template('app_classes/perl.html').render(
-				Context({
-					'sender': request.user,
-					'studentList': form,
-				})
-			)
-			if mail:
-				fp = open('./static/base/img/icons/Mail@2x.png', 'rb')
-				msgImage = MIMEImage(fp.read())
-				fp.close()
-
-				msgImage.add_header('Content-ID', '<image1>')
-
-				mailSend = EmailMessage('[TECS] Invitation to join Class', template, 'fsvaeg@gmail.com', mail )
-				mailSend.content_subtype = "html"  # Main content is now text/html
-				mailSend.attach(msgImage)
-				mailSend.send()
-			#send_mail('Subject', 'You are invited to class '+ yearType_info + '-' + section_info + ' ' + subject_info + '. The key class is: ' + random_data, 'fsvaeg@gmail.com', mail)
-			
-			return redirect(success_url)
-		else:
-			return teacher_addNewClass(request, form_class, formMails)
+		return redirect(success_url)
+	else:
+		return teacher_addNewClass(request, form_class)
 
 @login_required(redirect_field_name='', login_url='/')
 def submit(request):

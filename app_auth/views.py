@@ -184,7 +184,7 @@ def profile_edit(request, success=None):
 		power = True
 		
 		if schoolForm.is_valid():
-			if request.user.is_staff:
+			if len(Teacher.objects.filter(user_id = request.user.id)) > 0:
 				temp = schoolForm.cleaned_data['school']
 				teacher = Teacher.objects.filter(user=request.user)
 				if not teacher.exists():
@@ -243,7 +243,7 @@ def profile_edit(request, success=None):
 		user_info = user_info.get(user_id=request.user.id)
 		role = UserProfile.objects.get(user_id = request.user.id).role
 
-		if request.user.is_staff:
+		if len(Teacher.objects.filter(user_id = request.user.id)) > 0:
 			schoolForm = schoolForTeacher(initial={'school':Teacher.objects.get(user=request.user).school.values_list('id',flat=True)})
 		else:
 			schoolForm = schoolForStudent(initial={'school':Student.objects.get(user=request.user).school})
@@ -253,7 +253,7 @@ def profile_edit(request, success=None):
 				schoolForm = schoolForStudent(initial={'school':Student.objects.get(user=request.user).school})
 			except:
 				pass
-			if request.user.is_staff:
+			if len(Teacher.objects.filter(user_id = request.user.id)) > 0:
 				schoolForm = schoolForTeacher(initial={'school':Teacher.objects.get(user=request.user).school.values_list('id',flat=True)})
 			formProfile = ProfileForm(initial={
 				'last_name':request.user.last_name, 'first_name':request.user.first_name, 'email':request.user.email, 'avatar':user_info.avatar,
@@ -264,7 +264,7 @@ def profile_edit(request, success=None):
 		role = None
 		schoolForm = schoolForStudent()
 		if len(Teacher.objects.filter(user_id = request.user.id)) > 0:
-			schoolForm = schoolForTeacher()
+			schoolForm = schoolForTeacher(initial={'school':Teacher.objects.get(user=request.user).school.values_list('id',flat=True)})
 		avatar = 'images/avatars/user.png'
 
 		formProfile = ProfileForm(initial={'last_name':request.user.last_name, 'role':role, 'first_name':request.user.first_name, 'email':request.user.email,
@@ -413,9 +413,11 @@ def dashboard(request, email_form=None):
 		return render(request, 'app_auth/student_dashboard.html', {'avatar': avatar, 'role':role, 'class_count':class_count, 'exam_count':exam_count, 'in_progress_count':in_progress_count})
 
 	elif len(Admin.objects.filter(user_id = request.user.id)) > 0:
-		teacher_list = Teacher.objects.filter(school=Admin.objects.get(user=request.user).school)
-		classList = Class.objects.filter(teacher=teacher_list)
-		return render(request, 'app_auth/admin_dashboard.html', {'avatar': avatar, 'role':role, 'teacher_list':teacher_list, 'classList':classList})
+		teacher_lists = Teacher.objects.filter(school=Admin.objects.get(user=request.user).school)
+		classList = []
+		for teacher_list in teacher_lists:
+			classList = Class.objects.filter(teacher=teacher_list)
+		return render(request, 'app_auth/admin_dashboard.html', {'avatar': avatar, 'role':role, 'teacher_list':teacher_lists, 'classList':classList})
 
 	elif len(SUadmin.objects.filter(user_id = request.user.id)) > 0:
 		school_list = School.objects.filter().count()

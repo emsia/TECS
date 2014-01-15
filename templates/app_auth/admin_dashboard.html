@@ -41,7 +41,7 @@ TECS: Test Essay Checking Software | Home
 							<tr>
 								<th style="width: 3px"><center>#</center></th>
 								<th style="width: 53px"><center>Teachers' Name</center></th>
-								<th style="width: 20px"><center>Class Name</center></th>
+								<th style="width: 20px"><center>Section</center></th>
 								<th style="width: 15px"><center>Subject Name</center></th>
 								<th style="width: 3px"><center>No. Students</center></th>
 								<th style="width: 3px"><center>View</center></th>
@@ -53,9 +53,9 @@ TECS: Test Essay Checking Software | Home
 								<tr>
 									<td><center>{{forloop.counter}}</center></td>
 									<td><center>{{teachers.user.last_name}}, {{teachers.user.first_name}}</center></td>
-									<td><center>{% for class in classList %}{% if teachers.user.id == class.teacher.user.id %}{{ class.section }}{% endif %}{% endfor %}</center></td>
-									<td><center>{% for class in classList %}{% if teachers.user.id == class.teacher.user.id %}{{ class.subject }}{% endif %}{% endfor %}</center></td>
-									<td><center>{% for class in classList %}{% if teachers.user.id == class.teacher.user.id %}{{ class.student.all.count }}{% endif %}{% endfor %}</center></td>
+									<td><center>{% for class in classList %}{% if teachers.user.id == class.teacher.user.id %}{% if forloop.counter > 1 %}, {% endif %}{{ class.section }}{% endif %}{% endfor %}</center></td>
+									<td><center>{% for class in classList %}{% if teachers.user.id == class.teacher.user.id %}{% if forloop.counter > 1 %}, {% endif %}{{ class.subject }}{% endif %}{% endfor %}</center></td>
+									<td><center>{% for class in classList %}{% if teachers.user.id == class.teacher.user.id %}{% if forloop.counter > 1 %}, {% endif %}{{ class.student.all.count }}{% endif %}{% endfor %}</center></td>
 									<td><center><a class="btn btn-primary"><i class="fui-location"></i></a></center></td>
 									<td><center><button type="button" class="delsys-button btn btn-danger" data-id={{ classes.id }} data-toggle="modal" data-target="#confirm-delete"><i class="fui-cross"></i></button></center></td>
 								</tr>

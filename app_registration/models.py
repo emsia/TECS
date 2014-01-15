@@ -90,7 +90,7 @@ class RegistrationManager(models.Manager):
         registration_profile = self.create_profile(new_user)
 
         if send_email:
-            registration_profile.send_activation_email(site)
+            registration_profile.send_activation_email(site, username, password)
 
         return new_user
     create_inactive_user = transaction.commit_on_success(create_inactive_user)
@@ -219,7 +219,7 @@ class RegistrationProfile(models.Model):
                (self.user.date_joined + expiration_date <= datetime_now())
     activation_key_expired.boolean = True
 
-    def send_activation_email(self, site):
+    def send_activation_email(self, site, username, password):
         """
         Send an activation email to the user associated with this
         ``RegistrationProfile``.
@@ -265,6 +265,8 @@ class RegistrationProfile(models.Model):
 
         ctx_dict = {'activation_key': self.activation_key,
                     'expiration_days': settings.ACCOUNT_ACTIVATION_DAYS,
+                    'username' : username,
+                    'password' : password,
                     'site': site}
         subject = render_to_string('registration/activation_email_subject.txt',
                                    ctx_dict)
@@ -277,5 +279,4 @@ class RegistrationProfile(models.Model):
         mailSend = EmailMessage(subject, message, 'fsvaeg@gmail.com', [self.user.email] )
         mailSend.content_subtype = "html"  # Main content is now text/html
         mailSend.attach(msgImage)
-        mailSend.send()
-    
+        #mailSend.send()
