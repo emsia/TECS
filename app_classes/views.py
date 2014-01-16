@@ -113,7 +113,7 @@ def submitTeachers(request):
 					site = Site.objects.get_current()
 				else:
 					site = RequestSite(request)
-
+				print password_preset
 				new_user = RegistrationProfile.objects.create_inactive_user(usernaming, mails[count], password_preset, site)
 				teacher = Teacher.objects.create(user=new_user)
 				teacher.save()
@@ -123,6 +123,13 @@ def submitTeachers(request):
 		return redirect('auth:dashboard')
 	else:
 		return teacher_addNewClass(request, form_class)
+
+@login_required(redirect_field_name='', login_url='/')
+def viewTeachers(request, teacher_id):
+	avatar = UserProfile.objects.get(user_id = request.user.id).avatar
+	teacher_details = get_object_or_404(Teacher, pk=teacher_id)
+	class_info = Class.objects.filter(teacher=teacher_details)
+	return render(request, 'app_classes/teacher_list.html', {'avatar':avatar, 'active_nav':'DASHBOARD', 'teacher_details':teacher_details, 'class_info': class_info})
 
 @login_required(redirect_field_name='', login_url='/')
 def submit(request):
@@ -188,7 +195,7 @@ def submit(request):
 			return teacher_addNewClass(request, form_class, formMails)
 
 @login_required(redirect_field_name='', login_url='/')
-def disableTeacher(request, teacher_id):
+def disableTeacher(request, teacher_id, place=None):
 	teacher_info = get_object_or_404(Teacher, pk=teacher_id)
 	try:
 		user_info = get_object_or_404(User, pk=teacher_info.user.id)
@@ -196,7 +203,11 @@ def disableTeacher(request, teacher_id):
 		user_info.save()
 	except:
 		pass
-	return redirect('auth:dashboard')
+
+	if place == "1":
+		return redirect('classes:viewTeachers', teacher_id=teacher_id)
+	else:
+		return redirect('auth:dashboard')
 
 @login_required(redirect_field_name='', login_url='/')
 def edit(request, class_id):
@@ -227,11 +238,17 @@ def delete(request):
 	return class_teacher(request, 0, 'You successfully deleted a class.')
 
 @login_required(redirect_field_name='', login_url='/')
-def viewClassList(request, class_id, message=None, success=True):
+def viewClassList(request, class_id, place=None, message=None, success=True):
 	class_info = get_object_or_404(Class, pk=class_id)
 	avatar = UserProfile.objects.get(user_id = request.user.id).avatar
 	formMails = MailForm2()
-	return render(request, 'app_classes/viewClassList.html', {'mailSend':False, 'studentList':class_info, 'active_nav':'CLASSES', 'avatar':avatar, 'succ': success,'success':message, 'formMails': formMails})
+	if place == "1":
+		active_nav = 'CLASSES'
+		place = 'base/base.html'
+	else:
+		active_nav = 'DASHBOARD'
+		place = 'base/base_admin.html'
+	return render(request, 'app_classes/viewClassList.html', {'mailSend':False, 'studentList':class_info, 'active_nav':active_nav, 'avatar':avatar, 'succ': success,'success':message, 'formMails': formMails, 'place': place})
 
 @login_required(redirect_field_name='', login_url='/')
 def enroll(request):

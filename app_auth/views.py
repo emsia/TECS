@@ -132,9 +132,9 @@ def edit_SU_Admin(request, success=None):
 				elif temp['avatar'] is not None:
 					userProfile_info.avatar = temp['avatar']	
 				
-				userProfile_info.street = temp['street']
-				userProfile_info.municipality = temp['municipality']
-				userProfile_info.province = temp['province']
+				userProfile_info.street = temp['street'].title()
+				userProfile_info.municipality = temp['municipality'].title()
+				userProfile_info.province = temp['province'].title()
 				userProfile_info.phone_number = temp['phone_number']
 				userProfile_info.save()
 
@@ -145,8 +145,8 @@ def edit_SU_Admin(request, success=None):
 			
 			#user update
 			USER_info = User.objects.get(id=request.user.id)
-			USER_info.last_name = temp['last_name']
-			USER_info.first_name = temp['first_name']
+			USER_info.last_name = temp['last_name'].title()
+			USER_info.first_name = temp['first_name'].title()
 			USER_info.email = temp['email']
 			USER_info.username = temp['username']
 			USER_info.save()
@@ -220,9 +220,9 @@ def profile_edit(request, success=None):
 				elif temp['avatar'] is not None:
 					userProfile_info.avatar = temp['avatar']	
 				
-				userProfile_info.street = temp['street']
-				userProfile_info.municipality = temp['municipality']
-				userProfile_info.province = temp['province']
+				userProfile_info.street = temp['street'].title()
+				userProfile_info.municipality = temp['municipality'].title()
+				userProfile_info.province = temp['province'].title()
 				userProfile_info.phone_number = temp['phone_number']
 				userProfile_info.save()
 
@@ -233,8 +233,8 @@ def profile_edit(request, success=None):
 			
 			#user update
 			USER_info = User.objects.get(id=request.user.id)
-			USER_info.last_name = temp['last_name']
-			USER_info.first_name = temp['first_name']
+			USER_info.last_name = temp['last_name'].title()
+			USER_info.first_name = temp['first_name'].title()
 			USER_info.email = temp['email']
 			USER_info.username = temp['username']
 			USER_info.save()

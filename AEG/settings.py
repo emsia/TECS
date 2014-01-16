@@ -1,5 +1,5 @@
 # Django settings for mejango project.
-import dj_database_url
+#import dj_database_url
 import os
 
 PROJECT_DIR = os.path.dirname(__file__) # this is not Django setting.
@@ -18,18 +18,18 @@ ADMINS = (
 
 MANAGERS = ADMINS
 
-DATABASES['default'] =  dj_database_url.config()
-#DATABASES = {
-#    'default': {
-#        'ENGINE': 'django.db.backends.postgresql_psycopg2', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
-#        'NAME': 'aeg',                    # Or path to database file if using sqlite3.
+#DATABASES['default'] =  dj_database_url.config()
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
+        'NAME': 'aeg',                    # Or path to database file if using sqlite3.
         # The following settings are not used with sqlite3:
-#        'USER': 'postgres',
-#        'PASSWORD': 'password',
-#        'HOST': 'localhost',                      # Empty for localhost through domain sockets or '127.0.0.1' for localhost through TCP.
-#        'PORT': '',                   # Set to empty string for default.
-#    }
-#}
+        'USER': 'postgres',
+        'PASSWORD': 'password',
+        'HOST': 'localhost',                      # Empty for localhost through domain sockets or '127.0.0.1' for localhost through TCP.
+        'PORT': '',                   # Set to empty string for default.
+    }
+}
 
 #EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 
