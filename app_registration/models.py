@@ -279,4 +279,4 @@ class RegistrationProfile(models.Model):
         mailSend = EmailMessage(subject, message, 'fsvaeg@gmail.com', [self.user.email] )
         mailSend.content_subtype = "html"  # Main content is now text/html
         mailSend.attach(msgImage)
-        #mailSend.send()
+        mailSend.send()
