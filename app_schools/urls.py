@@ -10,6 +10,7 @@ urlpatterns = patterns('',
 	url(r'^schools/(?P<school_id>\d+)/viewSchool/$', views.viewSchoolAdmins, name='viewSchool'),
 	# ex: /polls/5/vote/
     url(r'^schools/delete/$', views.delete, name='delete'),
-    url(r'^schools/removeAdmin/$', views.removeAdmin, name='removeAdmin'),
-    url(r'^schools/inviteAdmin/$', views.inviteAdmin, name='inviteAdmin'),
+    url(r'^schools/(?P<school_id>\d+)/removeAdmin/$', views.removeAdmin, name='removeAdmin'),
+    url(r'^schools/(?P<school_id>\d+)/addAdmin/$', views.addAdmin, name='addAdmin'),
+	url(r'^schools/submitAdmins/$', views.submitAdmins, name='submitAdmins'),
 )
