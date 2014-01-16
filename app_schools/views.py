@@ -26,26 +26,27 @@ def dashboard(request):
 	avatar = User_Profile.get(user_id=request.user.id).avatar
 	User_Profile = User_Profile.get(user_id=request.user.id)
 	suadmin = SUadmin.objects.filter(user=request.user)
+	avatar = User_Profile.avatar
+	#return render(request, link, {'avatar':avatar, 'active_nav':'CLASSES', 'formEnroll':formEnroll, 'sections':sections, 'error': err, 'success':success, 'hasClasses':hasClasses, 'power':power})
+	return render(request, link, {'avatar':avatar,'error': err, 'success':success, 'active_nav':'DASHBOARD'})
+
+@login_required(redirect_field_name='', login_url='/')
+def suadmin_viewSchools(request):
+	User_Profile = UserProfile.objects.filter(user_id = request.user.id)
+	if not User_Profile.exists():
+		return redirect("/profile")
+
+	User_Profile = User_Profile.get(user_id=request.user.id)
+	suadmin = SUadmin.objects.filter(user=request.user)
 	hasSchools = None
 	power = True
-	formEnroll = formAdmin 
-	link = 'app_auth/suadmin_dashboard.html'
-	if suadmin.exists():
-		schools = School.objects.filter(suadmin=suadmin)
-	else:
-		if admin.exists():
-			link = 'app_auth/suadmin_dashboard.html'
-			schools = School.objects.filter(admin=admin)
-		else:
-			schools = None
-			power = False
-			hasSchools = 'You have no permission to add Schools.'
+	link = 'app_schools/viewSchools.html'
+	schools = School.objects.filter(suadmin=suadmin)
 	if power and (schools is None or not schools.exists()):
 		hasSchools = 'You don\'t have Schools yet'
 	avatar = User_Profile.avatar
-	#return render(request, link, {'avatar':avatar, 'active_nav':'CLASSES', 'formEnroll':formEnroll, 'sections':sections, 'error': err, 'success':success, 'hasClasses':hasClasses, 'power':power})
-	return render(request, link, {'avatar':avatar, 'formEnroll':formEnroll, 'schools':schools, 'error': err, 'success':success, 'hasSchools':hasSchools, 'power':power, 'active_nav':'DASHBOARD'})
-	
+	return render(request, link, {'avatar':avatar, 'schools':schools, 'hasSchools':hasSchools, 'power':power, 'active_nav':'SCHOOLS'})
+		
 @login_required(redirect_field_name='', login_url='/')
 def suadmin_addNewSchool(request, add_form=None, email_form=None):
 	avatar = UserProfile.objects.get(user_id = request.user.id).avatar
@@ -54,14 +55,14 @@ def suadmin_addNewSchool(request, add_form=None, email_form=None):
 	name = School.objects.filter()
 	formMails = email_form or MailForm()
 	return render(request, 'app_schools/suadmin_addNewSchool.html', 
-			{'addSchoolForm' : addSchool_form, 'formMails':formMails,'next_url': '/', 'avatar':avatar, 'name':name})
+			{'addSchoolForm' : addSchool_form, 'formMails':formMails,'next_url': '/schools', 'avatar':avatar, 'name':name, 'active_nav':'SCHOOLS'})
 
 @login_required(redirect_field_name='', login_url='/')
 def submit(request):
 	if request.method == "POST":
 		form_school = SchoolForm(data=request.POST)
 		formMails = MailForm(data=request.POST)
-		success_url = request.POST.get("next_url", "/")
+		success_url = request.POST.get("next_url", "/schools")
 
 		if form_school.is_valid() and formMails.is_valid():
 			forms = form_school.cleaned_data
@@ -76,16 +77,16 @@ def submit(request):
 
 			#rendered = render_to_string("users/emails/data.txt", {'data': data})
 			try:
-				suadmin = SUadmin.objects.get(user=request.user)
+				suadmin_info = SUadmin.objects.get(user=request.user)
 			except SUadmin.DoesNotExist:
 				return school_suadmin(request, 'You don\'t have permission to add Schools.')
 
-			school_info = School.objects.filter(name=name_info).filter(short_name=short_name_info).filter(address=address_info)
+			school_info = School.objects.filter(name=name_info).filter(short_name=short_name_info).filter(address=address_info).filter(suadmin=suadmin_info)
 			if school_info.exists():
 				return school_suadmin(request, 'That School already exists.')
 
 			form = form_school.save(commit=False)
-			form.suadmin = suadmin
+			form.suadmin = suadmin_info
 			form.date_created = timezone.now()
 			form.is_active = True
 
@@ -119,7 +120,7 @@ def submit(request):
 
 
 @login_required(redirect_field_name='', login_url='/')
-def edit(request, class_id):
+def edit(request, school_id):
 	school_info = get_object_or_404(School, pk=school_id)
 	power = False
 	if request.method == "POST":
@@ -136,7 +137,7 @@ def edit(request, class_id):
 	if not power:
 		formEdit = EditForm(initial={'name':school_info.name, 'short_name':school_info.short_name, 'section':school_info.address})
 	avatar = UserProfile.objects.get(user_id = request.user.id).avatar
-	return render(request, 'app_schools/suadmin_editSchool.html', {'avatar':avatar, 'school_info':school_info, 'formEdit':formEdit})
+	return render(request, 'app_schools/suadmin_editSchool.html', {'avatar':avatar, 'next_url': '/schools','school_info':school_info, 'formEdit':formEdit,  'active_nav':'SCHOOLS'})
 			
 @login_required(redirect_field_name='', login_url='/')
 def delete(request):
@@ -145,11 +146,17 @@ def delete(request):
 	return school_suadmin(request, 0, 'You successfully deleted a school.')
 
 @login_required(redirect_field_name='', login_url='/')
-def viewSchoolAdmins(request, class_id, message=None, success=True):
+def viewSchoolAdmins(request, school_id, message=None, success=True):
 	school_info = get_object_or_404(School, pk=school_id)
 	avatar = UserProfile.objects.get(user_id = request.user.id).avatar
 	formMails = MailForm2()
-	return render(request, 'app_schools/viewSchoolAdmins.html', {'mailSend':False, 'adminList':school_info, 'avatar':avatar, 'succ': success,'success':message, 'formMails': formMails})
+	hasAdmin = None
+	power = True
+	admins = Admin.objects.filter(school=school_info)
+	if power and (admins is None or not admins.exists()):
+		hasAdmin = 'This school doesn\'t have admins yet'
+
+	return render(request, 'app_schools/viewSchoolAdmins.html', {'mailSend':False, 'school':school_info, 'adminList':admins, 'avatar':avatar, 'succ': success,'success':message, 'formMails': formMails,  'active_nav':'SCHOOLS'})
 
 @login_required(redirect_field_name='', login_url='/')
 def removeAdmin(request):
@@ -206,4 +213,4 @@ def inviteAdmin(request):
 		formMails = MailForm2()
 
 	#return viewClassList(request, class_id, message, success)
-	return render(request, 'app_schools/viewSchoolAdmins.html', {'mails':mail, 'count':count, 'formMails':formMails,'sender':sender,'avatar':avatar, 'adminList':school_info, 'mailSend':True})
+	return render(request, 'app_schools/viewSchoolAdmins.html', {'mails':mail, 'count':count, 'formMails':formMails,'sender':sender,'avatar':avatar, 'adminList':school_info, 'mailSend':True, 'active_nav':'SCHOOLS'})

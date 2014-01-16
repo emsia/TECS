@@ -1,9 +1,21 @@
 <div class="sidebar">
 	<ul>
 		<li {% if not active_nav or active_nav == 'DASHBOARD' %} class="active" {% endif %} >
-			<a href="{% url 'classes:dashboard' %}">
+			<a href="{% url 'schools:dashboard' %}">
 				<div class="sidebar-icon fui-cmd"></div>
+				<div class="sidebar-content">DASHBOARD</div>
+			</a>
+		</li>
+		<li {% if active_nav == 'SCHOOLS' %} class="active"  {% endif %} >
+			<a href="{% url 'schools:view' %}">
+				<div class="sidebar-icon fui-eye"></div>
 				<div class="sidebar-content">SCHOOLS</div>
+			</a>
+		</li>
+		<li {% if active_nav == 'SUPERADMIN' %}  class="active" {% endif %} >
+			<a href="{% url 'schools:dashboard' %}">
+				<div class="sidebar-icon fui-user"></div>
+				<div class="sidebar-content">SUPERADMINS</div>
 			</a>
 		</li>
 	</ul>
