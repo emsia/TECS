@@ -90,7 +90,6 @@ def submitTeachers(request):
 		form_class = teacherAdd(data=request.POST)
 		mails = request.POST.getlist('email')
 		usernames = request.POST.getlist('username')
-		success_url = request.POST.get("next_url", "/")
 
 		#print mails: check proper email addresses
 		message = ''
@@ -100,7 +99,6 @@ def submitTeachers(request):
 				pass
 			except ValidationError:
 				message = 'Please input valid emails'
-		success_url = request.POST.get("next_url", "/")
 
 		count = 0
 		school = Admin.objects.get(user=request.user).school
@@ -109,7 +107,8 @@ def submitTeachers(request):
 			if not existing.exists():
 				salt = hashlib.sha1(str(random.random())).hexdigest()[:5]
 				usernaming = usernaming.encode('utf-8')
-				password_preset = hashlib.md5(salt+usernaming).hexdigest()[:8]
+				password_preset = hashlib.md5(salt+usernaming).hexdigest()[:12]
+				print password_preset
 				if Site._meta.installed:
 					site = Site.objects.get_current()
 				else:
@@ -121,7 +120,7 @@ def submitTeachers(request):
 				teacher.school.add(school)
 				count = count + 1
 
-		return redirect(success_url)
+		return redirect('auth:dashboard')
 	else:
 		return teacher_addNewClass(request, form_class)
 
@@ -188,6 +187,16 @@ def submit(request):
 		else:
 			return teacher_addNewClass(request, form_class, formMails)
 
+@login_required(redirect_field_name='', login_url='/')
+def disableTeacher(request, teacher_id):
+	teacher_info = get_object_or_404(Teacher, pk=teacher_id)
+	try:
+		user_info = get_object_or_404(User, pk=teacher_info.user.id)
+		user_info.is_active = not user_info.is_active
+		user_info.save()
+	except:
+		pass
+	return redirect('auth:dashboard')
 
 @login_required(redirect_field_name='', login_url='/')
 def edit(request, class_id):
@@ -280,7 +289,7 @@ def inviteStudent(request):
 			mail = []
 			for email in emails.values():
 				mail = email
-			
+
 			count = len(mail)
 			if sendNow == 'sendNow':
 				fp = open('./static/base/img/icons/Mail@2x.png', 'rb')

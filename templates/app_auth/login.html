@@ -11,7 +11,7 @@ TECS: Test Essay Checking Software | Login
 			<h3>TECS: Test Essay Checking Software</h3>
 			<div class="login-form">
 		     	{% if errors %}		
-				<p class="text-error">Invalid username and password combination. Please try again.</p>
+				<p class="text-error">{{ errors }}</p>
 				{% endif %}
 				<form action="" method="post">
 					{% csrf_token %}

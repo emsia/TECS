@@ -50,13 +50,15 @@ class LoginView(FormView):
 		if user is not None:
 			if user.is_active:
 				login(self.request, user)
-				return HttpResponseRedirect(self.get_success_url())			
+				return HttpResponseRedirect(self.get_success_url())
+			else:
+				return self.form_invalid(form, request, 'Account not yet Validated.')		
 		else:		
-			return self.form_invalid(form, request)
+			return self.form_invalid(form, request, 'Invalid username and password Combination.')
 	
-	def form_invalid(self, form, request):
+	def form_invalid(self, form, request, err=None):
 		return render_to_response( self.template_name , {
-			'errors': 1,
+			'errors': err,
 			'form' : form, 
 		},  RequestContext(request))
 	
@@ -83,7 +85,7 @@ class LoginView(FormView):
 		if form.is_valid():
 			return self.form_valid(form, request)
 		else:				
-			return self.form_invalid(form, request)
+			return self.form_invalid(form, request, 'Please input username and password.')
 
 def user_logout(request):
     return logout_then_login(request,login_url='/')
@@ -416,7 +418,11 @@ def dashboard(request, email_form=None):
 		teacher_lists = Teacher.objects.filter(school=Admin.objects.get(user=request.user).school)
 		classList = []
 		for teacher_list in teacher_lists:
-			classList = Class.objects.filter(teacher=teacher_list)
+			try:
+				classes = Class.objects.get(teacher=teacher_list)
+				classList.append(classes)
+			except:
+				pass
 		return render(request, 'app_auth/admin_dashboard.html', {'avatar': avatar, 'role':role, 'teacher_list':teacher_lists, 'classList':classList})
 
 	elif len(SUadmin.objects.filter(user_id = request.user.id)) > 0:
