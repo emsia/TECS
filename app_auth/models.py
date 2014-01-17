@@ -2,6 +2,8 @@ from django.db import models
 from django.forms import ModelForm, PasswordInput
 from django.conf import settings
 from django.contrib.auth.models import User
+from django.utils import timezone
+import datetime
 
 class UserProfile(models.Model):
 	user = models.OneToOneField(User)
@@ -23,7 +25,13 @@ class UserProfile(models.Model):
 			return 'ADMIN'
 
 class SUadmin(models.Model):
-	user = models.ForeignKey(User)
+	user = models.ForeignKey(User, related_name='self_userid')
+	registered_by = models.ForeignKey(User, related_name='registered_by')
+	status = models.IntegerField(default=0)
+	date_added = models.DateTimeField(null=True)
+	date_registered = models.DateTimeField(default=timezone.now())
+	activation_code = models.CharField(max_length=32, unique=True)
+	activation_code_expiry = models.DateTimeField()
 
 	def __str__(self):
 		return u'%s, %s' % (self.user.last_name, self.user.first_name)

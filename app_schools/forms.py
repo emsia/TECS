@@ -33,3 +33,7 @@ class MailForm2(forms.Form):
     def cleaned_emails(self):
         data = self.cleaned_data.get('emails', [])
         return data.split(',')
+
+class adminAdd(forms.Form):
+    username = forms.CharField( label='Username', widget=forms.TextInput(attrs={'type':'text', 'class': 'span6', 'placeholder': 'Required'}))
+    email = MultiEmailField( label='Email', widget=forms.TextInput(attrs={'type':'text', 'class': 'span6', 'placeholder': 'Required'}))

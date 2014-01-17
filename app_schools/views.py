@@ -1,21 +1,29 @@
 
 import os
 import hashlib
+import random
+from django.contrib.auth.models import User
 from django.shortcuts import render, redirect
 from django.http import HttpResponseRedirect
 from django.contrib.auth.decorators import login_required
 from app_schools.models import School, SchoolForm, EditForm
 from django.shortcuts import render, get_object_or_404
 from app_auth.models import UserProfile, SUadmin, School, Admin
+from app_registration.models import RegistrationProfile
 from django.db.models import Count
 from django import forms
+from django.contrib.sites.models import RequestSite
+from django.contrib.sites.models import Site
+
 from django.forms.widgets import Textarea
 from django.utils import timezone
 from django.contrib.auth.decorators import login_required
+from django.core.validators import validate_email
+from django.core.exceptions import ValidationError
 from django.core.mail import EmailMessage
 from django.template.loader import render_to_string, get_template
 from django.template import Context
-from .forms import MailForm, MailForm2
+from .forms import MultiEmailField, MailForm, MailForm2, adminAdd
 from email.MIMEImage import MIMEImage
 
 @login_required(redirect_field_name='', login_url='/')
@@ -26,66 +34,54 @@ def dashboard(request):
 	avatar = User_Profile.get(user_id=request.user.id).avatar
 	User_Profile = User_Profile.get(user_id=request.user.id)
 	suadmin = SUadmin.objects.filter(user=request.user)
+	avatar = User_Profile.avatar
+	#return render(request, link, {'avatar':avatar, 'active_nav':'CLASSES', 'formEnroll':formEnroll, 'sections':sections, 'error': err, 'success':success, 'hasClasses':hasClasses, 'power':power})
+	return render(request, link, {'avatar':avatar,'error': err, 'success':success, 'active_nav':'DASHBOARD'})
+
+@login_required(redirect_field_name='', login_url='/')
+def suadmin_viewSchools(request, err=None, success=None):
+	User_Profile = UserProfile.objects.filter(user_id = request.user.id)
+	if not User_Profile.exists():
+		return redirect("/profile")
+
+	User_Profile = User_Profile.get(user_id=request.user.id)
+	suadmin = SUadmin.objects.filter(user=request.user)
 	hasSchools = None
 	power = True
-	formEnroll = formAdmin 
-	link = 'app_auth/suadmin_dashboard.html'
-	if suadmin.exists():
-		schools = School.objects.filter(suadmin=suadmin)
-	else:
-		if admin.exists():
-			link = 'app_auth/suadmin_dashboard.html'
-			schools = School.objects.filter(admin=admin)
-		else:
-			schools = None
-			power = False
-			hasSchools = 'You have no permission to add Schools.'
+	link = 'app_schools/viewSchools.html'
+	schools = School.objects.filter(suadmin=suadmin)
 	if power and (schools is None or not schools.exists()):
 		hasSchools = 'You don\'t have Schools yet'
 	avatar = User_Profile.avatar
-	#return render(request, link, {'avatar':avatar, 'active_nav':'CLASSES', 'formEnroll':formEnroll, 'sections':sections, 'error': err, 'success':success, 'hasClasses':hasClasses, 'power':power})
-	return render(request, link, {'avatar':avatar, 'formEnroll':formEnroll, 'schools':schools, 'error': err, 'success':success, 'hasSchools':hasSchools, 'power':power, 'active_nav':'DASHBOARD'})
-	
+	return render(request, link, {'avatar':avatar, 'schools':schools, 'hasSchools':hasSchools, 'power':power, 'active_nav':'SCHOOLS'})
+		
 @login_required(redirect_field_name='', login_url='/')
 def suadmin_addNewSchool(request, add_form=None, email_form=None):
 	avatar = UserProfile.objects.get(user_id = request.user.id).avatar
 	addSchool_form = add_form or SchoolForm()
 	suadmin = SUadmin.objects.filter(user=request.user)
-	name = School.objects.filter()
-	formMails = email_form or MailForm()
+	name = School.objects.filter(suadmin=suadmin)
 	return render(request, 'app_schools/suadmin_addNewSchool.html', 
-			{'addSchoolForm' : addSchool_form, 'formMails':formMails,'next_url': '/', 'avatar':avatar, 'name':name})
+			{'addSchoolForm' : addSchool_form, 'next_url': '/schools/', 'avatar':avatar, 'name':name, 'active_nav':'SCHOOLS'})
 
 @login_required(redirect_field_name='', login_url='/')
 def submit(request):
 	if request.method == "POST":
 		form_school = SchoolForm(data=request.POST)
-		formMails = MailForm(data=request.POST)
-		success_url = request.POST.get("next_url", "/")
-
-		if form_school.is_valid() and formMails.is_valid():
+		if form_school.is_valid():
 			forms = form_school.cleaned_data
 			name_info = forms['name']
 			short_name_info = forms['short_name']
 			address_info = forms['address']
-
-			emails = formMails.cleaned_data
-			mail = []
-			for email in emails.values():
-				mail = email
-
+			suadmin_info= SUadmin.objects.get(user=request.user)
 			#rendered = render_to_string("users/emails/data.txt", {'data': data})
-			try:
-				suadmin = SUadmin.objects.get(user=request.user)
-			except SUadmin.DoesNotExist:
-				return school_suadmin(request, 'You don\'t have permission to add Schools.')
-
-			school_info = School.objects.filter(name=name_info).filter(short_name=short_name_info).filter(address=address_info)
+	
+			school_info = School.objects.filter(name=name_info).filter(short_name=short_name_info).filter(address=address_info).filter(suadmin=suadmin_info)
 			if school_info.exists():
-				return school_suadmin(request, 'That School already exists.')
+				return suadmin_viewSchools(request, 'That School already exists.')
 
 			form = form_school.save(commit=False)
-			form.suadmin = suadmin
+			form.suadmin = suadmin_info
 			form.date_created = timezone.now()
 			form.is_active = True
 
@@ -94,32 +90,14 @@ def submit(request):
 			form.key = random_data
 			form.save()
 
-			template = get_template('app_schools/perl.html').render(
-				Context({
-					'sender': request.user,
-					'adminList': form,
-				})
-			)
-			if mail:
-				fp = open('./static/base/img/icons/Mail@2x.png', 'rb')
-				msgImage = MIMEImage(fp.read())
-				fp.close()
-
-				msgImage.add_header('Content-ID', '<image1>')
-
-				mailSend = EmailMessage('[TECS] Invitation to join School', template, 'fsvaeg@gmail.com', mail )
-				mailSend.content_subtype = "html"  # Main content is now text/html
-				mailSend.attach(msgImage)
-				mailSend.send()
-			#send_mail('Subject', 'You are invited to class '+ yearType_info + '-' + section_info + ' ' + subject_info + '. The key class is: ' + random_data, 'fsvaeg@gmail.com', mail)
-			
+			success_url = request.POST.get("next_url", '/schools/')
 			return redirect(success_url)
 		else:
-			return suadmin_addNewSchool(request, form_school, formMails)
+			return suadmin_addNewSchool(request, form_school)
 
 
 @login_required(redirect_field_name='', login_url='/')
-def edit(request, class_id):
+def edit(request, school_id):
 	school_info = get_object_or_404(School, pk=school_id)
 	power = False
 	if request.method == "POST":
@@ -136,20 +114,26 @@ def edit(request, class_id):
 	if not power:
 		formEdit = EditForm(initial={'name':school_info.name, 'short_name':school_info.short_name, 'section':school_info.address})
 	avatar = UserProfile.objects.get(user_id = request.user.id).avatar
-	return render(request, 'app_schools/suadmin_editSchool.html', {'avatar':avatar, 'school_info':school_info, 'formEdit':formEdit})
+	return render(request, 'app_schools/suadmin_editSchool.html', {'avatar':avatar, 'next_url': '/schools/','school_info':school_info, 'formEdit':formEdit,  'active_nav':'SCHOOLS'})
 			
 @login_required(redirect_field_name='', login_url='/')
-def delete(request):
-	school_info = get_object_or_404(School, pk=request.POST['school_id'])
+def delete(request, school_id):
+	school_info = get_object_or_404(School, pk=school_id)
 	school_info.delete()
-	return school_suadmin(request, 0, 'You successfully deleted a school.')
+	return suadmin_viewSchools(request, 0, 'You successfully deleted a school.')
 
 @login_required(redirect_field_name='', login_url='/')
-def viewSchoolAdmins(request, class_id, message=None, success=True):
+def viewSchoolAdmins(request, school_id, message=None, success=True):
 	school_info = get_object_or_404(School, pk=school_id)
 	avatar = UserProfile.objects.get(user_id = request.user.id).avatar
 	formMails = MailForm2()
-	return render(request, 'app_schools/viewSchoolAdmins.html', {'mailSend':False, 'adminList':school_info, 'avatar':avatar, 'succ': success,'success':message, 'formMails': formMails})
+	hasAdmin = None
+	power = True
+	admins = Admin.objects.filter(school=school_info)
+	if power and (admins is None or not admins.exists()):
+		hasAdmin = 'This school doesn\'t have admins yet'
+
+	return render(request, 'app_schools/viewSchoolAdmins.html', {'mailSend':False, 'school':school_info, 'adminList':admins, 'avatar':avatar, 'succ': success,'success':message, 'formMails': formMails,  'active_nav':'SCHOOLS'})
 
 @login_required(redirect_field_name='', login_url='/')
 def removeAdmin(request):
@@ -159,51 +143,49 @@ def removeAdmin(request):
 	return viewSchoolAdmins(request, request.POST['school_id'], 'You successfully removed an admin.')
 
 @login_required(redirect_field_name='', login_url='/')
-def inviteAdmin(request):
-	school_id = request.POST['sid']
-	school_info = get_object_or_404(School, pk=school_id)
-	sender = request.user
+def addAdmin(request,  school_id, add_form=None, email_form=None):
 	avatar = UserProfile.objects.get(user_id = request.user.id).avatar
-	message = 'Invalid Email address(es)'
-	success = False
-	mail = None
-	count = 0
+	school_info = get_object_or_404(School, pk=school_id)
+	adminAdd_form = adminAdd()
+	admin = Admin.objects.filter(user=request.user)
+	formMails = email_form or MailForm()
+	return render(request, 'app_schools/add_admin.html', 
+			{'adminAdd_form':adminAdd_form, 'formMails':formMails,'next_url': '/schools/', 'avatar':avatar, 'active_nav':'SCHOOLS'})
 
+
+@login_required(redirect_field_name='', login_url='/')
+def submitAdmins(request):
 	if request.method == "POST":
-		formMails = MailForm2(data=request.POST)
-		sendNow = request.POST.get('sendNow')
+		form_school = adminAdd(data=request.POST)
+		mails = request.POST.getlist('email')
+		usernames = request.POST.getlist('username')
 
-		template = get_template('app_classes/perl.html').render(
-			Context({
-				'sender': sender,
-				'adminList': school_info,
-			})
-		)
-		if formMails.is_valid():
-			emails = formMails.cleaned_data
-			mail = []
-			for email in emails.values():
-				mail = email
-			
-			count = len(mail)
-			if sendNow == 'sendNow':
-				fp = open('./static/base/img/icons/Mail@2x.png', 'rb')
-				msgImage = MIMEImage(fp.read())
-				fp.close()
+		#print mails: check proper email addresses
+		message = ''
+		for email in mails:
+			try:
+				validate_email(email)
+				pass
+			except ValidationError:
+				message = 'Please input valid emails'
 
-				msgImage.add_header('Content-ID', '<image1>')
+		count = 0
+		for usernaming in usernames:
+			existing = User.objects.filter(username__iexact=usernaming)
+			if not existing.exists():
+				salt = hashlib.sha1(str(random.random())).hexdigest()[:5]
+				usernaming = usernaming.encode('utf-8')
+				password_preset = hashlib.md5(salt+usernaming).hexdigest()[:12]
+				print password_preset
+				if Site._meta.installed:
+					site = Site.objects.get_current()
+				else:
+					site = RequestSite(request)
+				print password_preset
+				new_user = RegistrationProfile.objects.create_inactive_user(usernaming, mails[count], password_preset, site)
+				admin = Admin.objects.create(user=new_user)
+				admin.save()
+				count = count + 1
 
-				mailSend = EmailMessage('[TECS] Invitation to join School', template, 'fsvaeg@gmail.com', mail )
-				mailSend.content_subtype = "html"  # Main content is now text/html
-				mailSend.attach(msgImage)
-				mailSend.send()
-				success = True
-				message = 'Invitations were sent successfully.'
-				return viewSchoolAdmins(request, school_id, message, success)
-		else:
-			return viewSchoolAdmins(request, school_id, message, success)
-	else:
-		formMails = MailForm2()
+		return redirect('/schools/')
 
-	#return viewClassList(request, class_id, message, success)
-	return render(request, 'app_schools/viewSchoolAdmins.html', {'mails':mail, 'count':count, 'formMails':formMails,'sender':sender,'avatar':avatar, 'adminList':school_info, 'mailSend':True})

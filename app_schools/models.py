@@ -28,10 +28,6 @@ class SchoolForm(ModelForm):
           'address': TextInput(attrs={'class':'input-xlarge span11', 'data-name':'address'})
            }
 
-        def cleaned_Emails(self):
-        	data = self.cleaned_data.get('Emails', [])
-        	return data.split(',')
-
 class EditForm(ModelForm):
 	class Meta:
 		model = School

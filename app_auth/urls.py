@@ -15,4 +15,6 @@ urlpatterns = patterns('',
 	url(r'^settings/grading-system/new$', views.grading_system_new, name='gradesys_new'),
 	url(r'^settings/grading-system/(?P<gradeSys_id>\d+)/$', views.grading_system_view, name='grades'),
 	url(r'^settings/grading-system/delete/$', views.grading_system_delete, name='gradesys_delete'),
+	url(r'^superadmin/view/$', views.suadmin_viewsuperadmins,  name='viewsuperadmins'),
+	url(r'^superadmin/add/$', views.suadmin_addsuperadmin,  name='addsuperadmin'),
 )

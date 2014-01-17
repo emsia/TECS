@@ -1,4 +1,4 @@
-{% extends "base/base.html" %}
+{% extends "base/base_suadmin.html" %}
 {% load staticfiles %}
 
 {% block title %}
@@ -20,86 +20,16 @@ TECS: Test Essay Checking Software | Home
 	
 </head>
 
-<div id="myModal" class="modal hide fade" data-backdrop="static">
-	<div class="modal-header palette-emerald">
-		<h3 class="text-white">Make Invitation</h3>
-	</div>
-	<div class="modal-body">
-		<form action="{% url 'schools:inviteadmin' %}" method="post">{% csrf_token %}
-		{% for form in formMails %}
-		<div class="control-group">
-			<div class="controls">
-				<div>
-					<p>Please seperate each person by comma. For example:</p>
-					<div style="padding-left: 100px">
-					<i>cheryleighverano@gmail.com, master@yahoo.com</i>
-					</div>
-				</div><br/>
-				{{ form }}
-				{% for error in form.errors %}
-				<p class="text-error">{{ error }}</p>
-				{% endfor %}
-			</div>		
-		</div> 	
-		{% endfor %}
-		<input type="hidden" id="cid" name="cid" value={{ adminList.id }} >
-	</div>
-	<div class="modal-footer"> 
-		<button type="submit" name="gradesys-send"  class="btn btn-primary pull-left" >Make Invitation <span class="fui-check"></span></button>
-		<button type="button" class="btn btn-warning" data-dismiss="modal" aria-hidden="true">Cancel <i class="fui-new"></i></button>
-	</div>
-	</form>
-</div>	
-
 <div class="page-content">
 	<div class="row-fluid">
 		<div class="content">
 			<p class="pull-right">
-				<a href="#myModal" role="button" data-toggle="modal" data-trigger="hover" data-placement="left" title data-original-title="Invite Admins" class="btn btn-success sentMail "><i class="fui-mail"></i></a>
-				<a href="{% url 'schools:edit' adminList.id %}" data-toggle="tooltip" data-trigger="hover" data-placement="left" title data-original-title="Edit School Info" class="btn btn-warning"><i class="fui-new"></i></a>
+				<a href="{% url 'schools:addAdmin' school.id %}" data-toggle="tooltip" data-trigger="hover" data-placement="left" title data-original-title="Add School Admin" class="btn btn-warning"><i class="fui-plus"></i></a>
+				<a href="{% url 'schools:edit' school.id %}" data-toggle="tooltip" data-trigger="hover" data-placement="left" title data-original-title="Edit School Info" class="btn btn-warning"><i class="fui-new"></i></a>
 			</p>
 			<img class="title-icons" src={% static 'base/img/icons/Pocket@2x.png' %}>
-			<h3 class="title">{{ adminList.school }}</h3>
+			<h3 class="title">{{ adminList.school.name }}</h3>
 			
-			{% if mailSend %}
-				<div class="alert alert-block alert-success">
-					Please review the invitation below carefully. You may not cancel an invitation once it has been submitted. If you want to disregard this mail, click <b>"Cancel"</b>. If you are ready to submit your invitation, click <b>"Send Invitation"</b>.
-					<br/><br/>
-					Number of people to Invite: <b>{{ count }}</b>
-				</div>
-
-				<form class="form form-horizontal" action="{% url 'schools:inviteAdmin' %}" method="POST"> {% csrf_token %}
-					<fieldset>
-						<div class="palette-turquoise">
-							<center>
-								<img class="title-icons" style="float: none; padding-bottom:3px; padding-top:5px; margin-right: -5px" src="{% static 'base/img/icons/Mail@2x.png' %}">
-			            		<div class="btn btn-primary" style="text-shadow:none"><b>You have been assigned to administer this school.</b></div>
-			            	</center>
-			         	</div>
-
-				          <div class="demo-text-box prl" style="border-radius: 0px;">
-				            <p>
-				            	From: <span style="color: #1abc9c">{{ sender.email }} [{{ sender.last_name }}, {{ sender.first_name }}]</span><br/>
-								Subject: Invitation to join {{ adminList.shool }}<br/>
-								School Key: <span style="color: #1abc9c">{{ adminList.key }}</span><br/><br/>
-								Please <a href="tecs.herokuapp.com" style="color: #1abc9c; text-decoration: none;">Log-in</a> or Register to <a href="http://tecs.herokuapp.com/accounts/register/" style="color: #1abc9c; text-decoration: none">tecs.herokuapp.com</a> and enter the School Key to enroll in a School.
-							</p>
-							<div style="display:none">
-								{% for form in formMails %}
-									{{ form }}
-								{% endfor %}
-							</div>
-				          </div>
-				        <input type="hidden" id="cid" name="cid" value={{ adminList.id }} >
-				        <div class="form-actions">
-		    				<input type="hidden" value="sendNow" name="sendNow" />
-							<button type="submit" class="btn btn-primary"><b>Send Invitation</b><i class="fui-check"></i></button> 
-							<a href="{% url 'schools:viewSchool' adminList.id %}" type="button" class="btn btn-danger"><b>Cancel</b><i class="fui-cross"></i></a>
-						</div>
-					</fieldset>
-				</form>
-				{% else %}
-
 			<table class="table table-striped">
 				{% if adminList.admin.all.count %}
 					{% if success %}
@@ -144,7 +74,6 @@ TECS: Test Essay Checking Software | Home
 			        </div>
 			    {% endif %}
 			</table>
-			{% endif %}
 		</div>
 	</div>
 </div>
@@ -156,7 +85,7 @@ TECS: Test Essay Checking Software | Home
 		<div class="modal-body">
 			<p>Are you sure you want to delete this admin from the school?</p>
 			<p>Continuing with this action, will erase his/her account on this school. </p>
-			<form action="{% url 'schools:removeadmin' %}" method="post">{% csrf_token %}
+			<form action="{% url 'schools:removeAdmin' school.id %}" method="post">{% csrf_token %}
 				<input type="hidden" id="school_id" name="school_id" value="">
 				<input type="hidden" id="admin_id" name="admin_id" value="">
 			<form>

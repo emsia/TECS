@@ -24,10 +24,10 @@ from app_essays.models import Essay, EssayResponse
 from app_essays.models import GradingSystem, GradeSysForm, Grade
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
-from .forms import LoginForm, PasswordForm, ProfileForm, schoolForStudent, schoolForTeacher, GradeForm_Option1, GradeForm_Option2
+from .forms import LoginForm, PasswordForm, ProfileForm, schoolForStudent, schoolForTeacher, GradeForm_Option1, GradeForm_Option2, NewSuperAdminForm
 from app_classes.forms import MailForm
 
-import numpy
+import numpy, random, string, datetime
 
 class LoginView(FormView):
 	form_class = LoginForm
@@ -381,7 +381,6 @@ def grading_system_new(request):
 @login_required(redirect_field_name='', login_url='/')
 def grading_system_delete(request):
 	if request.method == 'POST':
-		print ">>>>>", request.POST['gradesysid']
 		GradeSys = get_object_or_404(GradingSystem, pk=request.POST['gradesysid'], created_by=request.user)
 		GradeSys.delete()
 	return redirect('auth:gradesys')
@@ -450,3 +449,45 @@ def graderList(request):
 		return render(request, 'app_auth/teacher_help.html', {'avatar':avatar, 'active_nav':'DASHBOARD'})
 	elif len(Student.objects.filter(user_id = request.user.id)) > 0:
 		return render(request, 'app_auth/graded.html', {'avatar':avatar, 'active_nav':'DASHBOARD'})
+
+@login_required
+def suadmin_viewsuperadmins(request, err=None, success=None):
+	User_Profile = UserProfile.objects.filter(user_id = request.user.id)
+	if not User_Profile.exists():
+		return redirect("/profile")
+
+	User_Profile = User_Profile.get(user_id=request.user.id)
+	avatar = User_Profile.avatar
+	superadmins = SUadmin.objects.filter(status__gte=0)
+
+
+	return render(request, 'app_auth/suadmin_viewsuperadmins.html', {'avatar':avatar, 'superadmins':superadmins, 'active_nav':'SUPERADMIN'})
+
+def suadmin_addsuperadmin(request, err=None, success=None):
+	User_Profile = UserProfile.objects.filter(user_id = request.user.id)
+	if not User_Profile.exists():
+		return redirect("/profile")
+
+	User_Profile = User_Profile.get(user_id=request.user.id)
+	avatar = User_Profile.avatar
+	
+	if request.method == 'POST':
+		form = NewSuperAdminForm(request.POST)
+		if form.is_valid():
+			while True:
+				ac = ''.join(random.choice(string.ascii_letters + string.digits) for x in range(32))
+				if not SUadmin.objects.filter(activation_code=ac).exists():
+					break
+			activation_code_expiry = datetime.datetime.now() + datetime.timedelta(days=7)
+
+			user = User.objects.create_user(form.cleaned_data['username'], form.cleaned_data['email'], 'password')
+			user.last_name = form.cleaned_data['last_name']
+			user.first_name = form.cleaned_data['first_name']
+			user.save()
+			SUadmin.objects.create(user=user, registered_by=request.user, activation_code=ac, activation_code_expiry=activation_code_expiry)
+
+			return redirect('auth:viewsuperadmins')
+	else:
+		form = NewSuperAdminForm
+	
+	return render(request, 'app_auth/suadmin_addsuperadmins.html', {'avatar':avatar, 'form':form, 'active_nav':'SUPERADMIN'})
