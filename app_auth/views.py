@@ -390,7 +390,7 @@ def login_on_activation(sender, user, request, **kwargs):
     login(request,user)
 signals.user_activated.connect(login_on_activation)
 
-def dashboard(request, email_form=None):
+def dashboard(request, email_form=None, message=None, error=None):
 	User_Profile = UserProfile.objects.filter(user_id = request.user.id)
 
 	if not User_Profile.exists():
@@ -422,7 +422,7 @@ def dashboard(request, email_form=None):
 				classList.append(classes)
 			except:
 				pass
-		return render(request, 'app_auth/admin_dashboard.html', {'avatar': avatar, 'role':role, 'teacher_list':teacher_lists, 'classList':classList})
+		return render(request, 'app_auth/admin_dashboard.html', {'avatar': avatar, 'role':role, 'teacher_list':teacher_lists, 'classList':classList, 'message':message, 'error':error})
 
 	elif len(SUadmin.objects.filter(user_id = request.user.id)) > 0:
 		school_list = School.objects.filter().count()
@@ -450,7 +450,7 @@ def graderList(request):
 	elif len(Student.objects.filter(user_id = request.user.id)) > 0:
 		return render(request, 'app_auth/graded.html', {'avatar':avatar, 'active_nav':'DASHBOARD'})
 
-@login_required
+@login_required(redirect_field_name='', login_url='/')
 def suadmin_viewsuperadmins(request, err=None, success=None):
 	User_Profile = UserProfile.objects.filter(user_id = request.user.id)
 	if not User_Profile.exists():
