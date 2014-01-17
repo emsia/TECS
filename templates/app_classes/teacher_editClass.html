@@ -1,4 +1,4 @@
-{% extends "base/base.html" %}
+{% extends place %}
 {% load staticfiles %}
 
 {% block title %}
@@ -11,7 +11,14 @@ TECS: Test Essay Checking Software | Teacher Classes
 			<div class="content">
 				<img class="title-icons" src="{% static 'base/img/icons/user.png' %}">
 				<h3 class="title">Edit Class Information</h3>
-				<form class="form-horizontal" action="{% url 'classes:edit' class_info.id %}" method="POST"> {% csrf_token %}
+				<form class="form-horizontal" 
+					{% if place == 'base/base.html' %} 
+						action="{% url 'classes:edit' class_info.id 1 %}"
+					{% else %}
+						action="{% url 'classes:edit' class_info.id 0 %}"
+					{% endif %}
+
+					method="POST"> {% csrf_token %}
 					<fieldset>
 						{% for form in formEdit %}
 						<div class="control-group">

@@ -43,6 +43,7 @@ TECS: Test Essay Checking Software | Home
 		</div> 	
 		{% endfor %}
 		<input type="hidden" id="cid" name="cid" value={{ studentList.id }} >
+		<input type="hidden" id="place" name="place" value={{ place }} >
 	</div>
 	<div class="modal-footer"> 
 		<button type="submit" name="gradesys-send"  class="btn btn-primary pull-left" >Make Invitation <span class="fui-check"></span></button>
@@ -56,7 +57,13 @@ TECS: Test Essay Checking Software | Home
 		<div class="content">
 			<p class="pull-right">
 				<a href="#myModal" role="button" data-toggle="modal" data-trigger="hover" data-placement="left" title data-original-title="Invite Students" class="btn btn-success sentMail "><i class="fui-mail"></i></a>
-				<a href="{% url 'classes:edit' studentList.id %}" data-toggle="tooltip" data-trigger="hover" data-placement="left" title data-original-title="Edit Class Info" class="btn btn-warning"><i class="fui-new"></i></a>
+				<a 
+					{% if place == 'base/base.html' %} 
+						href="{% url 'classes:edit' studentList.id 1 %}" 
+					{% else %}
+						href="{% url 'classes:edit' studentList.id 0 %}" 
+					{% endif %}
+					data-toggle="tooltip" data-trigger="hover" data-placement="left" title data-original-title="Edit Class Info" class="btn btn-warning"><i class="fui-new"></i></a>
 			</p>
 			<img class="title-icons" src={% static 'base/img/icons/Pocket@2x.png' %}>
 			<h3 class="title">{{ studentList.year_level }}-{{ studentList.section }}: {{ studentList.subject }} for (S.Y. {{ studentList.academic_year }})</h3>
@@ -91,10 +98,11 @@ TECS: Test Essay Checking Software | Home
 							</div>
 				          </div>
 				        <input type="hidden" id="cid" name="cid" value={{ studentList.id }} >
+						<input type="hidden" id="place" name="place" value={{ place }} >
 				        <div class="form-actions">
 		    				<input type="hidden" value="sendNow" name="sendNow" />
 							<button type="submit" class="btn btn-primary"><b>Send Invitation</b><i class="fui-check"></i></button> 
-							<a href="{% url 'classes:viewClass' studentList.id %}" type="button" class="btn btn-danger"><b>Cancel</b><i class="fui-cross"></i></a>
+							<a href="{% url 'classes:viewClass' studentList.id 0 %}" type="button" class="btn btn-danger"><b>Cancel</b><i class="fui-cross"></i></a>
 						</div>
 					</fieldset>
 				</form>
@@ -159,6 +167,7 @@ TECS: Test Essay Checking Software | Home
 			<form action="{% url 'classes:removeStudent' %}" method="post">{% csrf_token %}
 				<input type="hidden" id="class_id" name="class_id" value="">
 				<input type="hidden" id="student_id" name="student_id" value="">
+				<input type="hidden" id="place" name="place" value={{ place }}>
 			<form>
 		</div>
 		<div class="modal-footer">
