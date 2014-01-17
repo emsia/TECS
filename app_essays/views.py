@@ -14,7 +14,7 @@ from app_essays.models import Essay, EssayResponse, GradingSystem, EssayForm, Es
 from app_classes.models import Class
 
 from datetime import datetime
-import operator, pycurl, urllib, re
+import operator, urllib, re
 import nltk, json
 
 @login_required(redirect_field_name='', login_url='/')

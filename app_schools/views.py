@@ -188,3 +188,4 @@ def submitAdmins(request):
 				count = count + 1
 
 		return redirect('/schools/')
+
