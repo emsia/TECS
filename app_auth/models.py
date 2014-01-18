@@ -3,7 +3,7 @@ from django.forms import ModelForm, PasswordInput
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.utils import timezone
-import datetime
+from datetime import datetime
 
 class UserProfile(models.Model):
 	user = models.OneToOneField(User)
@@ -41,10 +41,12 @@ class School(models.Model):
 	short_name = models.CharField(max_length=20)
 	address = models.TextField()
 	key = models.CharField(max_length=32)
-	suadmin = models.ForeignKey(SUadmin, related_name= 'sa', blank=True, null=True)
+	suadmin = models.ForeignKey(SUadmin,blank=True, null=True)
+	date_created = models.DateTimeField(default=datetime.now)
+	is_active = models.IntegerField(default=0)
 
 	def __str__(self):
-		return self.name
+		return u'%s (%s)' % (self.name, self.short_name)
 
 	class Meta:
 		ordering = ['name']
