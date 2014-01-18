@@ -47,13 +47,22 @@ def suadmin_viewSchools(request, err=None, success=None):
 	User_Profile = User_Profile.get(user_id=request.user.id)
 	suadmin = SUadmin.objects.filter(user=request.user)
 	hasSchools = None
-	power = True
+	power = False
+	if suadmin:
+		power = True
 	link = 'app_schools/viewSchools.html'
 	schools = School.objects.filter(suadmin=suadmin)
+	administration = []
+	for school in schools:
+		try:
+			admins = Admin.objects.filter(school=school)
+			administration.append(admins)
+		except:
+			pass
 	if power and (schools is None or not schools.exists()):
 		hasSchools = 'You don\'t have Schools yet'
 	avatar = User_Profile.avatar
-	return render(request, link, {'avatar':avatar, 'schools':schools, 'hasSchools':hasSchools, 'power':power, 'active_nav':'SCHOOLS'})
+	return render(request, link, {'avatar':avatar, 'schools':schools, 'hasSchools':hasSchools, 'power':power, 'active_nav':'SCHOOLS', 'administrations':administration})
 		
 @login_required(redirect_field_name='', login_url='/')
 def suadmin_addNewSchool(request, add_form=None, email_form=None):
@@ -111,10 +120,11 @@ def edit(request, school_id):
 			school_info.save()
 			return viewSchoolAdmins(request, school_id, 'Changes to school details were saved.')
 
+	place = "base/base_suadmin.html"
 	if not power:
-		formEdit = EditForm(initial={'name':school_info.name, 'short_name':school_info.short_name, 'section':school_info.address})
+		formEdit = EditForm(initial={'name':school_info.name, 'short_name':school_info.short_name, 'address':school_info.address})
 	avatar = UserProfile.objects.get(user_id = request.user.id).avatar
-	return render(request, 'app_schools/suadmin_editSchool.html', {'avatar':avatar, 'next_url': '/schools/','school_info':school_info, 'formEdit':formEdit,  'active_nav':'SCHOOLS'})
+	return render(request, 'app_schools/suadmin_editSchool.html', {'avatar':avatar, 'next_url': '/schools/','school_info':school_info, 'place':place, 'formEdit':formEdit,  'active_nav':'SCHOOLS'})
 			
 @login_required(redirect_field_name='', login_url='/')
 def delete(request, school_id):
@@ -131,7 +141,7 @@ def viewSchoolAdmins(request, school_id, message=None, success=True):
 	power = True
 	admins = Admin.objects.filter(school=school_info)
 	if power and (admins is None or not admins.exists()):
-		hasAdmin = 'This school doesn\'t have admins yet'
+		hasAdmin = 'This school doesn\'t have admins yet.'
 
 	return render(request, 'app_schools/viewSchoolAdmins.html', {'mailSend':False, 'school':school_info, 'adminList':admins, 'avatar':avatar, 'succ': success,'success':message, 'formMails': formMails,  'active_nav':'SCHOOLS'})
 

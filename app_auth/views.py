@@ -414,15 +414,19 @@ def dashboard(request, email_form=None, message=None, error=None):
 		return render(request, 'app_auth/student_dashboard.html', {'avatar': avatar, 'role':role, 'class_count':class_count, 'exam_count':exam_count, 'in_progress_count':in_progress_count})
 
 	elif len(Admin.objects.filter(user_id = request.user.id)) > 0:
+		admin = Admin.objects.get(user_id = request.user.id)
 		teacher_lists = Teacher.objects.filter(school=Admin.objects.get(user=request.user).school)
 		classList = []
 		for teacher_list in teacher_lists:
 			try:
-				classes = Class.objects.get(teacher=teacher_list)
+				classes = Class.objects.filter(teacher=teacher_list)
 				classList.append(classes)
 			except:
 				pass
-		return render(request, 'app_auth/admin_dashboard.html', {'avatar': avatar, 'role':role, 'teacher_list':teacher_lists, 'classList':classList, 'message':message, 'error':error})
+		major_class = []
+		for classes in classList:
+			major_class.append(classes)
+		return render(request, 'app_auth/admin_dashboard.html', {'avatar': avatar, 'role':role, 'admin':admin.school.id, 'teacher_list':teacher_lists, 'classList':major_class, 'message':message, 'error':error})
 
 	elif len(SUadmin.objects.filter(user_id = request.user.id)) > 0:
 		school_list = School.objects.filter().count()

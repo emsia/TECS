@@ -56,3 +56,13 @@ class EnrollForm(ModelForm):
 			'school': Select(attrs={'class':'select span12', 'data-size':10, 'data-container':"body", 'data-options':"is_hover" }),
 			'key': TextInput(attrs={'class':'input-xlarge span2', 'data-name':'key'}),
 		}
+
+class EditForm_admin(ModelForm):
+	class Meta:
+		model = School
+		exclude = ('suadmin', 'key', 'date_created', 'is_active', 'admin')
+		widgets = {
+		  'name': TextInput(attrs={'class':'input-xlarge span11 cap', 'data-name':'name' }),
+          'short_name': TextInput(attrs={'class':'input-xlarge span11 cap', 'data-name':'short_name'}),
+          'address': TextInput(attrs={'class':'input-xlarge span11 cap', 'data-name':'address'})
+        }

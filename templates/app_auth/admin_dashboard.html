@@ -31,7 +31,7 @@ TECS: Test Essay Checking Software | Home
 		</div>
 				<div class="row-fluid">
 					<p class="pull-right">
-						<a data-toggle="tooltip" data-trigger="hover" data-placement="left" title data-original-title="Edit School Info" class="btn btn-warning"><i class="fui-new"></i></a>
+						<a href="{% url 'classes:editSchool' admin %}" data-toggle="tooltip" data-trigger="hover" data-placement="left" title data-original-title="Edit School Info" class="btn btn-warning"><i class="fui-new"></i></a>
 					</p>
 					<img class="title-icons" src="{% static 'base/img/icons/Clipboard@2x.png' %}">
 					<h3 class="title">Teachers List</h3>
@@ -42,7 +42,7 @@ TECS: Test Essay Checking Software | Home
 				          <h4><strong>Oops!</strong></h4>
 				          {{ message }}
 				        </div>
-				    {% elif message and teacher_list.all.count %}
+				    {% elif message %}
 				    <div class="alert alert-block alert-success">
 						<button type="button" class="close" data-dismiss="alert">&times;</button>
 			          <h4><strong>Success!</strong></h4> {{ message }}
@@ -68,9 +68,9 @@ TECS: Test Essay Checking Software | Home
 								<tr>
 									<td><center>{{forloop.counter}}</center></td>
 									<td><center>{{teachers.user.last_name}}, {{teachers.user.first_name}}</center></td>
-									<td><center>{% for class in classList %}{% if teachers.user == class.teacher.user %}{{ class.year_level }} - {{ class.section }}{% endif %}{% endfor %}</center></td>
-									<td><center>{% for class in classList %}{% if teachers.user == class.teacher.user %}{{ class.subject }}{% endif %}{% endfor %}</center></td>
-									<td><center>{% for class in classList %}{% if teachers.user == class.teacher.user %}{{ class.student.all.count }}{% endif %}{% endfor %}</center></td>
+									<td><center>{% for class in classList %}{% for classes in class %}{% if teachers.user == classes.teacher.user %}{{ classes.year_level }} - {{ classes.section }}{% if class.all.count > forloop.counter %}, {% endif %} {% endif %}{% endfor %}{% endfor %}</center></td>
+									<td><center>{% for class in classList %}{% for classes in class %}{% if teachers.user == classes.teacher.user %}{{ classes.subject }}{% if class.all.count > forloop.counter %}, {% endif %} {% endif %}{% endfor %}{% endfor %}</center></td>
+									<td><center>{% for class in classList %}{% for classes in class %}{% if teachers.user == classes.teacher.user %}{{ classes.student.all.count }}{% if class.all.count > forloop.counter %}, {% endif %} {% endif %}{% endfor %}{% endfor %}</center></td>
 									<td><center><a href="{% url 'classes:viewTeachers' teachers.id %}" class="btn btn-primary fui-location"></a></center></td>
 									<td><center>{% if teachers.user.is_active %}<a href="{% url 'classes:disableTeacher' teachers.id 0 %}" class="btn btn-warning fui-play"></a>{% else %}<a href="{% url 'classes:disableTeacher' teachers.id 0 %}" class="btn btn-inverse fui-pause">{% endif %}</center></td>
 									<td><center><button type="button" class="delsys-button btn btn-danger" data-id={{ teachers.id }} data-toggle="modal" data-target="#confirm-delete"><i class="fui-cross"></i></button></center></td>

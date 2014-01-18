@@ -28,10 +28,10 @@ TECS: Test Essay Checking Software | Home
 				<a href="{% url 'schools:edit' school.id %}" data-toggle="tooltip" data-trigger="hover" data-placement="left" title data-original-title="Edit School Info" class="btn btn-warning"><i class="fui-new"></i></a>
 			</p>
 			<img class="title-icons" src={% static 'base/img/icons/Pocket@2x.png' %}>
-			<h3 class="title">{{ adminList.school.name }}</h3>
-			
+			<h3 class="title">{{ school.name }}</h3>
+			<hr>
 			<table class="table table-striped">
-				{% if adminList.admin.all.count %}
+				{% if adminList.all.count %}
 					{% if success %}
 						<div {% if succ %} class="alert alert-block alert-success" {% else %} class="alert alert-block alert-error" {% endif %}>
 						<button type="button" class="close" data-dismiss="alert">&times;</button>
@@ -49,9 +49,9 @@ TECS: Test Essay Checking Software | Home
 					</tr>
 				</thead>
 				<tbody>
-					{% for admin in adminList.admin.all %}
+					{% for admin in adminList %}
 					<tr>
-						<td><center>{{admin.id}}</center></td>
+						<td><center>{{forloop.counter}}</center></td>
 						<td><center>{{admin.user.last_name}}</center></td>
 						<td><center>{{admin.user.first_name}}</center></td>
 						<td><center>{{admin.user.email}}</center></td>

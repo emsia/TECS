@@ -6,12 +6,13 @@ from django.contrib.auth.models import User
 from django.shortcuts import render, redirect
 from django.http import HttpResponseRedirect
 from django.contrib.auth.decorators import login_required
-from app_classes.models import Class, ClassForm, EditForm, EnrollForm
+from app_classes.models import Class, ClassForm, EditForm, EnrollForm, EditForm_admin
 from app_auth.models import Admin
 from app_registration.models import RegistrationProfile
 from django.shortcuts import render, get_object_or_404
 from app_auth.models import UserProfile, Teacher, School, Student
 from django.db.models import Count
+from app_auth.views import dashboard
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
 from django import forms
@@ -25,15 +26,6 @@ from django.template.loader import render_to_string, get_template
 from django.template import Context
 from .forms import MailForm, MailForm2, teacherAdd
 from email.MIMEImage import MIMEImage
-
-@login_required(redirect_field_name='', login_url='/')
-def dashboard(request):
-	User_Profile = UserProfile.objects.filter(user_id = request.user.id)
-	if not User_Profile.exists():
-		return redirect("/profile")
-	avatar = User_Profile.get(user_id=request.user.id).avatar
-	
-	return render(request, 'app_classes/dashboard2.html', {'avatar':avatar, 'active_nav':'DASHBOARD'})
 		
 @login_required(redirect_field_name='', login_url='/')
 def class_teacher(request, err=None, success=None, formStud=None):
@@ -305,7 +297,7 @@ def delete_teacher(request):
 	user_info = teacher_info.user
 	teacher_info.delete()
 	user_info = get_object_or_404(User, pk=user_info.id)
-	user_info_info.delete()
+	user_info.delete()
 	return redirect('auth:dashboard')
 
 @login_required(redirect_field_name='', login_url='/')
@@ -478,3 +470,25 @@ def send_newPassword(request):
 		error = 0
 
 	return viewTeachers(request, teacher_id, message, error)
+
+@login_required(redirect_field_name='', login_url='/')
+def editSchool(request, school_id):
+	school_info = get_object_or_404(School, pk=school_id)
+	print school_info.short_name
+	if request.method == "POST":
+		formEdit = EditForm_admin(data=request.POST)
+		if formEdit.is_valid():
+			temp = formEdit.cleaned_data
+			school_info.name = temp['name']
+			school_info.short_name = temp['short_name']
+			school_info.address = temp['address']
+			school_info.save()
+			return dashboard(request, '', 'Changes to school details were saved.', '')
+
+	place = 'base/base_admin.html'
+	formEdit = EditForm_admin(initial={'name':school_info.name, 'short_name':school_info.short_name, 'address':school_info.address})
+	avatar = UserProfile.objects.get(user_id = request.user.id).avatar
+	return render(request, 'app_schools/suadmin_editSchool.html', {'avatar':avatar, 'next_url': '/schools/','school_info':school_info, 'place':place, 'formEdit':formEdit,  'active_nav':'DASHBOARD'})
+
+
+

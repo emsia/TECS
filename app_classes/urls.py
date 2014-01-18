@@ -19,5 +19,6 @@ urlpatterns = patterns('',
     url(r'^classes/delete/$', views.delete, name='delete'),
     url(r'^classes/delete_teacher/$', views.delete_teacher, name='delete_teacher'),
     url(r'^classes/removeStudent/$', views.removeStudent, name='removeStudent'),
+    url(r'^classes/editSchool/(?P<school_id>\d+)$', views.editSchool, name='editSchool'),
     url(r'^classes/inviteStudent/$', views.inviteStudent, name='inviteStudent'),
 )
