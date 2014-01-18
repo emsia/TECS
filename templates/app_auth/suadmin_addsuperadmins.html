@@ -51,7 +51,10 @@ TECS: Test Essay Checking Software | Super Admin
 								{% endfor %}											
 							</div>								  
 						</div>
-							<button class="btn btn-primary span4 pull-right" type="submit"><i class="fui-check"></i> Submit</button> 
+						<div class="form-actions">
+							<button class="btn btn-primary span4 pull-left" type="submit"><i class="fui-check"></i> Submit</button> 
+							<a href="{% url 'auth:viewsuperadmins' %}" class="btn btn-danger span4 pull-right" type="submit"><i class="fui-cross"></i> Cancel</a> 
+						</div>
 					</fieldset>
 				</form> 
 			</div>
