@@ -11,9 +11,9 @@
 
       <div style="padding: 7px; border: 2px solid; font-family: 'Lato', sans-serif; line-height: 1.231; font-size: 14px; border-color: #1abc9c; padding-right: 20px;">
         	From: <a style="color: #1abc9c; text-decoration: none;">{{ sender.email }} [{{ sender.last_name }}, {{ sender.first_name }}]</a><br/>
-			Subject: Invitation to join {{ adminList.name }}({{ adminList.short_name }})<br/>
-			Class Key: <span style="color: #1abc9c">{{ studentList.key }}</span><br/><br/><br/>
-			Please <a href="tecs.herokuapp.com" style="color: #1abc9c; text-decoration: none;">Log-in</a> or Register to <a href="http://tecs.herokuapp.com/accounts/register/" style="color: #1abc9c; text-decoration: none">tecs.herokuapp.com</a> and enter the Class Key to enroll in a Class.
+			Subject: Invitation to join {{ adminList.school.name }}({{ adminList.school.short_name }})<br/>
+			School Key: <span style="color: #1abc9c">{{ school.key }}</span><br/><br/><br/>
+			Please <a href="tecs.herokuapp.com" style="color: #1abc9c; text-decoration: none;">Log-in</a> or Register to <a href="http://tecs.herokuapp.com/accounts/register/" style="color: #1abc9c; text-decoration: none">tecs.herokuapp.com</a> and enter the School Key to join.
 		
       </div>
 {% endblock %}
