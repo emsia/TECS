@@ -52,7 +52,8 @@ def suadmin_viewSchools(request, err=None, success=None):
 	if suadmin:
 		power = True
 	link = 'app_schools/viewSchools.html'
-	schools = School.objects.filter(suadmin=suadmin)
+	#schools = School.objects.filter(suadmin=suadmin)
+	schools = School.objects.all()
 	administration = []
 	for school in schools:
 		try:

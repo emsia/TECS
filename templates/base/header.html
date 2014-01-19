@@ -6,7 +6,7 @@
 			<button type="button" class="btn btn-navbar" data-toggle="collapse" data-target="#nav-collapse-01"></button>
 			<div class="nav-collapse collapse" id="nav-collapse-01">
 				<a class="brand" href="{% url 'classes:dashboard' %}">
-					<img class="brand-logo" src="{% static 'base/img/icons/paper_pencil.png' %}" /> TECS: Test Essay Content Software 
+					<img class="brand-logo" src="{% static 'base/img/icons/paper_pencil.png' %}" /> TECS: Test Essay Checking Software 
 				</a>
 				<ul class="nav pull-right">
 					<li>
@@ -18,7 +18,7 @@
 							<b class="caret"></b>
 						</a>
 						<ul>
-							<li><a href="{% url 'auth:profile' %}">My Profile</a></li>
+							<li><a href="{% url 'auth:profile' user.username%}">My Profile</a></li>
 							<li><a href="{% url 'auth:edit_profile' %}">Settings</a></li>
 							<li><a href="{% url 'auth:user_logout' %}">Logout</a></li>
 						</ul>

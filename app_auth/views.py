@@ -1,7 +1,7 @@
 try:
-    from urllib.parse import urlparse
+	from urllib.parse import urlparse
 except ImportError:
-    from urlparse import urlparse
+	from urlparse import urlparse
    
 from app_registration import signals
 from django.shortcuts import render_to_response, render, redirect, get_object_or_404
@@ -26,8 +26,17 @@ from django.contrib.auth.decorators import login_required
 from django.utils import timezone
 from .forms import LoginForm, PasswordForm, ProfileForm, schoolForStudent, schoolForTeacher, GradeForm_Option1, GradeForm_Option2, NewSuperAdminForm
 from app_classes.forms import MailForm
+from email.MIMEImage import MIMEImage
+from django.template.loader import render_to_string
+from django.core.mail import EmailMessage
 
 import numpy, random, string, datetime
+
+def get_or_none(model, **kwargs):
+    try:
+        return model.objects.get(**kwargs)
+    except model.DoesNotExist:
+        return None
 
 class LoginView(FormView):
 	form_class = LoginForm
@@ -54,7 +63,7 @@ class LoginView(FormView):
 			else:
 				return self.form_invalid(form, request, 'Account not yet Validated.')		
 		else:		
-			return self.form_invalid(form, request, 'Invalid username and password Combination.')
+			return self.form_invalid(form, request, 'Invalid username and password combination.')
 	
 	def form_invalid(self, form, request, err=None):
 		return render_to_response( self.template_name , {
@@ -88,10 +97,11 @@ class LoginView(FormView):
 			return self.form_invalid(form, request, 'Please input username and password.')
 
 def user_logout(request):
-    return logout_then_login(request,login_url='/')
+	return logout_then_login(request,login_url='/')
 
+'''
 @login_required(redirect_field_name='', login_url='/')
-def profile_view(request):
+def profile_view(request, username):
 	User_Profile = UserProfile.objects.filter(user_id = request.user.id)
 
 	if not User_Profile.exists():
@@ -109,9 +119,32 @@ def profile_view(request):
 	if len(Admin.objects.filter(user_id = request.user.id)) > 0:
 		role = 'Admin'
 	elif len(SUadmin.objects.filter(user_id = request.user.id)) > 0:
-		role = 'SUadmin'
+		role = 'Super Admin'
 	return render(request, 'app_auth/profile_view.html', {'avatar': avatar, 'role':role, 'profile':profile, 'role':role})
+'''
 
+@login_required(redirect_field_name='', login_url='/')
+def profile_view(request, username):
+	user = get_object_or_404(User, username=username)
+	User_Profile = UserProfile.objects.filter(user = request.user)
+
+	if not User_Profile.exists():
+		if len(Admin.objects.filter(user = user)) > 0 or len(SUadmin.objects.filter(user_id = user)):
+			return redirect('auth:edit_SU_Admin')
+		return redirect('auth:edit_profile')
+	
+	avatar = UserProfile.objects.get(user=user).avatar
+	role = UserProfile.objects.get(user = user).role
+	profile = UserProfile.objects.get(user=request.user)
+	if len(Teacher.objects.filter(user = user)) > 0:
+		role = 'Teacher'
+	elif len(Student.objects.filter(user = user)) > 0:
+		role = 'Student'
+	if len(Admin.objects.filter(user = user)) > 0:
+		role = 'Admin'
+	elif len(SUadmin.objects.filter(user = user)) > 0:
+		role = 'Super Admin'
+	return render(request, 'app_auth/profile_view.html', {'avatar': avatar, 'role':role, 'profile':profile, 'role':role})
 
 @login_required(redirect_field_name='', login_url='/')
 def edit_SU_Admin(request, success=None):
@@ -386,8 +419,8 @@ def grading_system_delete(request):
 	return redirect('auth:gradesys')
 
 def login_on_activation(sender, user, request, **kwargs):
-    user.backend='django.contrib.auth.backends.ModelBackend' 
-    login(request,user)
+	user.backend='django.contrib.auth.backends.ModelBackend' 
+	login(request,user)
 signals.user_activated.connect(login_on_activation)
 
 def dashboard(request, email_form=None, message=None, error=None):
@@ -456,9 +489,11 @@ def graderList(request):
 
 @login_required(redirect_field_name='', login_url='/')
 def suadmin_viewsuperadmins(request, err=None, success=None):
+	get_object_or_404(SUadmin, user=request.user)
 	User_Profile = UserProfile.objects.filter(user_id = request.user.id)
 	if not User_Profile.exists():
 		return redirect("/profile")
+
 
 	User_Profile = User_Profile.get(user_id=request.user.id)
 	avatar = User_Profile.avatar
@@ -467,7 +502,34 @@ def suadmin_viewsuperadmins(request, err=None, success=None):
 
 	return render(request, 'app_auth/suadmin_viewsuperadmins.html', {'avatar':avatar, 'superadmins':superadmins, 'active_nav':'SUPERADMIN'})
 
+@login_required(redirect_field_name='', login_url='/')
+def suadmin_viewsuperadmindetails(request, username):
+	get_object_or_404(SUadmin, user=request.user)
+	userprofile = get_or_none(UserProfile, user=request.user)
+	if userprofile is None:
+		return redirect("/profile")
+	else:
+		avatar = userprofile.avatar
+		superadmin = get_object_or_404(SUadmin, user__username=username)
+		profile = get_or_none(UserProfile, user=superadmin.user)
+
+		if request.method == 'POST':
+			username = request.POST.get('deactivated_username')
+			user = get_object_or_404(User, username=username)
+			superadmin_d = get_or_none(SUadmin, user__username=username, registered_by=request.user)
+			if superadmin_d is None:
+				raise Http404
+			else:
+				superadmin_d.status = -1
+				superadmin_d.user.active = False
+				superadmin_d.save()
+				return redirect('/superadmin/view')
+		else:
+			return render(request, 'app_auth/suadmin_viewsuperadmins_details.html', {'avatar': avatar, 'superadmin':superadmin, 'profile':profile, 'active_nav':'SUPERADMIN'})
+
+@login_required(redirect_field_name='', login_url='/')
 def suadmin_addsuperadmin(request, err=None, success=None):
+	get_object_or_404(SUadmin, user=request.user)
 	User_Profile = UserProfile.objects.filter(user_id = request.user.id)
 	if not User_Profile.exists():
 		return redirect("/profile")
@@ -483,15 +545,67 @@ def suadmin_addsuperadmin(request, err=None, success=None):
 				if not SUadmin.objects.filter(activation_code=ac).exists():
 					break
 			activation_code_expiry = datetime.datetime.now() + datetime.timedelta(days=7)
+			password = ''.join(random.choice(string.ascii_letters + string.digits) for x in range(8))
+			print(password)
 
-			user = User.objects.create_user(form.cleaned_data['username'], form.cleaned_data['email'], 'password')
+			user = User.objects.create_user(form.cleaned_data['username'], form.cleaned_data['email'], password)
 			user.last_name = form.cleaned_data['last_name']
 			user.first_name = form.cleaned_data['first_name']
+			user.is_active = False
 			user.save()
 			SUadmin.objects.create(user=user, registered_by=request.user, activation_code=ac, activation_code_expiry=activation_code_expiry)
+
+			link = ""+request.get_host()+"/activate/"+ac,
+			c = {
+				'sender_name': request.user,
+				'receiver_lastname': form.cleaned_data['last_name'],
+				'receiver_firstname': form.cleaned_data['first_name'],
+				'activation_code' : ac,
+				'username' : form.cleaned_data['username'],
+				'password' : password,
+				'activation_link' : link,
+			}
+			print(link)
+			fp = open('./static/base/img/icons/Mail3.png', 'rb')
+			msgImage = MIMEImage(fp.read())
+			fp.close()
+			msgImage.add_header('Content-ID', '<image1>')
+
+			message = render_to_string('app_auth/suadmin_addsuperadmins_email.html', c)
+
+			mailSend = EmailMessage('[TECS] You have been registered as super admin', message, request.user.email, [form.cleaned_data['email']] )
+			mailSend.content_subtype = "html"
+			mailSend.attach(msgImage)
+			mailSend.send()
 
 			return redirect('auth:viewsuperadmins')
 	else:
 		form = NewSuperAdminForm
 	
 	return render(request, 'app_auth/suadmin_addsuperadmins.html', {'avatar':avatar, 'form':form, 'active_nav':'SUPERADMIN'})
+
+
+def activate(request, id):
+	superadmin = get_or_none(SUadmin, activation_code=id, status=0)
+	expiration_days = 7
+	home = request.get_host()
+	if superadmin is None:
+		success = False
+
+	elif superadmin.is_activation_code_expired is True:
+		success = False
+		delta =  superadmin.activation_code_expiry - timezone.now()
+		print delta.days
+	else:
+		success = True
+
+		superadmin.user.is_active = True
+		superadmin.date_added = timezone.now()
+		superadmin.status = 1
+		superadmin.save()
+
+		superadmin.user.backend = 'django.contrib.auth.backends.ModelBackend'
+		login(request, superadmin.user)
+
+	return render(request, 'app_auth/activate.html', {'success':success, 'expiration_days':expiration_days, 'home':home})
+
