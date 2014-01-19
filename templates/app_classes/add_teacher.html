@@ -27,20 +27,25 @@ TECS: Test Essay Checking Software | Home
 <div class="page-content">
 	<div class="row-fluid">
 		<div class="content">
+			{% if not message %}
 			<p class="pull-right">
 				<button data-toggle="tooltip" data-trigger="hover" onclick="addrow('teacher')" data-placement="left" title data-original-title="Add a Row" class="btn btn-warning"><i class="fui-plus"></i></button>
 			</p>
+			{% endif %}
 			<img class="title-icons" src={% static 'base/img/icons/Pocket@2x.png' %}>
 			<h3 class="title">Add New Teachers</h3>
+			{% if error %}
+				<div class="alert alert-block alert-error">
+					<button type="button" class="close" data-dismiss="alert">&times;</button>
+		          <h4><strong>Oops!</strong></h4>
+		          {{ error }}
+		        </div>
+		    {% endif %}
+		    
 			<hr>
+			{% if not message %}
 			<form class="form-horizontal" action="{% url 'classes:submitTeachers' %}" method="post">{% csrf_token %}
 				<table class="table table-striped" id="teacher">
-						{% if success %}
-							<div {% if succ %} class="alert alert-block alert-success" {% else %} class="alert alert-block alert-error" {% endif %}>
-							<button type="button" class="close" data-dismiss="alert">&times;</button>
-					          <h4><strong>{% if succ %}Success!{% else %}Error!{% endif %}</strong></h4> {{ success }}
-					        </div>
-					    {% endif %}
 					<thead>
 						<tr>
 							<th><center>Username</center></th>
@@ -65,6 +70,12 @@ TECS: Test Essay Checking Software | Home
 					<a href="{% url 'auth:dashboard' %}" type="button" class="btn btn-warning"><b>Cancel</b><i class="fui-cross"></i></a>
 				</div>
 			</form>
+			{% else %}
+			<div class="alert alert-block alert-error">
+	          <h4><strong>Warning!</strong></h4>
+	          {{ message }}
+	        </div>
+	        {% endif %}
 		</div>
 	</div>
 </div>

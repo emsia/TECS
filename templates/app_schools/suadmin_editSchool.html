@@ -1,4 +1,4 @@
-{% extends "base/base_suadmin.html" %}
+{% extends place %}
 {% load staticfiles %}
 
 {% block title %}
@@ -11,7 +11,13 @@ TECS: Test Essay Checking Software | SUadmin Schools
 			<div class="content">
 				<img class="title-icons" src="{% static 'base/img/icons/user.png' %}">
 				<h3 class="title">Edit School Information</h3>
-				<form class="form-horizontal" action="{% url 'schools:edit' school_info.id %}" method="POST"> {% csrf_token %}
+				<form class="form-horizontal" 
+					{% if place == 'base/base_suadmin.html'%}
+						action="{% url 'schools:edit' school_info.id %}" 
+					{% else %}
+						action="{% url 'classes:editSchool' school_info.id %}" 
+					{% endif %}
+					method="POST"> {% csrf_token %}
 					<fieldset>
 						{% for form in formEdit %}
 						<div class="control-group">
@@ -25,11 +31,13 @@ TECS: Test Essay Checking Software | SUadmin Schools
 							</div>	
 						</div> 		
 						{% endfor %}
-						<div class="form-actions">  
-							<input type="hidden" value="{{ next_url }}" name="next_url" />
+						<hr>
+						<div><center>  
+							<input type="hidden" value={{ next_url }} name="next_url" />
 							<button type="submit" class="btn btn-primary"><b>Save</b> <i class="fui-check"></i></button> 
 							<button type="reset" class="btn btn-warning"><b>Reset</b> <i class="fui-play"></i></button> 
 							<a href="{% url 'schools:viewSchool' school_info.id %}" type="button" class="btn btn-danger"><b>Cancel</b>  <i class="fui-cross"></i></a>  
+							</center>
 						</div>   
 		  			</fieldset>
 				</form>

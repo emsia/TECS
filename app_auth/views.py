@@ -390,7 +390,7 @@ def login_on_activation(sender, user, request, **kwargs):
     login(request,user)
 signals.user_activated.connect(login_on_activation)
 
-def dashboard(request, email_form=None):
+def dashboard(request, email_form=None, message=None, error=None):
 	User_Profile = UserProfile.objects.filter(user_id = request.user.id)
 
 	if not User_Profile.exists():
@@ -414,15 +414,19 @@ def dashboard(request, email_form=None):
 		return render(request, 'app_auth/student_dashboard.html', {'avatar': avatar, 'role':role, 'class_count':class_count, 'exam_count':exam_count, 'in_progress_count':in_progress_count})
 
 	elif len(Admin.objects.filter(user_id = request.user.id)) > 0:
+		admin = Admin.objects.get(user_id = request.user.id)
 		teacher_lists = Teacher.objects.filter(school=Admin.objects.get(user=request.user).school)
 		classList = []
 		for teacher_list in teacher_lists:
 			try:
-				classes = Class.objects.get(teacher=teacher_list)
+				classes = Class.objects.filter(teacher=teacher_list)
 				classList.append(classes)
 			except:
 				pass
-		return render(request, 'app_auth/admin_dashboard.html', {'avatar': avatar, 'role':role, 'teacher_list':teacher_lists, 'classList':classList})
+		major_class = []
+		for classes in classList:
+			major_class.append(classes)
+		return render(request, 'app_auth/admin_dashboard.html', {'avatar': avatar, 'role':role, 'admin':admin.school.id, 'teacher_list':teacher_lists, 'classList':major_class, 'message':message, 'error':error})
 
 	elif len(SUadmin.objects.filter(user_id = request.user.id)) > 0:
 		school_list = School.objects.filter().count()
@@ -450,7 +454,7 @@ def graderList(request):
 	elif len(Student.objects.filter(user_id = request.user.id)) > 0:
 		return render(request, 'app_auth/graded.html', {'avatar':avatar, 'active_nav':'DASHBOARD'})
 
-@login_required
+@login_required(redirect_field_name='', login_url='/')
 def suadmin_viewsuperadmins(request, err=None, success=None):
 	User_Profile = UserProfile.objects.filter(user_id = request.user.id)
 	if not User_Profile.exists():

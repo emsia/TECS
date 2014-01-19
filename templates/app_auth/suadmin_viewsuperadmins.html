@@ -19,12 +19,12 @@ TECS: Test Essay Checking Software | Super Admin
 			<table class="table table-striped">
 				<thead>
 					<tr>
-						<th style="width: 6%"><center>#</center></th>
-						<th style="width: 22%"><center>Username</center></th>
-						<th style="width: 22%"><center>Last Name</center></th>
-						<th style="width: 22%"><center>First Name</center></th>
-						<th style="width: 22%"><center>Date Added</center></th>
-						<th style="width: 6%"><center>Status</center></th>
+						<th style="width: 6%">#</th>
+						<th style="width: 22%">Username</th>
+						<th style="width: 22%">Last Name</th>
+						<th style="width: 22%">First Name</th>
+						<th style="width: 22%">Date Added</th>
+						<th style="width: 6%">Status</th>
 					</tr>
 				</thead>
 				<tbody>
@@ -42,13 +42,13 @@ TECS: Test Essay Checking Software | Super Admin
 								{% endif %}
 							</td>
 							<td>
-								<center>
+								
 								{% if superadmin.status == 1 %}
 									<span class="fui-check-inverted-2"></span>
 								{% else %}
 									<span class="fui-radio-unchecked"></span>
 								{% endif %}
-								</center>
+								
 							</td>
 						</tr>
 					{% endfor %}

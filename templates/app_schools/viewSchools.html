@@ -74,5 +74,12 @@ TECS: Test Essay Checking Software | Home
 	</div>
 </div>
 
+<script>
+	$(".delsys-button").on("click", function() {
+		var schoolid = $(this).data('id')
+		$("#school_id").val(schoolid)
+	});
+</script>
+
 <script src="{% static 'base/js/jquery.min.js' %}"></script>
 {% endblock %}

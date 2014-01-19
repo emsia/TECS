@@ -6,9 +6,10 @@ from django.contrib.auth.models import User
 from django.shortcuts import render, redirect
 from django.http import HttpResponseRedirect
 from django.contrib.auth.decorators import login_required
-from app_schools.models import School, SchoolForm, EditForm
+from app_schools.models import SchoolForm, EditForm
 from django.shortcuts import render, get_object_or_404
 from app_auth.models import UserProfile, SUadmin, School, Admin
+from app_classes.models import Class
 from app_registration.models import RegistrationProfile
 from django.db.models import Count
 from django import forms
@@ -47,13 +48,22 @@ def suadmin_viewSchools(request, err=None, success=None):
 	User_Profile = User_Profile.get(user_id=request.user.id)
 	suadmin = SUadmin.objects.filter(user=request.user)
 	hasSchools = None
-	power = True
+	power = False
+	if suadmin:
+		power = True
 	link = 'app_schools/viewSchools.html'
 	schools = School.objects.filter(suadmin=suadmin)
+	administration = []
+	for school in schools:
+		try:
+			admins = Admin.objects.filter(school=school)
+			administration.append(admins)
+		except:
+			pass
 	if power and (schools is None or not schools.exists()):
 		hasSchools = 'You don\'t have Schools yet'
 	avatar = User_Profile.avatar
-	return render(request, link, {'avatar':avatar, 'schools':schools, 'hasSchools':hasSchools, 'power':power, 'active_nav':'SCHOOLS'})
+	return render(request, link, {'avatar':avatar, 'schools':schools, 'hasSchools':hasSchools, 'power':power, 'active_nav':'SCHOOLS', 'administrations':administration})
 		
 @login_required(redirect_field_name='', login_url='/')
 def suadmin_addNewSchool(request, add_form=None, email_form=None):
@@ -111,29 +121,33 @@ def edit(request, school_id):
 			school_info.save()
 			return viewSchoolAdmins(request, school_id, 'Changes to school details were saved.')
 
+	place = "base/base_suadmin.html"
 	if not power:
-		formEdit = EditForm(initial={'name':school_info.name, 'short_name':school_info.short_name, 'section':school_info.address})
+		formEdit = EditForm(initial={'name':school_info.name, 'short_name':school_info.short_name, 'address':school_info.address})
 	avatar = UserProfile.objects.get(user_id = request.user.id).avatar
-	return render(request, 'app_schools/suadmin_editSchool.html', {'avatar':avatar, 'next_url': '/schools/','school_info':school_info, 'formEdit':formEdit,  'active_nav':'SCHOOLS'})
+	return render(request, 'app_schools/suadmin_editSchool.html', {'avatar':avatar, 'next_url': '/schools/','school_info':school_info, 'place':place, 'formEdit':formEdit,  'active_nav':'SCHOOLS'})
 			
 @login_required(redirect_field_name='', login_url='/')
-def delete(request, school_id):
-	school_info = get_object_or_404(School, pk=school_id)
-	school_info.delete()
-	return suadmin_viewSchools(request, 0, 'You successfully deleted a school.')
+def delete(request):
+	school_info = get_object_or_404(School, pk=request.POST['school_id'])	
+	classes = Class.objects.filter(school=school_info)
+	if (classes.exists()):
+		return suadmin_viewSchools(request, 0, 'You cannot delete this school. Delete all of its classes first.')
+	else:
+		school_info.delete()
+		return suadmin_viewSchools(request, 0, 'You successfully deleted a school.')
 
 @login_required(redirect_field_name='', login_url='/')
-def viewSchoolAdmins(request, school_id, message=None, success=True):
+def viewSchoolAdmins(request, school_id, message=None, error=None, success=True):
 	school_info = get_object_or_404(School, pk=school_id)
 	avatar = UserProfile.objects.get(user_id = request.user.id).avatar
 	formMails = MailForm2()
-	hasAdmin = None
-	power = True
 	admins = Admin.objects.filter(school=school_info)
-	if power and (admins is None or not admins.exists()):
-		hasAdmin = 'This school doesn\'t have admins yet'
+	hasAdmin=True
+	if (admins is None or not admins.exists()):
+		hasAdmin=False
+	return render(request, 'app_schools/viewSchoolAdmins.html', {'mailSend':False, 'school':school_info, 'adminList':admins, 'avatar':avatar, 'succ': success,'message':message, 'error':error, 'formMails': formMails, 'hasAdmin':hasAdmin, 'active_nav':'SCHOOLS'})
 
-	return render(request, 'app_schools/viewSchoolAdmins.html', {'mailSend':False, 'school':school_info, 'adminList':admins, 'avatar':avatar, 'succ': success,'success':message, 'formMails': formMails,  'active_nav':'SCHOOLS'})
 
 @login_required(redirect_field_name='', login_url='/')
 def removeAdmin(request):
@@ -147,45 +161,97 @@ def addAdmin(request,  school_id, add_form=None, email_form=None):
 	avatar = UserProfile.objects.get(user_id = request.user.id).avatar
 	school_info = get_object_or_404(School, pk=school_id)
 	adminAdd_form = adminAdd()
-	admin = Admin.objects.filter(user=request.user)
 	formMails = email_form or MailForm()
 	return render(request, 'app_schools/add_admin.html', 
-			{'adminAdd_form':adminAdd_form, 'formMails':formMails,'next_url': '/schools/', 'avatar':avatar, 'active_nav':'SCHOOLS'})
+			{'school':school_info, 'adminAdd_form':adminAdd_form, 'formMails':formMails,'next_url': '/schools/', 'avatar':avatar, 'active_nav':'SCHOOLS'})
 
 
 @login_required(redirect_field_name='', login_url='/')
 def submitAdmins(request):
+	message = None
 	if request.method == "POST":
 		form_school = adminAdd(data=request.POST)
 		mails = request.POST.getlist('email')
 		usernames = request.POST.getlist('username')
 
-		#print mails: check proper email addresses
-		message = ''
+		print usernames
 		for email in mails:
 			try:
 				validate_email(email)
 				pass
 			except ValidationError:
 				message = 'Please input valid emails'
-
-		count = 0
-		for usernaming in usernames:
-			existing = User.objects.filter(username__iexact=usernaming)
-			if not existing.exists():
-				salt = hashlib.sha1(str(random.random())).hexdigest()[:5]
-				usernaming = usernaming.encode('utf-8')
-				password_preset = hashlib.md5(salt+usernaming).hexdigest()[:12]
-				print password_preset
-				if Site._meta.installed:
-					site = Site.objects.get_current()
-				else:
-					site = RequestSite(request)
-				print password_preset
-				new_user = RegistrationProfile.objects.create_inactive_user(usernaming, mails[count], password_preset, site)
-				admin = Admin.objects.create(user=new_user)
-				admin.save()
-				count = count + 1
+		if not message:
+			print request.POST['school_id']
+			school = get_object_or_404(School, pk=request.POST['school_id'])
+			count = 0
+			for usernaming in usernames:
+				existing = User.objects.filter(username__iexact=usernaming)
+				if not existing.exists():
+					salt = hashlib.sha1(str(random.random())).hexdigest()[:5]
+					usernaming = usernaming.encode('utf-8')
+					password_preset = hashlib.md5(salt+usernaming).hexdigest()[:12]
+					print password_preset
+					if Site._meta.installed:
+						site = Site.objects.get_current()
+					else:
+						site = RequestSite(request)
+					print password_preset
+					new_user = RegistrationProfile.objects.create_inactive_user(usernaming, mails[count], password_preset, site)
+					admin = Admin.objects.create(user=new_user)
+					admin.school = school
+					admin.save()
+					count = count + 1
 
 		return redirect('/schools/')
+	return add_admin(request, form_school, message)
 
+
+@login_required(redirect_field_name='', login_url='/')
+def send_newPassword(request):
+	email = request.POST['newMail']
+	admin_id = request.POST['admin_id']
+	message = ''
+	error = 1
+
+	try:
+		validate_email(email)
+	except ValidationError:
+		message = 'Please input valid email'
+
+	if not message:
+		user_id = request.POST['user_account']
+		usernaming = request.POST['username']
+
+		salt = hashlib.sha1(str(random.random())).hexdigest()[:5]
+		usernaming = usernaming.encode('utf-8')
+		password_preset = hashlib.md5(salt+usernaming).hexdigest()[:12]
+		print password_preset
+		u = User.objects.get(id=user_id)
+		u.set_password(password_preset)
+		u.email = email
+		u.is_active = True
+		u.save()
+
+		template = get_template('app_classes/send_newPassword.html').render(
+			Context({
+				'sender': request.user,
+				'pass': password_preset,
+				'usernaming' : usernaming,
+			})
+		)
+
+		fp = open('./static/base/img/icons/notes.png', 'rb')
+		msgImage = MIMEImage(fp.read())
+		fp.close()
+
+		msgImage.add_header('Content-ID', '<image1>')
+
+		mailSend = EmailMessage('[TECS] Password Change by Admin', template, 'fsvaeg@gmail.com', [email] )
+		mailSend.content_subtype = "html"  # Main content is now text/html
+		mailSend.attach(msgImage)
+		#mailSend.send()
+		message = 'Changing complete'
+		error = 0
+
+	return viewSchoolAdmins(request, school_id, message, error, True)
