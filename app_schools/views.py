@@ -151,8 +151,8 @@ def viewSchoolAdmins(request, school_id, message=None, error=None, success=True)
 
 @login_required(redirect_field_name='', login_url='/')
 def removeAdmin(request):
-	school_info = get_object_or_404(School, pk=request.POST['school_id'])
 	admin = get_object_or_404(Admin, pk=request.POST['admin_id'])
+	school_info = get_object_or_404(School, pk=request.POST['school_id'])
 	school_info.admin.remove(admin)
 	return viewSchoolAdmins(request, request.POST['school_id'], 'You successfully removed an admin.')
 
@@ -233,7 +233,7 @@ def send_newPassword(request):
 		u.is_active = True
 		u.save()
 
-		template = get_template('app_classes/send_newPassword.html').render(
+		template = get_template('app_schools/send_newPassword.html').render(
 			Context({
 				'sender': request.user,
 				'pass': password_preset,
