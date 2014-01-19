@@ -124,8 +124,8 @@ def profile_view(request, username):
 '''
 
 @login_required(redirect_field_name='', login_url='/')
-def profile_view(request, username):
-	user = get_object_or_404(User, username=username)
+def profile_view(request):
+	user = request.user
 	User_Profile = UserProfile.objects.filter(user = request.user)
 
 	if not User_Profile.exists():
