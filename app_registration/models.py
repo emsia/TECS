@@ -10,6 +10,8 @@ from django.db import transaction
 from django.template.loader import render_to_string
 from django.utils.translation import ugettext_lazy as _
 from email.MIMEImage import MIMEImage
+from django.template.loader import render_to_string, get_template
+from django.template import Context
 from django.core.mail import EmailMessage
 
 try:

@@ -103,7 +103,13 @@ TECS: Test Essay Checking Software | Home
 				        <div><center>
 		    				<input type="hidden" value="sendNow" name="sendNow" />
 							<button type="submit" class="btn btn-primary"><b>Send Invitation</b><i class="fui-check"></i></button> 
-							<a href="{% url 'classes:viewClass' studentList.id 0 %}" type="button" class="btn btn-danger"><b>Cancel</b><i class="fui-cross"></i></a>
+							<a 
+							{% if place == 'base/base_admin.html' %}
+								href="{% url 'classes:viewClass' studentList.id 0 %}" 
+							{% else %}
+								href="{% url 'classes:viewClass' studentList.id 1 %}"
+							{% endif %}
+							type="button" class="btn btn-danger"><b>Cancel</b><i class="fui-cross"></i></a>
 							</center>
 						</div>
 					</fieldset>

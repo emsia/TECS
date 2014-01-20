@@ -24,7 +24,7 @@ from app_essays.models import Essay, EssayResponse
 from app_essays.models import GradingSystem, GradeSysForm, Grade
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
-from .forms import LoginForm, PasswordForm, ProfileForm, schoolForStudent, schoolForTeacher, GradeForm_Option1, GradeForm_Option2, NewSuperAdminForm
+from .forms import LoginForm, PasswordForm, ProfileForm, GradeForm_Option1, GradeForm_Option2, NewSuperAdminForm, schoolForAll
 from app_classes.forms import MailForm
 from email.MIMEImage import MIMEImage
 from django.template.loader import render_to_string
@@ -211,6 +211,7 @@ def profile_edit(request, success=None):
 	if len(Admin.objects.filter(user_id = request.user.id)) > 0 or len(SUadmin.objects.filter(user_id = request.user.id)):
 		return redirect('auth:edit_SU_Admin')
 	power = False
+	schoolProfile = None
 	if request.method == "POST":
 		formProfile = ProfileForm(request.POST, request.FILES)
 		power = True
@@ -251,6 +252,14 @@ def profile_edit(request, success=None):
 		user_info = user_info.get(user_id=request.user.id)
 		role = UserProfile.objects.get(user_id = request.user.id).role
 		avatar = user_info.avatar
+		if len(Teacher.objects.filter(user_id = request.user.id)) > 0:
+			teacher = Teacher.objects.get(user_id = request.user.id)
+			school = teacher.school.all()[0]
+		elif len(Student.objects.filter(user_id = request.user.id)) > 0:
+			school = Student.objects.get(user_id = request.user.id)
+			school = school.school
+		schoolProfile = schoolForAll(initial={'school':school})
+
 		if not power:
 			formProfile = ProfileForm(initial={
 				'last_name':request.user.last_name, 'first_name':request.user.first_name, 'email':request.user.email, 'avatar':user_info.avatar,
@@ -259,12 +268,20 @@ def profile_edit(request, success=None):
 			})
 	else:
 		role = None
+		if len(Teacher.objects.filter(user_id = request.user.id)) > 0:
+			teacher = Teacher.objects.get(user_id = request.user.id)
+			school = teacher.school.all()[0]
+		elif len(Student.objects.filter(user_id = request.user.id)) > 0:
+			school = Student.objects.get(user_id = request.user.id)
+			school = school.school
 		avatar = 'images/avatars/user.png'
 
-		formProfile = ProfileForm(initial={'last_name':request.user.last_name, 'role':role, 'first_name':request.user.first_name, 'email':request.user.email,
+		schoolProfile = schoolForAll(initial={'school':school})
+		if not power:
+			formProfile = ProfileForm(initial={'last_name':request.user.last_name, 'role':role, 'first_name':request.user.first_name, 'email':request.user.email,
 			'username': request.user.username,})
 
-	return render(request, 'app_auth/profile_edit.html', {'avatar': avatar, 'role':role, 'role':role, 'active_nav':'PROFILE', 'success':success, 'formProfile':formProfile})
+	return render(request, 'app_auth/profile_edit.html', {'avatar': avatar, 'role':role, 'role':role, 'active_nav':'PROFILE', 'success':success, 'formProfile':formProfile, 'schoolProfile':schoolProfile})
 
 @login_required(redirect_field_name='', login_url='/')
 def password_edit(request, success=None):

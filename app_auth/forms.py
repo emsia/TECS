@@ -25,15 +25,8 @@ class ProfileForm(forms.Form):
 	phone_number = forms.CharField( label='Phone Number', required=False, widget=forms.TextInput(attrs={'type':'text', 'class': 'span3', 'placeholder': 'Optional'}))
 	avatar = forms.ImageField(label='Avatar', required=False, widget=forms.ClearableFileInput(attrs={'type':'file', 'class':'filestyle span3'}))
 
-class schoolForStudent(forms.Form):
-	school = forms.ModelChoiceField(label='School', queryset=School.objects.all(), widget=forms.Select(attrs={'class':'select span12', 'data-size':10, }))
-
-class schoolForTeacher(forms.Form):
-	school = forms.ModelMultipleChoiceField(label='School', queryset=School.objects.all(), widget=forms.SelectMultiple(attrs={'class':'select span12', 'data-size':10, }))
-
-	def cleaned_school(self):
-		data = self.cleaned_data.get('school', [])
-		return data.split(',')
+class schoolForAll(forms.Form):
+	school = forms.CharField(label='School', widget=forms.TextInput(attrs={'type':'text', 'class':'span12 cap disabled', 'style':'color: #099', 'disabled':True}))
 
 class GradeForm_Option1(forms.Form):
 	grades = forms.CharField(max_length=1024, widget=forms.TextInput(attrs={'class':'tagsinput', 'style':'display: none;' }))
