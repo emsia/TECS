@@ -159,7 +159,7 @@ def viewSchoolAdmins(request, school_id, message=None, error=None, success=True)
 def removeAdmin(request):
 	admin = get_object_or_404(Admin, pk=request.POST['admin_id'])
 	school_info = get_object_or_404(School, pk=request.POST['school_id'])
-	school_info.admin.remove(admin)
+	admin.delete()
 	return viewSchoolAdmins(request, request.POST['school_id'], 'You successfully removed an admin.')
 
 @login_required(redirect_field_name='', login_url='/')
@@ -256,7 +256,7 @@ def send_newPassword(request):
 		mailSend = EmailMessage('[TECS] Password Change by Admin', template, 'fsvaeg@gmail.com', [email] )
 		mailSend.content_subtype = "html"  # Main content is now text/html
 		mailSend.attach(msgImage)
-		#mailSend.send()
+		mailSend.send()
 		message = 'Changing complete'
 		error = 0
 

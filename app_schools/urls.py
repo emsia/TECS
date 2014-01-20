@@ -12,5 +12,5 @@ urlpatterns = patterns('',
     url(r'^schools/removeAdmin/$', views.removeAdmin, name='removeAdmin'),
     url(r'^schools/(?P<school_id>\d+)/addAdmin/$', views.addAdmin, name='addAdmin'),
 	url(r'^schools/submitAdmins/$', views.submitAdmins, name='submitAdmins'),
-	url(r'^schools/sendnewpassword/$', views.submitAdmins, name='send_newPassword'),
+	url(r'^schools/sendnewpassword/$', views.send_newPassword, name='send_newPassword'),
 )

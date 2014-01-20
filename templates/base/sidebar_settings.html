@@ -25,7 +25,7 @@
 				</div>
 			</a>
 		</li>
-		{% if role == 'TEACHER' %}
+		{% if role == 'TEACHER' or role == 'ADMIN' %}
 		<li {% if active_nav == 'GRADESYS' %} class="todo-done" {% endif %}>
 			<a href="{% url 'auth:gradesys' %}" class="sidebar-link">
 				<div class="todo-icon fui-check"></div>
