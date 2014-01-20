@@ -1,0 +1,81 @@
+{% extends "base/base_suadmin.html" %}
+{% load staticfiles %}
+
+{% block title %}
+TECS: Test Essay Checking Software | Super Admin
+{% endblock %}
+
+{% block content %}
+
+<div class="page-content">
+	<div class="row-fluid">
+		<div class="content">
+			<div class="row-fluid">
+				<div class="span3 palette-sun-flower mtl">
+					<div class="content">
+						<center>
+							<img class="img-circle mbl" src="{{MEDIA_URL}}{{avatar}}" style="height: 200px">
+							<h3>{{ superadmin.user.first_name }} {{ superadmin.user.last_name }}</h3>
+							<p class="lead">{{ role }}</p>
+						  </center>				  
+					</div>
+				</div>
+				<div class="span8">
+					<div class="content">
+						<div class="palette palette-midnight-blue">Profile</div>
+						<div class=" mtm">
+							<div class="content">
+								<dl class="dl-horizontal">
+									<dt><strong>Email:</strong></dt>
+									<dd class="mbs"> {{ superadmin.user.email }}</dd>
+
+									<dt><strong>Address:</strong></dt>
+									<dd>
+										<address>
+											{{ profile.street }}<br>
+											{{ profile.municipality }}<br>
+											{{ profile.province }}
+										</address>
+									</dd>
+									<dt><strong>Contact No.:</strong></dt>
+									<dd class="mbs"> {% if profile.phone_number %} {{ profile.phone_number }} {% else %} -- {% endif %}</dd>
+								</dl>
+								<hr>
+								<dl class="dl-horizontal">
+									<dt><strong>Member<br>since:</strong></dt>
+									<dd class="mbs"> {{ superadmin.date_added }}</dd>
+									<br>
+									<dt><strong>Added by:</strong></dt>
+									<dd class="mbs"> {{ superadmin.registered_by.first_name }} {{ superadmin.registered_by.last_name }} ({{ superadmin.registered_by.username }})</dd>
+								</dl>
+							</div>
+						</div>
+						<a href="{% url 'auth:viewsuperadmins' %}" class="btn btn-inverse"><span class="fui-arrow-left"></span> Back</a>
+						{% if superadmin.registered_by.pk == user.pk %}
+							<button class="btn btn-danger pull-right span5" data-toggle="modal" data-target="#confirm-deactivate"><span class="fui-cross"></span> Deactivate</a>
+						{% endif %}						
+					</div>				
+				</div>
+			</div>			
+		</div>		
+	</div>	
+</div>
+
+<div id="confirm-deactivate" class="modal hide fade" data-backdrop="static">
+	<div class="modal-header palette-alizarin">
+		<h3 class="text-white">Confirm Deactivate</h3>
+	</div>
+	<div class="modal-body">
+		<p>Are you sure you want to deactivate this account?</p>
+		<p>After continuing with this action, the user can no longer log in to the system. This action cannot be undone.</p>
+		<form action="" method="post">
+			{% csrf_token %}
+			<input type="hidden" name="deactivated_username" value="{{superadmin.user.username}}">
+		<form>
+	</div>
+	<div class="modal-footer">
+		<button type="submit" class="btn btn-danger pull-left"><span class="fui-cross"></span> Deactivate</button>
+		<button class="btn btn-inverse" data-dismiss="modal" aria-hidden="true">Close</button>
+	</div>
+</div>
+{% endblock %}

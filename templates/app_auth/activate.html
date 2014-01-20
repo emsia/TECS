@@ -1,0 +1,19 @@
+{% extends "base/base_register.html" %}
+{% load staticfiles %}
+
+{% block title %}
+TECS: Test Essay Checking Software | Register
+{% endblock %}
+
+{% block register %}
+<div class="login-form">
+	{% if success %}
+		<h1>Account Activated</h1>
+		<p>Thanks for confirming your email address! You can now <a href="{% url 'auth:edit_profile' %}">log in</a>. You will be redirected to your profile after logging in and you must accomplish this before you can access any features of the web app.</p>
+	{% else %}
+		<h1>Account Activation Failed</h1>
+		<p>Sorry, it didn't work. Either your activation link was incorrect, or the activation key for your account has expired; activation keys are only valid for {{ expiration_days }} days after registration.</p> Click <a href="{{home}}">here</a> to go back home.
+	{% endif %}
+</div>
+{% endblock %}
+

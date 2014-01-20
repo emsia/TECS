@@ -27,20 +27,25 @@ TECS: Test Essay Checking Software | Home
 <div class="page-content">
 	<div class="row-fluid">
 		<div class="content">
+			{% if not message %}
 			<p class="pull-right">
-				<button data-toggle="tooltip" data-trigger="hover" onclick="addrow('teacher')" data-placement="left" title data-original-title="Add a Row" class="btn btn-warning"><i class="fui-plus"></i></button>
+				<button data-toggle="tooltip" data-trigger="hover" onclick="addrow('admin')" data-placement="left" title data-original-title="Add a Row" class="btn btn-warning"><i class="fui-plus"></i></button>
 			</p>
+			{% endif %}
 			<img class="title-icons" src={% static 'base/img/icons/Pocket@2x.png' %}>
-			<h3 class="title">Add School Admins</h3>
+			<h3 class="title">Add School Admin/s</h3>
+			{% if error %}
+				<div class="alert alert-block alert-error">
+					<button type="button" class="close" data-dismiss="alert">&times;</button>
+		          <h4><strong>Oops!</strong></h4>
+		          {{ error }}
+		        </div>
+		    {% endif %}
+		    
 			<hr>
-			<form class="form-horizontal" action="{% url 'schools:submitAdmins' %}" method="post">{% csrf_token %}
-				<table class="table table-striped" id="teacher">
-						{% if success %}
-							<div {% if succ %} class="alert alert-block alert-success" {% else %} class="alert alert-block alert-error" {% endif %}>
-							<button type="button" class="close" data-dismiss="alert">&times;</button>
-					          <h4><strong>{% if succ %}Success!{% else %}Error!{% endif %}</strong></h4> {{ success }}
-					        </div>
-					    {% endif %}
+			{% if not message %}
+			<form class="form-horizontal" action="{% url 'schools:submitAdmins'%}" method="post">{% csrf_token %}
+				<table class="table table-striped" id="admin">
 					<thead>
 						<tr>
 							<th><center>Username</center></th>
@@ -60,11 +65,18 @@ TECS: Test Essay Checking Software | Home
 
 				<hr>
 				<div style="text-align: center">
+					<input type="hidden" id="school_id" name="school_id" value="{{ school.id }}">
 					<input type="hidden" value="{{ next_url }}" name="next_url" />
-					<button type="submit" class="btn btn-success"><b>Save</b><i class="fui-check"></i></button> 
-					<a  type="button" class="btn btn-warning"><b>Cancel</b><i class="fui-cross"></i></a>
+					<button type="submit"class="btn btn-success"><b>Save</b><i class="fui-check"></i></button> 
+					<a href="{% url 'schools:view' %}" type="button" class="btn btn-warning"><b>Cancel</b><i class="fui-cross"></i></a>
 				</div>
 			</form>
+			{% else %}
+			<div class="alert alert-block alert-error">
+	          <h4><strong>Warning!</strong></h4>
+	          {{ message }}
+	        </div>
+	        {% endif %}
 		</div>
 	</div>
 </div>
@@ -91,11 +103,11 @@ TECS: Test Essay Checking Software | Home
 
     function deleteRow(row)
 	{
-		var rows = document.getElementById('teacher').getElementsByTagName("tbody")[0].getElementsByTagName("tr").length;
+		var rows = document.getElementById('admin').getElementsByTagName("tbody")[0].getElementsByTagName("tr").length;
 
 	    var i=row.parentNode.parentNode.rowIndex;
 	    if(rows > 1)
-	    	document.getElementById('teacher').deleteRow(i);
+	    	document.getElementById('admin').deleteRow(i);
 	}
 
     $(document).ready(function() 

@@ -3,7 +3,7 @@ from django.forms import ModelForm, PasswordInput
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.utils import timezone
-import datetime
+from datetime import datetime
 
 class UserProfile(models.Model):
 	user = models.OneToOneField(User)
@@ -27,11 +27,18 @@ class UserProfile(models.Model):
 class SUadmin(models.Model):
 	user = models.ForeignKey(User, related_name='self_userid')
 	registered_by = models.ForeignKey(User, related_name='registered_by')
-	status = models.IntegerField(default=0)
+	status = models.IntegerField(default=0) # -1:deactivated	0:for activation (default)	1:active
 	date_added = models.DateTimeField(null=True)
 	date_registered = models.DateTimeField(default=timezone.now())
 	activation_code = models.CharField(max_length=32, unique=True)
 	activation_code_expiry = models.DateTimeField()
+
+	def is_activation_code_expired(self):
+		delta = self.activation_code_expiry - timezone.now()
+		if delta.days < 0:
+			return True
+		else:
+			return False
 
 	def __str__(self):
 		return u'%s, %s' % (self.user.last_name, self.user.first_name)
@@ -41,10 +48,12 @@ class School(models.Model):
 	short_name = models.CharField(max_length=20)
 	address = models.TextField()
 	key = models.CharField(max_length=32)
-	suadmin = models.ForeignKey(SUadmin, related_name= 'sa', blank=True, null=True)
+	suadmin = models.ForeignKey(SUadmin,blank=True, null=True)
+	date_created = models.DateTimeField(default=datetime.now)
+	is_active = models.IntegerField(default=0)
 
 	def __str__(self):
-		return self.name
+		return u'%s (%s)' % (self.name, self.short_name)
 
 	class Meta:
 		ordering = ['name']

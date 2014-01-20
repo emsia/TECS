@@ -25,7 +25,7 @@ TECS: Test Essay Checking Software | Home
 		<div class="content">
 			<div class="row-fluid">
 			<p class="pull-right">
-				<a  href="{% url 'schools:add' %}" data-toggle="tooltip" data-trigger="hover" class="btn btn-warning"><i class="fui-plus"></i>Add New School</a>
+				<a  href="{% url 'schools:add' %}" data-toggle="tooltip" data-trigger="hover" data-placement="left" title data-original-title="Add School" class="btn btn-warning"><i class="fui-plus"></i>Add New School</a>
 			</p>
 			<img class="title-icons" src="{% static 'base/img/icons/Clipboard@2x.png' %}">
 			<h3 class="title">My Schools</h3>
@@ -42,12 +42,12 @@ TECS: Test Essay Checking Software | Home
 					</tr>
 				</thead>
 				<tbody>
-					{% for school in schools %}
+					{% for schools in schools %}
 						<tr>
 							<td><center>{{forloop.counter}}</center></td>
-							<td><center>{{school.name}} ( {{school.short_name}} )</center></td>
-							<td><center>{% for administration in administrations %}{% for admin in administration %}{% if admin.school == school %}{% if forloop.counter == 1 %}{{ administration.count }}{% endif %}{% endif %}{% endfor %}{% endfor %}</center></td>
-							<td><center><a href="{% url 'schools:viewSchool' school.id %}" class="btn btn-primary"><span class="fui-location"></span></a></center></td>
+							<td><center>{{schools.name}} ( {{schools.short_name}} )</center></td>
+							<td><center>{{schools.admin.all.count }}</center></td>
+							<td><center><a href="{% url 'schools:viewSchool' schools.id %}" class="btn btn-primary"><span class="fui-location"></span></a></center></td>
 							<td><center><button type="button" class="delsys-button btn btn-danger" data-id={{ schools.id }} data-toggle="modal" data-target="#confirm-delete"><i class="fui-cross"></i></span></button></center></td>
 						</tr>
 					{% endfor %}
@@ -81,6 +81,13 @@ TECS: Test Essay Checking Software | Home
 </div>
 	</div>
 </div>
+
+<script>
+	$(".delsys-button").on("click", function() {
+		var schoolid = $(this).data('id')
+		$("#school_id").val(schoolid)
+	});
+</script>
 
 <script src="{% static 'base/js/jquery.min.js' %}"></script>
 {% endblock %}
