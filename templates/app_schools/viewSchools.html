@@ -46,7 +46,7 @@ TECS: Test Essay Checking Software | Home
 						<tr>
 							<td><center>{{forloop.counter}}</center></td>
 							<td><center>{{schools.name}} ( {{schools.short_name}} )</center></td>
-							<td><center>{{schools.admin.all.count }}</center></td>
+							<td><center>{% for admins in administrations %}{% for admin in admins %}{% if admin.school == schools %}{% if forloop.counter == 1 %}{{ admins.all.count }}{% endif %}{% endif %}{% endfor %}{% endfor %}</center></td>
 							<td><center><a href="{% url 'schools:viewSchool' schools.id %}" class="btn btn-primary"><span class="fui-location"></span></a></center></td>
 							<td><center><button type="button" class="delsys-button btn btn-danger" data-id={{ schools.id }} data-toggle="modal" data-target="#confirm-delete"><i class="fui-cross"></i></span></button></center></td>
 						</tr>
