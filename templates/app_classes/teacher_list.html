@@ -46,7 +46,6 @@ TECS: Test Essay Checking Software | Teacher Classes
 			{% if error and message %}
 				<div class="alert alert-block alert-error">
 					<button type="button" class="close" data-dismiss="alert">&times;</button>
-		          <h4><strong>Oops!</strong></h4>
 		          {{ message }}
 		        </div>
 		    {% elif message and class_info.all.count %}
@@ -58,7 +57,6 @@ TECS: Test Essay Checking Software | Teacher Classes
 
 			{% if not class_info.all.count %}
 				<div class="alert alert-block alert-error">
-		          <h4><strong>Oops!</strong></h4>
 		          Teacher {{ teacher_details.user.first_name }} has no classes yet.
 		        </div>
 		    {% else %}

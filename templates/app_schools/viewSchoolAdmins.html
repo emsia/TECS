@@ -33,7 +33,6 @@ TECS: Test Essay Checking Software | Home
 			{% if error and message %}
 				<div class="alert alert-block alert-error">
 					<button type="button" class="close" data-dismiss="alert">&times;</button>
-		          <h4><strong>Oops!</strong></h4>
 		          {{ message }}
 		        </div>
 		    {% elif message and teacher_list.all.count %}
@@ -81,7 +80,6 @@ TECS: Test Essay Checking Software | Home
 			</table>
 			{% else %}
 					<div class="alert alert-block alert-error">
-			          <h4><strong>Oops!</strong></h4>
 			          You haven't added admins yet.
 			        </div>
 			{% endif %}
