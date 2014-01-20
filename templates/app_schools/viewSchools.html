@@ -28,7 +28,9 @@ TECS: Test Essay Checking Software | Home
 				<a  href="{% url 'schools:add' %}" data-toggle="tooltip" data-trigger="hover" class="btn btn-warning"><i class="fui-plus"></i>Add New School</a>
 			</p>
 			<img class="title-icons" src="{% static 'base/img/icons/Clipboard@2x.png' %}">
-			<h3 class="title">My Schools</h3>	
+			<h3 class="title">My Schools</h3>
+			<hr>
+			{% if schools.all.count %}
 			<table class="table table-striped">
 				<thead>
 					<tr>
@@ -50,7 +52,13 @@ TECS: Test Essay Checking Software | Home
 						</tr>
 					{% endfor %}
 				</tbody>
-				</table>
+			</table>
+			{% else %}
+				<div class="alert alert-block alert-error">
+		          <h4><strong>Oops!</strong></h4>
+		          You don't have Schools yet.
+		        </div>
+			{% endif %}
 		</div>
 	</div>
 

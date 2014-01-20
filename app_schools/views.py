@@ -6,7 +6,8 @@ from django.contrib.auth.models import User
 from django.shortcuts import render, redirect
 from django.http import HttpResponseRedirect
 from django.contrib.auth.decorators import login_required
-from app_schools.models import School, SchoolForm, EditForm
+from app_auth.models import School
+from app_schools.models import SchoolForm, EditForm
 from django.shortcuts import render, get_object_or_404
 from app_auth.models import UserProfile, SUadmin, School, Admin
 from app_registration.models import RegistrationProfile
@@ -46,6 +47,7 @@ def suadmin_viewSchools(request, err=None, success=None):
 
 	User_Profile = User_Profile.get(user_id=request.user.id)
 	suadmin = SUadmin.objects.filter(user=request.user)
+	print suadmin
 	hasSchools = None
 	power = False
 	if suadmin:
@@ -79,9 +81,9 @@ def submit(request):
 		form_school = SchoolForm(data=request.POST)
 		if form_school.is_valid():
 			forms = form_school.cleaned_data
-			name_info = forms['name']
-			short_name_info = forms['short_name']
-			address_info = forms['address']
+			name_info = forms['name'].title()
+			short_name_info = forms['short_name'].title()
+			address_info = forms['address'].title()
 			suadmin_info= SUadmin.objects.get(user=request.user)
 			#rendered = render_to_string("users/emails/data.txt", {'data': data})
 	
@@ -89,6 +91,9 @@ def submit(request):
 			if school_info.exists():
 				return suadmin_viewSchools(request, 'That School already exists.')
 
+			forms['name'] = name_info
+			forms['short_name'] = short_name_info
+			forms['address'] = address_info
 			form = form_school.save(commit=False)
 			form.suadmin = suadmin_info
 			form.date_created = timezone.now()

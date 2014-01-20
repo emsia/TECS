@@ -12,22 +12,22 @@
       <div style="padding: 7px; border: 2px solid; font-family: 'Lato', sans-serif; line-height: 1.231; font-size: 14px; border-color: #1abc9c; padding-right: 20px;">
         	From: <a style="color: #1abc9c; text-decoration: none;">{{ sender.email }} [{{ sender.last_name }}, {{ sender.first_name }}]</a><br/>
 			Subject: Change in Class details<br/>
-			<p>This is a notification that {{ sender.last_name }}, {{ sender.first_name }} has changed you class details lately.</p><br/>
-			<p>Changes are:</p><br/>
+			<p>This is a notification that {{ sender.last_name }}, {{ sender.first_name }} has changed your class details lately.</p>
+			<p>Changes are:</p>
 			{% if school %}
-				School : {{ school }} <br/>
+				<a style="color: #1abc9c; text-decoration: none;">School</a> : {{ school }} <br/>
 			{% endif %}
 			{% if year_level %}
-				Year Level : {{ year_level }}<br/>
+				<a style="color: #1abc9c; text-decoration: none;">Year Level</a> : {{ year_level }}<br/>
 			{% endif %}
 			{% if section %}
-				Section : {{ section }}<br/>
+				<a style="color: #1abc9c; text-decoration: none;">Section</a> : {{ section }}<br/>
 			{% endif %}
 			{% if subject %}
-				Subject : {{ subject }}<br/>
+				<a style="color: #1abc9c; text-decoration: none;">Subject</a> : {{ subject }}<br/>
 			{% endif %}
 			{% if academic_year %}
-				Academic Year : {{ academic_year }}<br/>
+				<a style="color: #1abc9c; text-decoration: none;">Academic Year</a> : {{ academic_year }}<br/>
 			{% endif %}
       </div>
 {% endblock %}

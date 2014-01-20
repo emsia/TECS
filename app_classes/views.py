@@ -115,12 +115,10 @@ def submitTeachers(request):
 					salt = hashlib.sha1(str(random.random())).hexdigest()[:5]
 					usernaming = usernaming.encode('utf-8')
 					password_preset = hashlib.md5(salt+usernaming).hexdigest()[:12]
-					print password_preset
 					if Site._meta.installed:
 						site = Site.objects.get_current()
 					else:
 						site = RequestSite(request)
-					print password_preset
 					new_user = RegistrationProfile.objects.create_inactive_user(usernaming, mails[count], password_preset, site)
 					teacher = Teacher.objects.create(user=new_user)
 					teacher.save()
@@ -263,7 +261,7 @@ def edit(request, class_id, place=None):
 				check_ifAdmin = Admin.objects.get(user=request.user)
 				template = get_template('app_classes/notification.html').render(
 					Context({
-						'sender': check_ifAdmin,
+						'sender': check_ifAdmin.user,
 						'school': temp['school'],
 						'year_level' : temp['year_level'],
 						'section' : temp['section'],
@@ -278,12 +276,13 @@ def edit(request, class_id, place=None):
 
 				msgImage.add_header('Content-ID', '<image1>')
 
-				mailSend = EmailMessage('[TECS] Class Information Changed', template, 'fsvaeg@gmail.com', [class_info.teacher.user.mail] )
+				mailSend = EmailMessage('[TECS] Class Information Changed', template, 'fsvaeg@gmail.com', [class_info.teacher.user.email] )
 				mailSend.content_subtype = "html"  # Main content is now text/html
 				mailSend.attach(msgImage)
-				#mailSend.send()
+				mailSend.send()
 			except:
 				pass
+
 			return viewClassList(request, class_id, '' ,'Changes to class details were saved.')
 
 	if not power:
@@ -407,10 +406,10 @@ def inviteStudent(request):
 
 				msgImage.add_header('Content-ID', '<image1>')
 
-				mailSend = EmailMessage('[TECS] Invitation to join Class', template, 'fsvaeg@gmail.com', [mail] )
+				mailSend = EmailMessage('[TECS] Invitation to join Class', template, 'fsvaeg@gmail.com', mail )
 				mailSend.content_subtype = "html"  # Main content is now text/html
 				mailSend.attach(msgImage)
-				#mailSend.send()
+				mailSend.send()
 				success = True
 				message = 'Invitations were sent successfully.'
 				return viewClassList(request, class_id, countless, message, success)
@@ -465,7 +464,7 @@ def send_newPassword(request):
 		mailSend = EmailMessage('[TECS] Password Change by Admin', template, 'fsvaeg@gmail.com', [email] )
 		mailSend.content_subtype = "html"  # Main content is now text/html
 		mailSend.attach(msgImage)
-		#mailSend.send()
+		mailSend.send()
 		message = 'Changing complete'
 		error = 0
 

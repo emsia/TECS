@@ -89,7 +89,7 @@ TECS: Test Essay Checking Software | Admin Add Classes
 				<input type="hidden" value="1" name="place"  id="place" />
 				<input type="hidden" value={{ teacher.id }} id="teacher_id" name="teacher_id" />
 				<button type="reset" class="btn btn-warning"><b>Reset</b><i class="fui-play"></i></button> 
-				<a href="{% url 'classes:classes' %}" type="button" class="btn btn-danger"><b>Cancel</b><i class="fui-cross"></i></a>
+				<a href="{% url 'classes:viewTeachers' name.id %}" type="button" class="btn btn-danger"><b>Cancel</b><i class="fui-cross"></i></a>
 			</div>
 		</form>
 	</div>

@@ -99,10 +99,11 @@ TECS: Test Essay Checking Software | Home
 				          </div>
 				        <input type="hidden" id="cid" name="cid" value={{ studentList.id }} >
 						<input type="hidden" id="place" name="place" value={{ place }} >
-				        <div class="form-actions">
+				        <div><center>
 		    				<input type="hidden" value="sendNow" name="sendNow" />
 							<button type="submit" class="btn btn-primary"><b>Send Invitation</b><i class="fui-check"></i></button> 
 							<a href="{% url 'classes:viewClass' studentList.id 0 %}" type="button" class="btn btn-danger"><b>Cancel</b><i class="fui-cross"></i></a>
+							</center>
 						</div>
 					</fieldset>
 				</form>
