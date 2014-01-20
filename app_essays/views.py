@@ -168,9 +168,9 @@ def answer_essay(request, essay_response_id):
 				
 			else:
 				print request.POST['submission_type']
-				data = {'message':'Oops!', 'has_errors':1}
+				data = {'message':'', 'has_errors':1}
 		else:
-			data = {'message':'Oops! Something went wrong. Try again.', 'has_errors':1}
+			data = {'message':'Something went wrong. Try again.', 'has_errors':1}
 		
 		return HttpResponse(json.dumps(data), content_type="application/json")
 
