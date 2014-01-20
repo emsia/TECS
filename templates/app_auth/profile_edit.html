@@ -33,18 +33,6 @@ TECS: Test Essay Checking Software | Teacher Classes
 			<h3 class="title">My Profile</h3>
 			<form enctype="multipart/form-data" class="form-horizontal" action="" method="post">{% csrf_token %}
 				<fieldset>
-					{%for formSchool in schoolForm %}
-					<div class="control-group">
-						<label class="control-label" for="email">{{ formSchool.label_tag }}</label>
-						<div class="controls">
-							{{formSchool}}
-							{% for error in formSchool.errors %}
-							<p class="text-error">{{ error }}</p>
-							{% endfor %}
-						</div>
-					</div>
-					{% endfor %}
-
 					{% for form in formProfile %}
 					<div class="control-group">
 						<label class="control-label" for="email">{{ form.label_tag }}</label>

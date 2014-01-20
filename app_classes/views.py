@@ -337,8 +337,7 @@ def enroll(request):
 		if formEnroll.is_valid():
 			temp = formEnroll.cleaned_data
 			key = temp['key']
-			school = School.objects.filter(name=temp['school'])
-			class_info = Class.objects.filter(school=school).filter(key=key)
+			class_info = Class.objects.filter(key=key)
 			if class_info.exists():
 				student = Student.objects.get(user=request.user)
 				class_info = class_info.get(key=key)
@@ -386,12 +385,6 @@ def inviteStudent(request):
 		formMails = MailForm2(data=request.POST)
 		sendNow = request.POST.get('sendNow')
 
-		template = get_template('app_classes/perl.html').render(
-			Context({
-				'sender': sender,
-				'studentList': class_info,
-			})
-		)
 		if formMails.is_valid():
 			emails = formMails.cleaned_data
 			mail = []
@@ -400,16 +393,41 @@ def inviteStudent(request):
 
 			count = len(mail)
 			if sendNow == 'sendNow':
-				fp = open('./static/base/img/icons/Mail@2x.png', 'rb')
-				msgImage = MIMEImage(fp.read())
-				fp.close()
+				
+				for email in mail:
+					usernaming = email.split('@', 1)[0]
+					existing = User.objects.filter(username__iexact=usernaming)
+					if not existing.exists():
+						salt = hashlib.sha1(str(random.random())).hexdigest()[:5]
+						usernaming = usernaming.encode('utf-8')
+						password_preset = hashlib.md5(salt+usernaming).hexdigest()[:12]
+						if Site._meta.installed:
+							site = Site.objects.get_current()
+						else:
+							site = RequestSite(request)
+						new_user = RegistrationProfile.objects.create_inactive_user(usernaming, email, password_preset, site, True, True, sender, class_info)
+						student = Student.objects.create(user=new_user)
+						student.school = class_info.school
+						student.save()
+					else:
+						template = get_template('app_classes/perl.html').render(
+							Context({
+								'sender': sender,
+								'studentList': class_info,
+							})
+						)
 
-				msgImage.add_header('Content-ID', '<image1>')
+						fp = open('./static/base/img/icons/Mail@2x.png', 'rb')
+						msgImage = MIMEImage(fp.read())
+						fp.close()
 
-				mailSend = EmailMessage('[TECS] Invitation to join Class', template, 'fsvaeg@gmail.com', mail )
-				mailSend.content_subtype = "html"  # Main content is now text/html
-				mailSend.attach(msgImage)
-				mailSend.send()
+						msgImage.add_header('Content-ID', '<image1>')
+
+						mailSend = EmailMessage('[TECS] Invitation to join Class', template, 'fsvaeg@gmail.com', [mail] )
+						mailSend.content_subtype = "html"  # Main content is now text/html
+						mailSend.attach(msgImage)
+						mailSend.send()
+
 				success = True
 				message = 'Invitations were sent successfully.'
 				return viewClassList(request, class_id, countless, message, success)

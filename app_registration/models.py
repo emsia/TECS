@@ -73,7 +73,7 @@ class RegistrationManager(models.Manager):
         return False
     
     def create_inactive_user(self, username, email, password,
-                             site, send_email=True):
+                             site, send_email=True, invite_and_add=False, sender=None, class_info=None):
         """
         Create a new, inactive ``User``, generate a
         ``RegistrationProfile`` and email its activation key to the
@@ -89,8 +89,10 @@ class RegistrationManager(models.Manager):
 
         registration_profile = self.create_profile(new_user)
 
-        if send_email:
+        if send_email and not invite_and_add:
             registration_profile.send_activation_email(site, username, password)
+        elif send_email and invite_and_add:
+            registration_profile.send_invitation_and_add(site, username, password, sender, class_info, email)
 
         return new_user
     create_inactive_user = transaction.commit_on_success(create_inactive_user)
@@ -280,3 +282,29 @@ class RegistrationProfile(models.Model):
         mailSend.content_subtype = "html"  # Main content is now text/html
         mailSend.attach(msgImage)
         mailSend.send()
+
+    def send_invitation_and_add(self, site, username, password, sender, class_info, mail):
+        template = get_template('app_classes/perl2.html').render(
+            Context({
+                'sender': sender,
+                'studentList': class_info,
+                'activation_key': self.activation_key,
+                'expiration_days': settings.ACCOUNT_ACTIVATION_DAYS,
+                'username' : username,
+                'password' : password,
+            })
+        )
+
+        fp = open('./static/base/img/icons/Mail@2x.png', 'rb')
+        msgImage = MIMEImage(fp.read())
+        fp.close()
+
+        msgImage.add_header('Content-ID', '<image1>')
+
+        mailSend = EmailMessage('[TECS] Invitation to join Class', template, 'fsvaeg@gmail.com', [mail] )
+        mailSend.content_subtype = "html"  # Main content is now text/html
+        mailSend.attach(msgImage)
+        mailSend.send()
+
+
+

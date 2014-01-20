@@ -213,33 +213,7 @@ def profile_edit(request, success=None):
 	power = False
 	if request.method == "POST":
 		formProfile = ProfileForm(request.POST, request.FILES)
-		schoolForm = schoolForStudent(request.POST)
-		if len(Teacher.objects.filter(user_id = request.user.id)) > 0:
-			schoolForm = schoolForTeacher(request.POST)
 		power = True
-		
-		if schoolForm.is_valid():
-			if len(Teacher.objects.filter(user_id = request.user.id)) > 0:
-				temp = schoolForm.cleaned_data['school']
-				teacher = Teacher.objects.filter(user=request.user)
-				if not teacher.exists():
-					teacher = Teacher.objects.create(user=request.user)
-					teacher.save()
-				else:
-					teacher = teacher.get(user=request.user)
-					teacher.school.clear()
-				for school in temp:
-					print(school)
-					teacher.school.add(school)
-			else:
-				student = Student.objects.filter(user=request.user)
-				school = School.objects.get(id=request.POST['school'])
-				if not student.exists():
-					student = Student.objects.create(user=request.user, school=school)
-				else:
-					student = Student.objects.get(user=request.user)
-					student.school = school
-					student.save()
 
 		if formProfile.is_valid():
 			temp = formProfile.cleaned_data
@@ -274,22 +248,10 @@ def profile_edit(request, success=None):
 			return redirect("auth:profile")
 
 	if user_info.exists():
-		schoolForm = schoolForStudent()
 		user_info = user_info.get(user_id=request.user.id)
 		role = UserProfile.objects.get(user_id = request.user.id).role
-
-		if len(Teacher.objects.filter(user_id = request.user.id)) > 0:
-			schoolForm = schoolForTeacher(initial={'school':Teacher.objects.get(user=request.user).school.values_list('id',flat=True)})
-		else:
-			schoolForm = schoolForStudent(initial={'school':Student.objects.get(user=request.user).school})
 		avatar = user_info.avatar
 		if not power:
-			try:
-				schoolForm = schoolForStudent(initial={'school':Student.objects.get(user=request.user).school})
-			except:
-				pass
-			if len(Teacher.objects.filter(user_id = request.user.id)) > 0:
-				schoolForm = schoolForTeacher(initial={'school':Teacher.objects.get(user=request.user).school.values_list('id',flat=True)})
 			formProfile = ProfileForm(initial={
 				'last_name':request.user.last_name, 'first_name':request.user.first_name, 'email':request.user.email, 'avatar':user_info.avatar,
 				'username': request.user.username, 'street':user_info.street, 'municipality':user_info.municipality,
@@ -297,15 +259,12 @@ def profile_edit(request, success=None):
 			})
 	else:
 		role = None
-		schoolForm = schoolForStudent()
-		if len(Teacher.objects.filter(user_id = request.user.id)) > 0:
-			schoolForm = schoolForTeacher(initial={'school':Teacher.objects.get(user=request.user).school.values_list('id',flat=True)})
 		avatar = 'images/avatars/user.png'
 
 		formProfile = ProfileForm(initial={'last_name':request.user.last_name, 'role':role, 'first_name':request.user.first_name, 'email':request.user.email,
 			'username': request.user.username,})
 
-	return render(request, 'app_auth/profile_edit.html', {'avatar': avatar, 'role':role, 'role':role, 'active_nav':'PROFILE', 'success':success, 'formProfile':formProfile, 'schoolForm':schoolForm})
+	return render(request, 'app_auth/profile_edit.html', {'avatar': avatar, 'role':role, 'role':role, 'active_nav':'PROFILE', 'success':success, 'formProfile':formProfile})
 
 @login_required(redirect_field_name='', login_url='/')
 def password_edit(request, success=None):

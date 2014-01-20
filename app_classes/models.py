@@ -51,9 +51,8 @@ class EditForm(ModelForm):
 class EnrollForm(ModelForm):
 	class Meta:
 		model = Class
-		fields = ['school', 'key']
+		fields = ['key']
 		widgets = {
-			'school': Select(attrs={'class':'select span12', 'data-size':10, 'data-container':"body", 'data-options':"is_hover" }),
 			'key': TextInput(attrs={'class':'input-xlarge span2', 'data-name':'key'}),
 		}
 
