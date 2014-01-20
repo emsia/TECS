@@ -138,13 +138,16 @@ def profile_view(request):
 	profile = UserProfile.objects.get(user=request.user)
 	if len(Teacher.objects.filter(user = user)) > 0:
 		role = 'Teacher'
+		school = Teacher.objects.get(user = user).school.all()
 	elif len(Student.objects.filter(user = user)) > 0:
 		role = 'Student'
+		school = Student.objects.get(user = user).school
 	if len(Admin.objects.filter(user = user)) > 0:
 		role = 'Admin'
+		school = Admin.objects.get(user = user).school
 	elif len(SUadmin.objects.filter(user = user)) > 0:
 		role = 'Super Admin'
-	return render(request, 'app_auth/profile_view.html', {'avatar': avatar, 'role':role, 'profile':profile, 'role':role})
+	return render(request, 'app_auth/profile_view.html', {'avatar': avatar, 'role':role, 'profile':profile, 'role':role, 'school':school})
 
 @login_required(redirect_field_name='', login_url='/')
 def edit_SU_Admin(request, success=None):

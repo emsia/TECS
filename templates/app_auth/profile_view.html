@@ -39,6 +39,16 @@ TECS: Test Essay Checking Software | Profile
 							</dd>
 							<dt><strong>Contact No.:</strong></dt>
 							<dd class="mbl"> {% if profile.phone_number %} {{ profile.phone_number }} {% else %} -- {% endif %}</dd>
+							<dt><strong>School:</strong></dt>
+							<dd class="mbl">
+								{% if role == 'Teacher' %}
+									{% for a_school in school %}
+										{{a_school.name}}<br>
+									{% endfor %}
+								{% else %}
+									{{ school.name }}
+								{% endif %}
+							</dd>
 						</dl>
 						<hr>
 						<dl class="dl-horizontal lead">
