@@ -137,7 +137,7 @@ TECS: Test Essay Checking Software | Home
 				<tbody>
 					{% for student in studentList.student.all %}
 					<tr>
-						<td><center>{{student.id}}</center></td>
+						<td><center>{{ forloop.counter }}</center></td>
 						<td><center>{{student.user.last_name}}</center></td>
 						<td><center>{{student.user.first_name}}</center></td>
 						<td><center>{{student.user.email}}</center></td>

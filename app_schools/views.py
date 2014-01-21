@@ -215,49 +215,49 @@ def submitAdmins(request):
 
 @login_required(redirect_field_name='', login_url='/')
 def send_newPassword(request):
-	if request.method == "POST":
-		email = request.POST['newMail']
-		school_id = request.POST['school_id']
-		message = ''
-		error = 1
+	email = request.POST['newMail']
+	message = None
+	school_id = request.POST['school_id']
+	error = 1
 
-		try:
-			validate_email(email)
-		except ValidationError:
-			message = 'Please input valid email'
+	try:
+		validate_email(email)
+	except ValidationError:
+		message = 'Please input valid email'
 
-		if not message:
-			user_id = request.POST['useraccount']
-			usernaming = request.POST['username']
-			salt = hashlib.sha1(str(random.random())).hexdigest()[:5]
-			usernaming = usernaming.encode('utf-8')
-			password_preset = hashlib.md5(salt+usernaming).hexdigest()[:12]
-			print password_preset
-			u = User.objects.get(id=user_id)
-			u.set_password(password_preset)
-			u.email = email
-			u.is_active = True
-			u.save()
+	if not message:
+		user_id = request.POST['user_account']
+		usernaming = request.POST['username']
 
-			template = get_template('app_schools/send_newPassword.html').render(
-				Context({
-					'sender': request.user,
-					'pass': password_preset,
-					'usernaming' : usernaming,
-				})
-			)
+		salt = hashlib.sha1(str(random.random())).hexdigest()[:5]
+		usernaming = usernaming.encode('utf-8')
+		password_preset = hashlib.md5(salt+usernaming).hexdigest()[:12]
+		print password_preset
+		u = User.objects.get(pk=user_id)
+		u.set_password(password_preset)
+		u.email = email
+		u.is_active = True
+		u.save()
 
-			fp = open('./static/base/img/icons/notes.png', 'rb')
-			msgImage = MIMEImage(fp.read())
-			fp.close()
+		template = get_template('app_schools/send_newPassword.html').render(
+			Context({
+				'sender': request.user,
+				'pass': password_preset,
+				'usernaming' : usernaming,
+			})
+		)
 
-			msgImage.add_header('Content-ID', '<image1>')
+		fp = open('./static/base/img/icons/notes.png', 'rb')
+		msgImage = MIMEImage(fp.read())
+		fp.close()
 
-			mailSend = EmailMessage('[TECS] Password Change by Admin', template, 'fsvaeg@gmail.com', [email] )
-			mailSend.content_subtype = "html"  # Main content is now text/html
-			mailSend.attach(msgImage)
-			mailSend.send()
-			message = 'Changing complete'
-			error = 0
+		msgImage.add_header('Content-ID', '<image1>')
+
+		mailSend = EmailMessage('[TECS] Password Change by Admin', template, 'fsvaeg@gmail.com', [email] )
+		mailSend.content_subtype = "html"  # Main content is now text/html
+		mailSend.attach(msgImage)
+		mailSend.send()
+		message = 'Changing complete'
+		error = 0
 
 	return viewSchoolAdmins(request, school_id, message, error, True)

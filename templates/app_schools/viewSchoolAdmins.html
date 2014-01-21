@@ -66,12 +66,12 @@ TECS: Test Essay Checking Software | Home
 						{% else %}<center style="color:red">Inactive</center></td>{% endif %} 
 						<td><center><a 
 						{% if admin.user.is_active %}
-							href="#"
 							class="btn btn-success disabled fui-lock"
 						{% else %}
 							href="#sendPass"
-							class="btn btn-success fui-lock"
-						role="button" class="sendpass-button btn btn-danger" data-username={{ admin.user.username }} data-useraccount={{ admin.user.id }} data-toggle="modal" data-trigger="hover" data-target="#sendPass" {% endif %} data-placement="left" title data-original-title="Send New Password" ></a></center></td>
+							class="btn btn-success fui-lock sendpass-button"
+						{% endif %}
+						role="button" data-username={{ admin.user.username }} data-user={{ admin.user.id }} data-toggle="modal" data-trigger="hover" data-placement="left" title data-original-title="Send New Password" ></a></center></td>
 						<td><center><button type="button" class="delsys-button btn btn-danger" data-id={{ admin.id }} data-toggle="modal" data-target="#confirm-delete"><i class="fui-cross"></i></button></center></td>
 					</tr>	
 					{% endfor %}			
@@ -114,8 +114,8 @@ TECS: Test Essay Checking Software | Home
 			<p>Type email here.</p>{% csrf_token %}
 			<input type="text" class="span6" id="newMail" name="newMail" value="">
 			<input type="hidden" id="username" name="username" value="">
-			<input type="hidden" id="useraccount" name="useraccount" value="">
-			<input type="hidden" id="school_id" name="school_id" value={{school.id}}>
+			<input type="hidden" id="user_account" name="user_account" value="">
+			<input type="hidden" id="school_id" name="school_id" value={{ school.id }}>
 	</div>
 	<div class="modal-footer">
 		<button type="submit" name="gradesys-delete" class="btn btn-info pull-left">Send <span class="fui-check"></span></button>
@@ -129,16 +129,14 @@ TECS: Test Essay Checking Software | Home
 		var admin_id = $(this).data('id')
 		$("#admin_id").val(admin_id)
 	});
-</script>
-
-<script>
 	$(".sendpass-button").on("click", function() {
-		var useraccount = $(this).data('useraccount')
+		var user_account = $(this).data('user')
 		var username = $(this).data('username')
-		$("#useraccount").val(useraccount)
+		$("#user_account").val(user_account)
 		$("#username").val(username)
 	});
 </script>
+
 <script src="{% static 'base/js/jquery.min.js' %}"></script>
 
 {% endblock %}

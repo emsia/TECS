@@ -96,6 +96,8 @@ def submitTeachers(request):
 		form_class = teacherAdd(data=request.POST)
 		mails = request.POST.getlist('email')
 		usernames = request.POST.getlist('username')
+		lasts = request.POST.getlist('last_name')
+		firsts = request.POST.getlist('first_name')
 
 		print usernames
 		#print mails: check proper email addresses
@@ -123,6 +125,10 @@ def submitTeachers(request):
 					teacher = Teacher.objects.create(user=new_user)
 					teacher.save()
 					teacher.school.add(school)
+					new_user.first_name = firsts[count].title()
+					new_user.last_name = lasts[count].title()
+					new_user.save()
+
 					count = count + 1
 			return redirect('auth:dashboard')
 	return add_teacher(request, form_class, message)
@@ -139,6 +145,7 @@ def submit(request):
 	if request.method == "POST":
 		teacher_id = None
 		teacher = None
+		sender = request.user
 		try:
 			place = request.POST['place']
 			teacher_id = request.POST['teacher_id']
@@ -150,7 +157,12 @@ def submit(request):
 
 		if form_class.is_valid() and formMails.is_valid():
 			forms = form_class.cleaned_data
-			school_info = forms['school']
+			if len(Teacher.objects.filter(user_id = request.user.id)) > 0:
+				teacher = Teacher.objects.get(user_id = request.user.id)
+				school_info = teacher.school.all()[0]
+			elif len(Admin.objects.filter(user_id = request.user.id)) > 0:
+				admin_school = Admin.objects.get(user_id = request.user.id)
+				school_info = admin_school.school
 			subject_info = forms['subject']
 			yearType_info = forms['year_level']
 			section_info = forms['section']
@@ -163,16 +175,12 @@ def submit(request):
 
 			#rendered = render_to_string("users/emails/data.txt", {'data': data})
 			try:
-				print teacher_id
 				if teacher_id is None:
 					teacher = Teacher.objects.get(user=request.user)
-					print "tame"
 				else:
 					teacher = Teacher.objects.get(id=teacher_id)
-					print "mali"
 			except Teacher.DoesNotExist:
 				if teacher is None:
-					print "pumasok"
 					return class_teacher(request, 'You don\'t have permission to add Classes.')
 
 			class_info = Class.objects.filter(school=school_info).filter(section=section_info).filter(subject=subject_info).filter(teacher=teacher).filter(year_level=yearType_info).filter(academic_year=academicYear_info)
@@ -181,6 +189,10 @@ def submit(request):
 
 			form = form_class.save(commit=False)
 			form.teacher = teacher
+			form.subject = subject_info.title()
+			form.year_level = yearType_info.title()
+			form.section = section_info.title()
+			form.school = school_info
 			form.date_created = timezone.now()
 			form.is_active = True
 
@@ -189,23 +201,40 @@ def submit(request):
 			form.key = random_data
 			form.save()
 
-			template = get_template('app_classes/perl.html').render(
-				Context({
-					'sender': request.user,
-					'studentList': form,
-				})
-			)
 			if mail:
-				fp = open('./static/base/img/icons/Mail@2x.png', 'rb')
-				msgImage = MIMEImage(fp.read())
-				fp.close()
+				for email in mail:
+					usernaming = email.split('@', 1)[0]
+					existing = User.objects.filter(username__iexact=usernaming)
+					if not existing.exists():
+						salt = hashlib.sha1(str(random.random())).hexdigest()[:5]
+						usernaming = usernaming.encode('utf-8')
+						password_preset = hashlib.md5(salt+usernaming).hexdigest()[:12]
+						if Site._meta.installed:
+							site = Site.objects.get_current()
+						else:
+							site = RequestSite(request)
+						new_user = RegistrationProfile.objects.create_inactive_user(usernaming, email, password_preset, site, True, True, sender, form)
+						student = Student.objects.create(user=new_user)
+						student.school = form.school
+						student.save()
+					else:
+						template = get_template('app_classes/perl.html').render(
+							Context({
+								'sender': sender,
+								'studentList': form,
+							})
+						)
 
-				msgImage.add_header('Content-ID', '<image1>')
+						fp = open('./static/base/img/icons/Mail@2x.png', 'rb')
+						msgImage = MIMEImage(fp.read())
+						fp.close()
 
-				mailSend = EmailMessage('[TECS] Invitation to join Class', template, 'fsvaeg@gmail.com', [mail] )
-				mailSend.content_subtype = "html"  # Main content is now text/html
-				mailSend.attach(msgImage)
-				mailSend.send()
+						msgImage.add_header('Content-ID', '<image1>')
+
+						mailSend = EmailMessage('[TECS] Invitation to join Class', template, 'fsvaeg@gmail.com', [email] )
+						mailSend.content_subtype = "html"  # Main content is now text/html
+						mailSend.attach(msgImage)
+						mailSend.send()
 			#send_mail('Subject', 'You are invited to class '+ yearType_info + '-' + section_info + ' ' + subject_info + '. The key class is: ' + random_data, 'fsvaeg@gmail.com', mail)
 			
 			if not teacher_id:
@@ -213,7 +242,6 @@ def submit(request):
 			else:
 				return redirect('classes:viewTeachers', teacher_id=teacher_id)
 		else:
-			print "kaya"
 			if not teacher_id:
 				return teacher_addNewClass(request, form_class, formMails)
 			else:
@@ -423,7 +451,7 @@ def inviteStudent(request):
 
 						msgImage.add_header('Content-ID', '<image1>')
 
-						mailSend = EmailMessage('[TECS] Invitation to join Class', template, 'fsvaeg@gmail.com', [mail] )
+						mailSend = EmailMessage('[TECS] Invitation to join Class', template, 'fsvaeg@gmail.com', [email] )
 						mailSend.content_subtype = "html"  # Main content is now text/html
 						mailSend.attach(msgImage)
 						mailSend.send()
