@@ -21,9 +21,11 @@ import nltk, json
 def new_essay(request):
 	avatar = UserProfile.objects.get(user_id = request.user.id).avatar
 	errors = 0;
+	teacher = get_object_or_404(Teacher, user_id = request.user.id)
+	has_class = Class.objects.filter(teacher = teacher).exists()
 	if request.method == 'POST':
 		form = EssayForm(request.POST, request)
-		form.fields['class_name'].queryset = Class.objects.filter(teacher = Teacher.objects.get(user_id = request.user.id))
+		#form.fields['class_name'].queryset = Class.objects.filter(teacher = Teacher.objects.get(user_id = request.user.id))
 		if form.is_valid():
 			cd = form.cleaned_data
 			data = form.save(commit=False)
@@ -63,9 +65,8 @@ def new_essay(request):
 		
 	else:
 		form = EssayForm()
-		form.fields['class_name'].queryset = Class.objects.filter(teacher = Teacher.objects.get(user_id = request.user.id))
-	
-	return render(request, 'app_essays/teacher_newExam.html', {'avatar':avatar, 'active_nav':'EXAMS', 'errors':errors, 'form': form})
+		form.fields['class_name'].queryset = Class.objects.filter(teacher = teacher)
+	return render(request, 'app_essays/teacher_newExam.html', {'avatar':avatar, 'active_nav':'EXAMS', 'errors':errors, 'form': form, 'has_class':has_class})
 
 @login_required(redirect_field_name='', login_url='/')	
 def list_essay(request, errors=None, success=None):

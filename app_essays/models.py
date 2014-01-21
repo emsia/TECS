@@ -1,12 +1,13 @@
 from django.db import models
 from django import forms
-from django.forms import ModelForm, DateTimeInput, TextInput, Textarea, Select
+from django.forms import ModelForm, DateTimeInput, TextInput, Textarea, Select, ModelChoiceField
 from django.utils import timezone
 from django.utils.timezone import utc
 from django.contrib.auth.models import User
 from app_auth.models import Student, Teacher
 from app_classes.models import Class
 import datetime, nltk.data
+from datetime import timedelta
 
 class GradingSystem(models.Model):
 	system = models.CharField(max_length=50)
@@ -28,7 +29,7 @@ class Grade(models.Model):
 class Essay(models.Model):
 	title = models.CharField(max_length=100)
 	instructor = models.ForeignKey(Teacher)
-	class_name = models.ForeignKey(Class)
+	class_name = models.ForeignKey(Class, null=False)
 	instructions = models.TextField()
 	grading_system = models.ForeignKey(GradingSystem)	
 	start_date = models.DateTimeField()
@@ -96,6 +97,7 @@ class EssayForm(ModelForm):
 		model = Essay
 		exclude = ('instructor', 'status', 'date_created')
 		widgets = {
+			#'class_name' : ModelChoiceField(queryset=Class.objects.all(), empty_label=None),
 			'title': TextInput(attrs={'class':'input-xlarge span4', 'autofocus':'autofocus'}),
 			'instructions': Textarea(attrs={'class':'input-xlarge span4', 'rows':'4'}),
 			'min_words': TextInput(attrs={'class':'span1'}),
@@ -105,7 +107,14 @@ class EssayForm(ModelForm):
 			'start_date': DateTimeInput(attrs={'class':'span4', 'type':'date'}),
 			'deadline': DateTimeInput(attrs={'class':'span4', 'type':'date'}),
 		}
-	
+	'''
+	def __init__(self, *args, **kwargs):
+		teacherid = kwargs.pop('pk', None)
+		super(EssayForm, self).__init__(*args, **kwargs)
+
+		 if teacherid:
+			self.fields['class_name'].queryset = Class.objects.filter(teacher__pk=teacherid)
+	'''
 	def clean_duration_minutes(self):
 		duration_minutes = self.cleaned_data['duration_minutes']
 
@@ -119,7 +128,8 @@ class EssayForm(ModelForm):
 		
 		if datetime.datetime.date(startdate) < datetime.datetime.date(timezone.now()):
 			raise forms.ValidationError("This date has already passed.")
-		return startdate
+		#startdate_datetime = datetime.datetime.strptime(startdate, '%Y-%m-%d')
+		return datetime.datetime.combine(startdate, datetime.time(00, 00)).strftime("%Y-%m-%d %H:%M:%S")
 	
 	def clean_deadline(self):
 		deadline = self.data['deadline']
@@ -127,7 +137,8 @@ class EssayForm(ModelForm):
 
 		if deadline < startdate:
 			raise forms.ValidationError("Date for deadline must be later than the start date.")
-		return deadline
+		deadline_datetime = datetime.datetime.strptime(deadline, '%Y-%m-%d')
+		return datetime.datetime.combine(deadline_datetime, datetime.time(23, 59)).strftime("%Y-%m-%d %H:%M:%S")
 
 class EssayResponseForm(ModelForm):
 	class Meta:

@@ -13,94 +13,104 @@ TECS: Test Essay Checking Software | Home
 			<img class="title-icons" src="{% static 'base/img/icons/Watches@2x.png' %}">
 			<h3 class="title">New Exam</h3>
 			<div class="span11">
-				<form class="form-horizontal" action="" method="post">{% csrf_token %}
-					<fieldset>
-						<div class="control-group">
-							<label class="control-label" for="inputgradingsys">Section and Subject</label>
-							<div class="controls" id= "inputgradingsys" >
-								{{ form.class_name }}										
-							</div>								  
-						</div>
-						<div class="control-group">  
-							<label class="control-label" for="inputtitle">Exam Title</label>							  
-							<div class="controls">  
-								{{ form.title }}
-								{% for error in form.title.errors %}
-								<p class="text-error">{{ error }}</p>
-								{% endfor %}
-							</div> 
-						</div>
-						<div class="control-group">  
-							<label class="control-label" for="inputinst">Instructions</label>  
-							<div class="controls">  
-								{{ form.instructions }}
-								{% for error in form.instructions.errors %}
-								<p class="text-error">{{ error }}</p>
-								{% endfor %}
-							</div>  
-						</div> 
-						<div class="control-group">
-							<label class="control-label">Minimum no. of words</label>
-							<div class="controls">
-								<div class="span3">
-									{{ form.min_words }}
-									{% for error in form.min_words.errors %}
+				{% if not has_class %}
+				<div class="alert alert-block alert-error">
+					<h4><strong>Message:</strong></h4>
+					<p>You can't start an exam if you don't have classes yet. Please select CLASSES at the navigation bar on the right side and create a new one.</p>
+		        </div>
+				{% else %}
+					<form class="form-horizontal" action="" method="post">{% csrf_token %}
+						<fieldset>
+							<div class="control-group">
+								<label class="control-label" for="inputgradingsys">Section and Subject</label>
+								<div class="controls" id= "inputgradingsys" >
+									{{ form.class_name }}	
+									{% for error in form.class_name.errors %}
 									<p class="text-error">{{ error }}</p>
-									{% endfor %}	
-								</div>									
-							</div>								  
-						</div> 									  
-						<div class="control-group">
-							<label class="control-label" for="inputgradingsys">Grading System</label>
-							<div class="controls" id= "inputgradingsys" >
-								{{ form.grading_system }}										
-							</div>								  
-						</div>					
+									{% endfor %}									
+								</div>								  
+							</div>
 							<div class="control-group">  
-							<label class="control-label" for="inputduration">Duration</label>
-							<div class="controls">
-								<div class="span1">
-						 		{{ form.duration_hours }} hour(s)
-						 		{% for error in form.duration_hours.errors %}
-								<p class="text-error">{{ error }}</p>
-								{% endfor %}
-						 		</div>	
-						 		<div class="span1">
-						 		{{ form.duration_minutes }} minute(s)
-						 		{% for error in form.duration_minutes.errors %}
-								<p class="text-error">{{ error }}</p>
-								{% endfor %}							
-						 		</div>					 		
-							</div>  
-					  	</div>
-					  	<div class="control-group">
-							<label class="control-label">Start Date</label>
-							<div class="controls">
-								<div class="span4">
-									{{ form.start_date }}
-									{% for error in form.start_date.errors %}
+								<label class="control-label" for="inputtitle">Exam Title</label>							  
+								<div class="controls">  
+									{{ form.title }}
+									{% for error in form.title.errors %}
 									<p class="text-error">{{ error }}</p>
 									{% endfor %}
-								</div>
-							</div>								  
-						</div>
-					  	<div class="control-group">
-							<label class="control-label" for="inputdeadline">Deadline</label>
-							<div class="controls" id= "inputdeadline" >
-								<div class="span4">
-									{{ form.deadline }}
-									{% for error in form.deadline.errors %}
-								<p class="text-error">{{ error }}</p>
-								{% endfor %}
-								</div>
-							</div>								  
-						</div>
-						<div class="form-actions">  
-							<button class="btn btn-primary" type="submit">Start Exam <i class="fui-check"></i></button> 
-							<a href="{% url 'essays:list' %}" class="btn btn-danger">Cancel <i class="fui-cross"></i></a>
-						</div>    
-					</fieldset>
-				</form> 
+								</div> 
+							</div>
+							<div class="control-group">  
+								<label class="control-label" for="inputinst">Instructions</label>  
+								<div class="controls">  
+									{{ form.instructions }}
+									{% for error in form.instructions.errors %}
+									<p class="text-error">{{ error }}</p>
+									{% endfor %}
+								</div>  
+							</div> 
+							<div class="control-group">
+								<label class="control-label">Minimum no. of words</label>
+								<div class="controls">
+									<div class="span3">
+										{{ form.min_words }}
+										{% for error in form.min_words.errors %}
+										<p class="text-error">{{ error }}</p>
+										{% endfor %}	
+									</div>									
+								</div>								  
+							</div> 									  
+							<div class="control-group">
+								<label class="control-label" for="inputgradingsys">Grading System</label>
+								<div class="controls" id= "inputgradingsys" >
+									{{ form.grading_system }}										
+								</div>								  
+							</div>					
+								<div class="control-group">  
+								<label class="control-label" for="inputduration">Duration</label>
+								<div class="controls">
+									<div class="span1">
+							 		{{ form.duration_hours }} hour(s)
+							 		{% for error in form.duration_hours.errors %}
+									<p class="text-error">{{ error }}</p>
+									{% endfor %}
+							 		</div>	
+							 		<div class="span1">
+							 		{{ form.duration_minutes }} minute(s)
+							 		{% for error in form.duration_minutes.errors %}
+									<p class="text-error">{{ error }}</p>
+									{% endfor %}							
+							 		</div>					 		
+								</div>  
+						  	</div>
+						  	<div class="control-group">
+								<label class="control-label">Start Date</label>
+								<div class="controls">
+									<div class="span4">
+										{{ form.start_date }}
+										{% for error in form.start_date.errors %}
+										<p class="text-error">{{ error }}</p>
+										{% endfor %}
+									</div>
+								</div>								  
+							</div>
+						  	<div class="control-group">
+								<label class="control-label" for="inputdeadline">Deadline</label>
+								<div class="controls" id= "inputdeadline" >
+									<div class="span4">
+										{{ form.deadline }}
+										{% for error in form.deadline.errors %}
+									<p class="text-error">{{ error }}</p>
+									{% endfor %}
+									</div>
+								</div>								  
+							</div>
+							<div class="form-actions">  
+								<button class="btn btn-primary" type="submit">Start Exam <i class="fui-check"></i></button> 
+								<a href="{% url 'essays:list' %}" class="btn btn-danger">Cancel <i class="fui-cross"></i></a>
+							</div>    
+						</fieldset>
+					</form>
+				{% endif %}
 			</div>
 		</div>
 	</div>

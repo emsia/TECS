@@ -473,6 +473,12 @@ def suadmin_viewsuperadmins(request, err=None, success=None):
 	if not User_Profile.exists():
 		return redirect("/profile")
 
+	if request.method == 'POST':
+		userid = request.POST.get('user_id')
+		get_object_or_404(SUadmin, user__id=userid, registered_by=request.user)	#CHECK IF CURRENT USER IS ALLOWED TO CANCEL ACTIVATION  FOR THIS ACC
+		user = get_object_or_404(User, pk=userid)
+		user.delete()
+		user.save()
 
 	User_Profile = User_Profile.get(user_id=request.user.id)
 	avatar = User_Profile.avatar
@@ -574,7 +580,6 @@ def activate(request, id):
 	elif superadmin.is_activation_code_expired is True:
 		success = False
 		delta =  superadmin.activation_code_expiry - timezone.now()
-		print delta.days
 	else:
 		success = True
 
