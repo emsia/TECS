@@ -424,6 +424,9 @@ def inviteStudent(request):
 				
 				for email in mail:
 					usernaming = email.split('@', 1)[0]
+					salt = hashlib.sha1(str(random.random())).hexdigest()[:8]
+					usernaming = usernaming.encode('utf-8')
+					usernaming = 'stdnt_' + hashlib.md5(salt+usernaming).hexdigest()[:8]
 					existing = User.objects.filter(username__iexact=usernaming)
 					if not existing.exists():
 						salt = hashlib.sha1(str(random.random())).hexdigest()[:5]
