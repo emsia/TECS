@@ -31,6 +31,11 @@ TECS: Test Essay Checking Software | Teacher Classes
 
 			<img class="title-icons" src="{% static 'base/img/icons/user.png' %}">
 			<h3 class="title">My Profile</h3>
+			{% if message %}
+				<div class="alert alert-block alert-error">
+		          {{ message }}
+		        </div>
+		    {% endif %}
 			<form enctype="multipart/form-data" class="form-horizontal" action="" method="post">{% csrf_token %}
 				<fieldset>
 					{% for forms in schoolProfile %}

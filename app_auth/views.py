@@ -124,7 +124,7 @@ def profile_view(request, username):
 '''
 
 @login_required(redirect_field_name='', login_url='/')
-def profile_view(request):
+def profile_view(request, message=None):
 	user = request.user
 	User_Profile = UserProfile.objects.filter(user = request.user)
 
@@ -147,7 +147,7 @@ def profile_view(request):
 		school = Admin.objects.get(user = user).school
 	elif len(SUadmin.objects.filter(user = user)) > 0:
 		role = 'Super Admin'
-	return render(request, 'app_auth/profile_view.html', {'avatar': avatar, 'role':role, 'profile':profile, 'role':role, 'school':school})
+	return render(request, 'app_auth/profile_view.html', {'avatar': avatar, 'role':role, 'profile':profile, 'role':role, 'school':school, 'message':message})
 
 @login_required(redirect_field_name='', login_url='/')
 def edit_SU_Admin(request, success=None):
@@ -214,6 +214,7 @@ def profile_edit(request, success=None):
 	if len(Admin.objects.filter(user_id = request.user.id)) > 0 or len(SUadmin.objects.filter(user_id = request.user.id)):
 		return redirect('auth:edit_SU_Admin')
 	power = False
+	message = None
 	schoolProfile = None
 	if request.method == "POST":
 		formProfile = ProfileForm(request.POST, request.FILES)
@@ -243,13 +244,18 @@ def profile_edit(request, success=None):
 				UserProfile.objects.create(avatar=temp['avatar'], user_id=request.user.id, street=temp['street'], municipality=temp['municipality'], province=temp['province'], phone_number=temp['phone_number'])
 			
 			#user update
-			USER_info = User.objects.get(id=request.user.id)
-			USER_info.last_name = temp['last_name'].title()
-			USER_info.first_name = temp['first_name'].title()
-			USER_info.email = temp['email']
-			USER_info.username = temp['username']
-			USER_info.save()
-			return redirect("auth:profile")
+			#check username existence
+			existence_of_username = User.objects.filter(username__iexact=temp['username'])#.filter(id=request.user.id)
+			existence_of_me = User.objects.filter(username__iexact=temp['username']).filter(id=request.user.id)
+			message = 'Username already taken.'
+			if not existence_of_username or existence_of_me:
+				USER_info = User.objects.get(id=request.user.id)
+				USER_info.last_name = temp['last_name'].title()
+				USER_info.first_name = temp['first_name'].title()
+				USER_info.email = temp['email']
+				USER_info.username = temp['username']
+				USER_info.save()
+				return redirect("auth:profile")
 
 	if user_info.exists():
 		user_info = user_info.get(user_id=request.user.id)
@@ -284,7 +290,7 @@ def profile_edit(request, success=None):
 			formProfile = ProfileForm(initial={'last_name':request.user.last_name, 'role':role, 'first_name':request.user.first_name, 'email':request.user.email,
 			'username': request.user.username,})
 
-	return render(request, 'app_auth/profile_edit.html', {'avatar': avatar, 'role':role, 'role':role, 'active_nav':'PROFILE', 'success':success, 'formProfile':formProfile, 'schoolProfile':schoolProfile})
+	return render(request, 'app_auth/profile_edit.html', {'avatar': avatar, 'role':role, 'role':role, 'active_nav':'PROFILE', 'success':success, 'formProfile':formProfile, 'schoolProfile':schoolProfile, 'message':message})
 
 @login_required(redirect_field_name='', login_url='/')
 def password_edit(request, success=None):

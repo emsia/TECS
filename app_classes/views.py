@@ -204,7 +204,10 @@ def submit(request):
 			if mail:
 				for email in mail:
 					usernaming = email.split('@', 1)[0]
-					existing = User.objects.filter(username__iexact=usernaming)
+					usernaming = usernaming.encode('utf-8')
+					salt = hashlib.sha1(str(random.random())).hexdigest()[:8]
+					usernaming = 'stdnt_' + hashlib.md5(salt+usernaming).hexdigest()[:8]
+					existing = User.objects.filter(email__iexact=email)
 					if not existing.exists():
 						salt = hashlib.sha1(str(random.random())).hexdigest()[:5]
 						usernaming = usernaming.encode('utf-8')
@@ -430,6 +433,9 @@ def inviteStudent(request):
 				
 				for email in mail:
 					usernaming = email.split('@', 1)[0]
+					usernaming = usernaming.encode('utf-8')
+					salt = hashlib.sha1(str(random.random())).hexdigest()[:8]
+					usernaming = 'stdnt_' + hashlib.md5(salt+usernaming).hexdigest()[:8]
 					existing = User.objects.filter(email__iexact=email)
 					if not existing.exists():
 						salt = hashlib.sha1(str(random.random())).hexdigest()[:5]
