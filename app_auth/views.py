@@ -217,7 +217,9 @@ def profile_edit(request, success=None):
 	message = None
 	has_school = False
 	schoolProfile = None
-
+	reminder = None
+	if not user_info.exists() and len(Student.objects.filter(user_id = request.user.id)) > 0 :
+		reminder = 'Do not forget to change your username to your REAL name. Refrain from using unnecessary words or symbols. \nExamples of a good username: \'juandelacruz\',\'jdelacruz\', \'juandelacruz12\' '
 	if request.method == "POST":
 		formProfile = ProfileForm(request.POST, request.FILES)
 		power = True
@@ -302,7 +304,7 @@ def profile_edit(request, success=None):
 		if not power:
 			formProfile = ProfileForm(initial={'last_name':request.user.last_name, 'role':role, 'first_name':request.user.first_name, 'email':request.user.email,
 			'username': request.user.username,})
-	return render(request, 'app_auth/profile_edit.html', {'avatar': avatar, 'role':role, 'active_nav':'PROFILE', 'success':success, 'formProfile':formProfile, 'schoolProfile':schoolProfile, 'message':message})
+	return render(request, 'app_auth/profile_edit.html', {'avatar': avatar, 'role':role, 'active_nav':'PROFILE', 'success':success, 'formProfile':formProfile, 'schoolProfile':schoolProfile, 'message':message, 'reminder':reminder})
 
 @login_required(redirect_field_name='', login_url='/')
 def password_edit(request, success=None):
