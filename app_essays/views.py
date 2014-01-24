@@ -22,7 +22,9 @@ def new_essay(request):
 	avatar = UserProfile.objects.get(user_id = request.user.id).avatar
 	errors = 0;
 	teacher = get_object_or_404(Teacher, user_id = request.user.id)
+	classlist = Class.objects.filter(teacher = teacher)
 	has_class = Class.objects.filter(teacher = teacher).exists()
+
 	if request.method == 'POST':
 		form = EssayForm(request.POST, request)
 		#form.fields['class_name'].queryset = Class.objects.filter(teacher = Teacher.objects.get(user_id = request.user.id))
@@ -33,31 +35,31 @@ def new_essay(request):
 			data.status = 1
 			data.save()
 
-			students = Class.objects.get(pk=Essay.objects.get(pk=data.pk).class_name.pk).student.all()
+			for essayclass in cd['class_name']:
+				data.class_name.add(essayclass)
+				emails = []
+				for student in essayclass.student.all():
+					response = EssayResponse(essay=data, essayclass=essayclass, student=student)
+					response.save()
+					emails.append(student.user.email)
 
-			emails = []
-			for student in students:
-				response = EssayResponse(essay=data, student=student)
-				response.save()
-				emails.append(student.user.email)
+				c = {
+	                'user': request.user,
+	                'class': essayclass,
+	                'title': cd['title'],
+	            }
 
-			c = {
-                'user': request.user,
-                'class': Class.objects.get(pk=Essay.objects.get(pk=data.pk).class_name.pk),
-                'title': cd['title'],
-            }
+				#fp = open('./static/base/img/icons/notes.png', 'rb')
+				#msgImage = MIMEImage(fp.read())
+				#fp.close()
+				#msgImage.add_header('Content-ID', '<image1>')
 
-			fp = open('./static/base/img/icons/notes.png', 'rb')
-			msgImage = MIMEImage(fp.read())
-			fp.close()
-			msgImage.add_header('Content-ID', '<image1>')
+				#email = render_to_string('app_essays/new_essay_email.html', c)
 
-			email = render_to_string('app_essays/new_essay_email.html', c)
-
-			mailSend = EmailMessage('[TECS] New exam has started!', email, request.user.email, emails )
-			mailSend.content_subtype = "html"
-			mailSend.attach(msgImage)
-			mailSend.send()
+				#mailSend = EmailMessage('[TECS] New exam has started!', email, request.user.email, emails )
+				#mailSend.content_subtype = "html"
+				#mailSend.attach(msgImage)
+				#mailSend.send()
 
 			return list_essay(request, None, 'New exam has been added.')
 		else :
@@ -65,8 +67,9 @@ def new_essay(request):
 		
 	else:
 		form = EssayForm()
-		form.fields['class_name'].queryset = Class.objects.filter(teacher = teacher)
-	return render(request, 'app_essays/teacher_newExam.html', {'avatar':avatar, 'active_nav':'EXAMS', 'errors':errors, 'form': form, 'has_class':has_class})
+		form.fields['class_name'].queryset = classlist
+
+	return render(request, 'app_essays/teacher_newExam.html', {'avatar':avatar, 'active_nav':'EXAMS', 'errors':errors, 'form': form, 'has_class':has_class, 'classlist':classlist})
 
 @login_required(redirect_field_name='', login_url='/')	
 def list_essay(request, errors=None, success=None):
@@ -81,13 +84,12 @@ def list_essay(request, errors=None, success=None):
 		no_past_essays = 0
 		no_on_queue_essays = 0
 
-		on_queue_essays = Essay.objects.filter(instructor_id = Teacher.objects.get(user_id = request.user.id).id, status=1).filter(start_date__gt=timezone.now())
-		on_going_essays = Essay.objects.filter(instructor_id = Teacher.objects.get(user_id = request.user.id).id, status=1).filter(start_date__lte=timezone.now(), deadline__gte=timezone.now())
+		on_queue_essays = Essay.objects.filter(instructor_id = Teacher.objects.get(user_id = request.user.id).id, status=1).filter(start_date__gt=timezone.now()).all()
+		on_going_essays = Essay.objects.filter(instructor_id = Teacher.objects.get(user_id = request.user.id).id, status=1).filter(start_date__lte=timezone.now(), deadline__gte=timezone.now()).all()
 		past_essays = Essay.objects.filter(instructor_id = Teacher.objects.get(user_id = request.user.id).id).filter(deadline__lt=timezone.now())
 		
 		#MANUAL WAY TO CHANGE STATUS OF AN ESSAY IF IT'S PAST THE DEADLINE
 		Essay.objects.filter(instructor_id = Teacher.objects.get(user_id = request.user.id).id).filter(deadline__lt=timezone.now()).update(status=2)
-
 
 		if (len(on_queue_essays) == 0 ):
 			no_on_queue_essays = 1	
@@ -117,7 +119,7 @@ def list_essay(request, errors=None, success=None):
 		return render(request, 'app_essays/student_viewEssay.html', {'avatar':avatar, 'active_nav':'EXAMS','no_on_going_essay_responses':no_on_going_essay_responses, 'no_past_essay_responses':no_past_essay_responses, 'on_going_essay_responses':on_going_essay_responses, 'past_essay_responses':past_essay_responses, 'errors':errors, 'success':success})
 		
 @login_required(redirect_field_name='', login_url='/')
-def exam_details(request, essay_id=None):
+def exam_details(request, essay_id=None, class_id=None):
 	active_nav = "EXAMS"
 	avatar = UserProfile.objects.get(user_id = request.user.id).avatar
 	essay = get_object_or_404(Essay, pk=essay_id, instructor=Teacher.objects.get(user=request.user))
@@ -125,18 +127,26 @@ def exam_details(request, essay_id=None):
 	if request.method == 'POST':
 		essay_id_post = request.POST.get('essay-id')
 		essay = Essay.objects.get(pk=essay_id_post)
-		essay.status = -1
+		
+		if 'CANCEL_EXAM' in request.POST:
+			essay.status = -1
+		elif 'RELEASE_GRADES' in request.POST:
+			essay.status = 3
+		elif 'AES' in request.POST:
+			#mock automated grading
+			essay_responses = EssayResponse.objects.filter(essay_id=essay.pk, essayclass_id=class_id, grade=null)
+
 		essay.save()
 		return redirect('essays:list')
 	else:
-		students = Class.objects.get(pk=essay.class_name.pk).student.all()
-		
-		essay_responses = sorted(EssayResponse.objects.filter(essay_id=essay.pk), key=operator.attrgetter('student.user.last_name', 'student.user.first_name')) # I used this way of sorting because we cannot use order_by() for case insensitive sorting :(
+		essayclass = essay.class_name.get(pk=class_id)
+		students = essayclass.student.all()
+		essay_responses = sorted(EssayResponse.objects.filter(essay_id=essay.pk, essayclass_id=class_id), key=operator.attrgetter('student.user.last_name', 'student.user.first_name')) # I used this way of sorting because we cannot use order_by() for case insensitive sorting :(
 		if essay.deadline >= timezone.now():
-			return render(request, 'app_essays/teacher_viewExamInfo_onGoing.html', {'avatar':avatar, 'active_nav':'EXAMS', 'essay':essay, 'essay_responses':essay_responses})
+			return render(request, 'app_essays/teacher_viewExamInfo.html', {'avatar':avatar, 'active_nav':'EXAMS', 'essay':essay, 'essayclass':essayclass, 'essay_responses':essay_responses})
 		else:
 			all_graded = EssayResponse.objects.filter(essay_id=essay.pk, grade=None).exists()
-			return render(request, 'app_essays/teacher_viewExamInfo_forGrading.html', {'avatar':avatar, 'active_nav':'EXAMS', 'essay':essay, 'essay_responses':essay_responses, 'all_graded':all_graded})
+			return render(request, 'app_essays/teacher_viewExamInfo.html', {'avatar':avatar, 'active_nav':'EXAMS', 'essay':essay, 'essayclass':essayclass, 'essay_responses':essay_responses, 'all_graded':all_graded})
 	
 @login_required(redirect_field_name='', login_url='/')
 def answer_essay(request, essay_response_id):

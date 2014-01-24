@@ -44,14 +44,16 @@ TECS: Test Essay Checking Software | Essay
 				</thead>
 				<tbody>
 					{% for essay in on_going_essays %}
-					<tr>
-						<td>{{ essay.class_name.year_level }}-{{ essay.class_name.section }}</td>
-						<td>{{ essay.class_name.subject }}</td>
-						<td>{{ essay.title }}</td>
-						<td>{{ essay.start_date }}</td>
-						<td>{{ essay.deadline }}</td>
-						<td><center><a href="{% url 'essays:details' essay.id %}" class="btn btn-info">View</a></center></td>
-					</tr>
+						{% for essayclass in essay.class_name.all %}
+						<tr>
+							<td>{{ essayclass.year_level }}-{{ essayclass.section }}</td>
+							<td>{{ essayclass.subject }}</td>
+							<td>{{ essay.title }}</td>
+							<td>{{ essay.start_date }}</td>
+							<td>{{ essay.deadline }}</td>
+							<td><center><a href="{% url 'essays:details' essay.id essayclass.id %}" class="btn btn-info">View</a></center></td>
+						</tr>
+						{% endfor %}
 					{% endfor %}
 				</tbody>
 			</table>
@@ -76,14 +78,16 @@ TECS: Test Essay Checking Software | Essay
 				</thead>
 				<tbody>
 					{% for essay in on_queue_essays %}
-					<tr>
-						<td>{{ essay.class_name.year_level }}-{{ essay.class_name.section }}</td>
-						<td>{{ essay.class_name.subject }}</td>
-						<td>{{ essay.title }}</td>
-						<td>{{ essay.start_date }}</td>
-						<td>{{ essay.deadline }}</td>
-						<td><center><a href="{% url 'essays:details' essay.id %}" class="btn btn-info">View</a></center></td>
-					</tr>
+						{% for essayclass in essay.class_name.all %}
+						<tr>
+							<td>{{ essayclass.year_level }}-{{ essayclass.section }}</td>
+							<td>{{ essayclass.subject }}</td>
+							<td>{{ essay.title }}</td>
+							<td>{{ essay.start_date }}</td>
+							<td>{{ essay.deadline }}</td>
+							<td><center><a href="{% url 'essays:details' essay.id %}" class="btn btn-info">View</a></center></td>
+						</tr>
+						{% endfor %}
 					{% endfor %}
 				</tbody>
 			</table>
@@ -114,19 +118,21 @@ TECS: Test Essay Checking Software | Essay
 				</thead>
 				<tbody>
 					{% for essay in past_essays %}
-					<tr>
-						<td>{{ essay.class_name.year_level }}-{{ essay.class_name.section }}</td>
-						<td>{{ essay.class_name.subject }}</td>
-						<td>{{ essay.title }}</td>
-						<td>{{ essay.start_date }}</td>
-						<td>{{ essay.deadline }}</td>
-						<td>
-							{% if not essay.is_all_graded %}
-								<p class="text-error">Needs Grading</p>
-							{% endif %}
-						</td>
-						<td><center><a href="{% url 'essays:details' essay.id %}" class="btn btn-info">View</a></center></td>
-					</tr>
+						{% for essayclass in essay.class_name.all %}
+						<tr>
+							<td>{{ essayclass.year_level }}-{{ essayclass.section }}</td>
+							<td>{{ essayclass.subject }}</td>
+							<td>{{ essay.title }}</td>
+							<td>{{ essay.start_date }}</td>
+							<td>{{ essay.deadline }}</td>
+							<td>
+								{% if not essay.is_all_graded %}
+									<p class="text-error">Needs Grading</p>
+								{% endif %}
+							</td>
+							<td><center><a href="{% url 'essays:details' essay.id essayclass.id %}" class="btn btn-info">View</a></center></td>
+						</tr>
+						{% endfor %}
 					{% endfor %}
 				</tbody>
 			</table>

@@ -34,41 +34,43 @@ TECS: Test Essay Checking Software | Home
 				</thead>
 				<tbody>
 					{% for essay_response in on_going_essay_responses %}
-					<tr>
-						<td>{{ essay_response.essay.class_name.subject }}</td>
-						<td>{{ essay_response.essay.instructor }}</td>
-						<!--td>{{ essay_response.essay.title }}</td-->
-						<td>{{ essay_response.essay.deadline }}</td>
-						<td>
-							{% if essay_response.essay.duration_hours != 0 %}
-								{{ essay_response.essay.duration_hours }} hour(s)
-								<br>
-							{% endif %}
-							
-							{% if essay_response.essay.duration_minutes != 0 %}
-								{{ essay_response.essay.duration_minutes }} minute(s)
-							{% endif %} 
+						{% for essayclass in essay_response.essay.class_name.all %}
+						<tr>
+							<td>{{ essayclass.subject }}</td>
+							<td>{{ essay_response.essay.instructor }}</td>
+							<!--td>{{ essay_response.essay.title }}</td-->
+							<td>{{ essay_response.essay.deadline }}</td>
+							<td>
+								{% if essay_response.essay.duration_hours != 0 %}
+									{{ essay_response.essay.duration_hours }} hour(s)
+									<br>
+								{% endif %}
+								
+								{% if essay_response.essay.duration_minutes != 0 %}
+									{{ essay_response.essay.duration_minutes }} minute(s)
+								{% endif %} 
 
-						</td>
-						<td>
-							{% if essay_response.status == 0 %} 
-								Not yet started 
-							{% elif essay_response.status == 1 %}
-								<i class="icon-play"></i>  Started<br><div id="countdown_{{ essay_response.pk }}" class="text-error"></div>
-							{% elif essay_response.status == 2 %}
-								<p class="text-success"><i class="icon-ok"></i> Submitted</p>
-							{% endif %}
-						</td>
-						<td>
-							{% if essay_response.status == 0 %} 
-								<a href="{% url 'essays:answer' essay_response.id %}">Start</a>
-							{% elif essay_response.status == 1 %}
-								<a href="{% url 'essays:answer' essay_response.id %}">Continue</a>
-							{% elif essay_response.status == 2 %}
-								<a href="{% url 'essays:submission' essay_response.id %}">View Submission</a>
-							{% endif %}
-						</td>
-					</tr>
+							</td>
+							<td>
+								{% if essay_response.status == 0 %} 
+									Not yet started 
+								{% elif essay_response.status == 1 %}
+									<i class="icon-play"></i>  Started<br><div id="countdown_{{ essay_response.pk }}" class="text-error"></div>
+								{% elif essay_response.status == 2 %}
+									<p class="text-success"><i class="icon-ok"></i> Submitted</p>
+								{% endif %}
+							</td>
+							<td>
+								{% if essay_response.status == 0 %} 
+									<a href="{% url 'essays:answer' essay_response.id %}">Start</a>
+								{% elif essay_response.status == 1 %}
+									<a href="{% url 'essays:answer' essay_response.id %}">Continue</a>
+								{% elif essay_response.status == 2 %}
+									<a href="{% url 'essays:submission' essay_response.id %}">View Submission</a>
+								{% endif %}
+							</td>
+						</tr>
+						{% endfor %}
 					{% endfor %}
 				</tbody>
 			</table>

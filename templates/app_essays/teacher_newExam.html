@@ -22,13 +22,13 @@ TECS: Test Essay Checking Software | Home
 					<form class="form-horizontal" action="" method="post">{% csrf_token %}
 						<fieldset>
 							<div class="control-group">
-								<label class="control-label" for="inputgradingsys">Section and Subject</label>
-								<div class="controls" id= "inputgradingsys" >
-									{{ form.class_name }}	
+								<label class="control-label">Section and Subject</label>
+								<div class="controls">
+									{{ form.class_name }}
 									{% for error in form.class_name.errors %}
 									<p class="text-error">{{ error }}</p>
-									{% endfor %}									
-								</div>								  
+									{% endfor %}								
+									</div>								  
 							</div>
 							<div class="control-group">  
 								<label class="control-label" for="inputtitle">Exam Title</label>							  
