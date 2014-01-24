@@ -18,7 +18,7 @@
 			Teacher {{ sender.first_name }} made an account for you to join this school.<br/>
 			Please click this <a href="http://tecs.herokuapp.com/accounts/activate/{{ activation_key }}/" style="color: #1abc9c; text-decoration: none;">link</a> to activate your account and enter the Class Key to enroll in a Class.<br/><br/>
 
-			Your username is <a style="color: #1abc9c; text-decoration: none;">{{ username }}</a>.<br/>Your temporary password is <a style="color: #1abc9c; text-decoration: none;">{{ password }}</a>.<br/><br/>
+			Your temporary username is <a style="color: #1abc9c; text-decoration: none;">{{ username }}</a>.<br/>Your temporary password is <a style="color: #1abc9c; text-decoration: none;">{{ password }}</a>.<br/><br/>
 
 			If you didn't request this, you don't need to do anything; you won't receive any more email from us, and the account will expire automatically in {{ expiration_days|apnumber }} days.
       </div>

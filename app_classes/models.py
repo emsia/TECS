@@ -38,12 +38,11 @@ class ClassForm(ModelForm):
 class EditForm(ModelForm):
 	class Meta:
 		model = Class
-		exclude = ('teacher', 'key', 'date_created', 'is_active', 'student')
+		exclude = ('teacher', 'key', 'date_created', 'is_active', 'student', 'school')
 		widgets = {
-			'school': Select(attrs={'class':'select span12', 'data-size':10, 'data-container':"body" }),
-			'year_level': TextInput(attrs={'class':'input-xlarge span4', 'data-name':'year_level' }),
-			'section': TextInput(attrs={'class':'input-xlarge span4', 'data-name':'section'}),
-			'subject': TextInput(attrs={'class':'input-xlarge span4', 'data-name':'subject'}),
+			'year_level': TextInput(attrs={'class':'input-xlarge span4 cap', 'data-name':'year_level' }),
+			'section': TextInput(attrs={'class':'input-xlarge span4 cap', 'data-name':'section'}),
+			'subject': TextInput(attrs={'class':'input-xlarge span4 cap', 'data-name':'subject'}),
 			'academic_year': TextInput(attrs={'class':'input-xlarge span4', 'data-name':'academic_year'}),
 		}
 

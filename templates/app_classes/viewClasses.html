@@ -34,7 +34,7 @@ TECS: Test Essay Checking Software | Home
 		          {{ error }}
 		        </div>
 		    {% endif %}
-			{% if hasClasses %}
+			{% if hasClasses and not error %}
 				<div class="alert alert-block alert-error">
 		          {{ hasClasses }}
 		        </div>

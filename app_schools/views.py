@@ -178,9 +178,10 @@ def submitAdmins(request):
 	if request.method == "POST":
 		form_school = adminAdd(data=request.POST)
 		mails = request.POST.getlist('email')
+		lasts = request.POST.getlist('last_name')
+		firsts = request.POST.getlist('first_name')
 		usernames = request.POST.getlist('username')
 
-		print usernames
 		for email in mails:
 			try:
 				validate_email(email)
@@ -204,6 +205,9 @@ def submitAdmins(request):
 						site = RequestSite(request)
 					print password_preset
 					new_user = RegistrationProfile.objects.create_inactive_user(usernaming, mails[count], password_preset, site)
+					new_user.last_name = lasts[count].title()
+					new_user.first_name = firsts[count].title()
+					new_user.save()
 					admin = Admin.objects.create(user=new_user)
 					admin.school = school
 					admin.save()

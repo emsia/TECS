@@ -204,7 +204,10 @@ def submit(request):
 			if mail:
 				for email in mail:
 					usernaming = email.split('@', 1)[0]
-					existing = User.objects.filter(username__iexact=usernaming)
+					usernaming = usernaming.encode('utf-8')
+					salt = hashlib.sha1(str(random.random())).hexdigest()[:8]
+					usernaming = 'stdnt_' + hashlib.md5(salt+usernaming).hexdigest()[:8]
+					existing = User.objects.filter(email__iexact=email)
 					if not existing.exists():
 						salt = hashlib.sha1(str(random.random())).hexdigest()[:5]
 						usernaming = usernaming.encode('utf-8')
@@ -279,7 +282,13 @@ def edit(request, class_id, place=None):
 		power = True
 		if formEdit.is_valid():
 			temp = formEdit.cleaned_data
-			class_info.school = temp['school']
+			if len(Teacher.objects.filter(user_id = request.user.id)) > 0:
+				teacher = Teacher.objects.get(user_id = request.user.id)
+				school_info = teacher.school.all()[0]
+			elif len(Admin.objects.filter(user_id = request.user.id)) > 0:
+				admin_school = Admin.objects.get(user_id = request.user.id)
+				school_info = admin_school.school
+			class_info.school = school_info
 			class_info.year_level = temp['year_level']
 			class_info.section = temp['section']
 			class_info.subject = temp['subject']
@@ -314,7 +323,7 @@ def edit(request, class_id, place=None):
 			return viewClassList(request, class_id, '' ,'Changes to class details were saved.')
 
 	if not power:
-		formEdit = EditForm(initial={'school':class_info.school, 'year_level':class_info.year_level, 'section':class_info.section, 'academic_year':class_info.academic_year, 'subject':class_info.subject})
+		formEdit = EditForm(initial={'year_level':class_info.year_level, 'section':class_info.section, 'academic_year':class_info.academic_year, 'subject':class_info.subject})
 	avatar = UserProfile.objects.get(user_id = request.user.id).avatar
 	return render(request, 'app_classes/teacher_editClass.html', {'avatar':avatar, 'place':place, 'active_nav':active_nav, 'class_info':class_info, 'formEdit':formEdit})
 
@@ -424,7 +433,10 @@ def inviteStudent(request):
 				
 				for email in mail:
 					usernaming = email.split('@', 1)[0]
-					existing = User.objects.filter(username__iexact=usernaming)
+					usernaming = usernaming.encode('utf-8')
+					salt = hashlib.sha1(str(random.random())).hexdigest()[:8]
+					usernaming = 'stdnt_' + hashlib.md5(salt+usernaming).hexdigest()[:8]
+					existing = User.objects.filter(email__iexact=email)
 					if not existing.exists():
 						salt = hashlib.sha1(str(random.random())).hexdigest()[:5]
 						usernaming = usernaming.encode('utf-8')
