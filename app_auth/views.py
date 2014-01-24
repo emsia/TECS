@@ -222,6 +222,7 @@ def profile_edit(request, success=None):
 
 		if formProfile.is_valid():
 			temp = formProfile.cleaned_data
+			sameUsername = False
 			if user_info.exists():
 				#userProfile update
 				userProfile_info = user_info.get(user_id=request.user.id)
@@ -237,25 +238,29 @@ def profile_edit(request, success=None):
 				userProfile_info.province = temp['province'].title()
 				userProfile_info.phone_number = temp['phone_number']
 				userProfile_info.save()
-
 			else:
 				if temp['avatar'] is None:
 					temp['avatar'] = 'images/avatars/user.png'
 				UserProfile.objects.create(avatar=temp['avatar'], user_id=request.user.id, street=temp['street'], municipality=temp['municipality'], province=temp['province'], phone_number=temp['phone_number'])
-			
+				if len(Student.objects.filter(user_id = request.user.id)) > 0 :
+					sameUsername = ( temp['username'] == request.user.username)
+					if sameUsername:
+						message = 'You must choose a different username.'
+						print message
 			#user update
 			#check username existence
 			existence_of_username = User.objects.filter(username__iexact=temp['username'])#.filter(id=request.user.id)
 			existence_of_me = User.objects.filter(username__iexact=temp['username']).filter(id=request.user.id)
-			message = 'Username already taken.'
-			if not existence_of_username or existence_of_me:
-				USER_info = User.objects.get(id=request.user.id)
-				USER_info.last_name = temp['last_name'].title()
-				USER_info.first_name = temp['first_name'].title()
-				USER_info.email = temp['email']
-				USER_info.username = temp['username']
-				USER_info.save()
-				return redirect("auth:profile")
+			if not sameUsername:
+				message = 'Username already taken.'
+				if not existence_of_username or existence_of_me or sameUsername:
+					USER_info = User.objects.get(id=request.user.id)
+					USER_info.last_name = temp['last_name'].title()
+					USER_info.first_name = temp['first_name'].title()
+					USER_info.email = temp['email']
+					USER_info.username = temp['username']
+					USER_info.save()
+					return redirect("auth:profile")
 
 	if user_info.exists():
 		user_info = user_info.get(user_id=request.user.id)
@@ -289,8 +294,7 @@ def profile_edit(request, success=None):
 		if not power:
 			formProfile = ProfileForm(initial={'last_name':request.user.last_name, 'role':role, 'first_name':request.user.first_name, 'email':request.user.email,
 			'username': request.user.username,})
-
-	return render(request, 'app_auth/profile_edit.html', {'avatar': avatar, 'role':role, 'role':role, 'active_nav':'PROFILE', 'success':success, 'formProfile':formProfile, 'schoolProfile':schoolProfile, 'message':message})
+	return render(request, 'app_auth/profile_edit.html', {'avatar': avatar, 'role':role, 'active_nav':'PROFILE', 'success':success, 'formProfile':formProfile, 'schoolProfile':schoolProfile, 'message':message})
 
 @login_required(redirect_field_name='', login_url='/')
 def password_edit(request, success=None):
