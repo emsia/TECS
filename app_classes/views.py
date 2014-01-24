@@ -99,7 +99,6 @@ def submitTeachers(request):
 		lasts = request.POST.getlist('last_name')
 		firsts = request.POST.getlist('first_name')
 
-		print usernames
 		#print mails: check proper email addresses
 		for email in mails:
 			try:
@@ -498,7 +497,7 @@ def send_newPassword(request):
 		salt = hashlib.sha1(str(random.random())).hexdigest()[:5]
 		usernaming = usernaming.encode('utf-8')
 		password_preset = hashlib.md5(salt+usernaming).hexdigest()[:12]
-		print password_preset
+
 		u = User.objects.get(id=user_id)
 		u.set_password(password_preset)
 		u.email = email
@@ -531,7 +530,6 @@ def send_newPassword(request):
 @login_required(redirect_field_name='', login_url='/')
 def editSchool(request, school_id):
 	school_info = get_object_or_404(School, pk=school_id)
-	print school_info.short_name
 	if request.method == "POST":
 		formEdit = EditForm_admin(data=request.POST)
 		if formEdit.is_valid():
