@@ -200,3 +200,17 @@ color: #ffffff;
 .sidebar-link {
   text-decoration: none;
 }
+
+.btn.btn-royal {
+  background-color: #8E44AD;
+}
+.btn.btn-royal:hover,
+.btn.btn-royal:focus,
+.btn-group:focus .btn.btn-royal.dropdown-toggle {
+  background-color: #9B59B6;
+}
+.btn.btn-royal:active,
+.btn-group.open .btn.btn-royal.dropdown-toggle,
+.btn.btn-royal.active {
+  background-color: #9B59B6;
+}

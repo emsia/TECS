@@ -29,7 +29,7 @@ class Grade(models.Model):
 class Essay(models.Model):
 	title = models.CharField(max_length=100)
 	instructor = models.ForeignKey(Teacher)
-	class_name = models.ForeignKey(Class, null=False)
+	class_name = models.ManyToManyField(Class)
 	instructions = models.TextField()
 	grading_system = models.ForeignKey(GradingSystem)	
 	start_date = models.DateTimeField()
@@ -44,16 +44,19 @@ class Essay(models.Model):
 		return self.title
 
 	def is_all_graded(self):
-		return not EssayResponse.objects.filter(essay_id=self.pk, grade=None).exists()
+		return not EssayResponse.objects.filter(essay_id=self.pk, final_grade=None).exists()
 
 class EssayResponse(models.Model):
 	essay = models.ForeignKey(Essay)
+	essayclass = models.ForeignKey(Class)
 	student = models.ForeignKey(Student)
 	response = models.TextField(blank=True, default="")
 	time_started = models.DateTimeField(blank=True, null=True)
 	time_finished = models.DateTimeField(blank=True, null=True)
 	status = models.IntegerField(default=0)	#0 - not yet started ; 1 - started / draft ; 2 - submitted
-	grade = models.ForeignKey(Grade, null=True, blank=True)
+	grade = models.ForeignKey(Grade, related_name="grade", null=True, blank=True)
+	computer_grade = models.ForeignKey(Grade, related_name="computer_grade", null=True, blank=True)
+	final_grade = models.ForeignKey(Grade, related_name="final_grade", null=True, blank=True)
 	general_feedback = models.TextField(blank=True, default="")
 
 	def __str__(self):
@@ -97,7 +100,7 @@ class EssayForm(ModelForm):
 		model = Essay
 		exclude = ('instructor', 'status', 'date_created')
 		widgets = {
-			#'class_name' : ModelChoiceField(queryset=Class.objects.all(), empty_label=None),
+			#'class_name' : Select(attrs={'multiple':''}),
 			'title': TextInput(attrs={'class':'input-xlarge span4', 'autofocus':'autofocus'}),
 			'instructions': Textarea(attrs={'class':'input-xlarge span4', 'rows':'4'}),
 			'min_words': TextInput(attrs={'class':'span1'}),
