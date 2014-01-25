@@ -49,17 +49,17 @@ def new_essay(request):
 	                'title': cd['title'],
 	            }
 
-				#fp = open('./static/base/img/icons/notes.png', 'rb')
-				#msgImage = MIMEImage(fp.read())
-				#fp.close()
-				#msgImage.add_header('Content-ID', '<image1>')
+				fp = open('./static/base/img/icons/notes.png', 'rb')
+				msgImage = MIMEImage(fp.read())
+				fp.close()
+				msgImage.add_header('Content-ID', '<image1>')
 
-				#email = render_to_string('app_essays/new_essay_email.html', c)
+				email = render_to_string('app_essays/new_essay_email.html', c)
 
-				#mailSend = EmailMessage('[TECS] New exam has started!', email, request.user.email, emails )
-				#mailSend.content_subtype = "html"
-				#mailSend.attach(msgImage)
-				#mailSend.send()
+				mailSend = EmailMessage('[TECS] New exam has started!', email, request.user.email, emails )
+				mailSend.content_subtype = "html"
+				mailSend.attach(msgImage)
+				mailSend.send()
 
 			return list_essay(request, None, 'New exam has been added.')
 		else :
