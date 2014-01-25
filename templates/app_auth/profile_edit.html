@@ -36,6 +36,11 @@ TECS: Test Essay Checking Software | Teacher Classes
 		          {{ message }}
 		        </div>
 		    {% endif %}
+			{% if reminder and not success and not message %}
+				<div class="alert alert-block alert-error">
+		          {{ reminder }}
+		        </div>
+		    {% endif %}
 			<form enctype="multipart/form-data" class="form-horizontal" action="" method="post">{% csrf_token %}
 				<fieldset>
 					{% for forms in schoolProfile %}
