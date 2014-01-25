@@ -127,7 +127,7 @@ def profile_view(request, username):
 def profile_view(request, message=None):
 	user = request.user
 	User_Profile = UserProfile.objects.filter(user = request.user)
-
+	school = None
 	if not User_Profile.exists():
 		if len(Admin.objects.filter(user = user)) > 0 or len(SUadmin.objects.filter(user_id = user)):
 			return redirect('auth:edit_SU_Admin')
@@ -215,7 +215,11 @@ def profile_edit(request, success=None):
 		return redirect('auth:edit_SU_Admin')
 	power = False
 	message = None
+	has_school = False
 	schoolProfile = None
+	reminder = None
+	if not user_info.exists() and len(Student.objects.filter(user_id = request.user.id)) > 0 :
+		reminder = 'Do not forget to change your username to your REAL name. Refrain from using unnecessary words or symbols. \nExamples of a good username: \'juandelacruz\',\'jdelacruz\', \'juandelacruz12\' '
 	if request.method == "POST":
 		formProfile = ProfileForm(request.POST, request.FILES)
 		power = True
@@ -246,7 +250,6 @@ def profile_edit(request, success=None):
 					sameUsername = ( temp['username'] == request.user.username)
 					if sameUsername:
 						message = 'You must choose a different username.'
-						print message
 			#user update
 			#check username existence
 			existence_of_username = User.objects.filter(username__iexact=temp['username'])#.filter(id=request.user.id)
@@ -269,10 +272,14 @@ def profile_edit(request, success=None):
 		if len(Teacher.objects.filter(user_id = request.user.id)) > 0:
 			teacher = Teacher.objects.get(user_id = request.user.id)
 			school = teacher.school.all()[0]
+			has_school = True
 		elif len(Student.objects.filter(user_id = request.user.id)) > 0:
 			school = Student.objects.get(user_id = request.user.id)
 			school = school.school
-		schoolProfile = schoolForAll(initial={'school':school})
+			has_school = True
+
+		if has_school:
+			schoolProfile = schoolForAll(initial={'school':school})
 
 		if not power:
 			formProfile = ProfileForm(initial={
@@ -285,16 +292,19 @@ def profile_edit(request, success=None):
 		if len(Teacher.objects.filter(user_id = request.user.id)) > 0:
 			teacher = Teacher.objects.get(user_id = request.user.id)
 			school = teacher.school.all()[0]
+			has_school = True
 		elif len(Student.objects.filter(user_id = request.user.id)) > 0:
 			school = Student.objects.get(user_id = request.user.id)
 			school = school.school
+			has_school = True
 		avatar = 'images/avatars/user.png'
 
-		schoolProfile = schoolForAll(initial={'school':school})
+		if has_school:
+			schoolProfile = schoolForAll(initial={'school':school})
 		if not power:
 			formProfile = ProfileForm(initial={'last_name':request.user.last_name, 'role':role, 'first_name':request.user.first_name, 'email':request.user.email,
 			'username': request.user.username,})
-	return render(request, 'app_auth/profile_edit.html', {'avatar': avatar, 'role':role, 'active_nav':'PROFILE', 'success':success, 'formProfile':formProfile, 'schoolProfile':schoolProfile, 'message':message})
+	return render(request, 'app_auth/profile_edit.html', {'avatar': avatar, 'role':role, 'active_nav':'PROFILE', 'success':success, 'formProfile':formProfile, 'schoolProfile':schoolProfile, 'message':message, 'reminder':reminder})
 
 @login_required(redirect_field_name='', login_url='/')
 def password_edit(request, success=None):
@@ -357,7 +367,6 @@ def grading_system_new(request):
 		if 'option1' in request.POST:
 			formGrade1 = GradeForm_Option1(request.POST, request)
 			formGrade2 = GradeForm_Option2()
-			print formGrade1.data['grades']
 
 			if formSys.is_valid() and formGrade1.is_valid():
 				cd_sys = formSys.save(commit=False)
@@ -541,7 +550,6 @@ def suadmin_addsuperadmin(request, err=None, success=None):
 					break
 			activation_code_expiry = datetime.datetime.now() + datetime.timedelta(days=7)
 			password = ''.join(random.choice(string.ascii_letters + string.digits) for x in range(8))
-			print(password)
 
 			user = User.objects.create_user(form.cleaned_data['username'], form.cleaned_data['email'], password)
 			user.last_name = form.cleaned_data['last_name']
@@ -560,7 +568,7 @@ def suadmin_addsuperadmin(request, err=None, success=None):
 				'password' : password,
 				'activation_link' : link,
 			}
-			print(link)
+			
 			fp = open('./static/base/img/icons/Mail3.png', 'rb')
 			msgImage = MIMEImage(fp.read())
 			fp.close()
