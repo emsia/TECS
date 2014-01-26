@@ -14,6 +14,7 @@ from app_essays.models import Essay, EssayResponse, GradingSystem, EssayForm, Es
 from app_classes.models import Class
 
 from datetime import datetime
+from random import choice
 import operator, urllib, re
 import nltk, json
 
@@ -59,7 +60,7 @@ def new_essay(request):
 				mailSend = EmailMessage('[TECS] New exam has started!', email, request.user.email, emails )
 				mailSend.content_subtype = "html"
 				mailSend.attach(msgImage)
-				mailSend.send()
+				#mailSend.send()
 
 			return list_essay(request, None, 'New exam has been added.')
 		else :
@@ -130,23 +131,32 @@ def exam_details(request, essay_id=None, class_id=None):
 		
 		if 'CANCEL_EXAM' in request.POST:
 			essay.status = -1
+			essay.save()
+			return redirect('essays:list')
 		elif 'RELEASE_GRADES' in request.POST:
 			essay.status = 3
+			essay.save()
+			return redirect('essays:list')
 		elif 'AES' in request.POST:
 			#mock automated grading
-			essay_responses = EssayResponse.objects.filter(essay_id=essay.pk, essayclass_id=class_id, grade=null)
-
-		essay.save()
-		return redirect('essays:list')
+			essay_responses = EssayResponse.objects.filter(essay_id=essay.pk, essayclass_id=class_id)
+			possible_grade_values = Grade.objects.filter(grading_system=essay.grading_system)
+			for essay_response in essay_responses:
+				essay_response.computer_grade = choice(possible_grade_values)
+				essay_response.save()
+				return redirect('essays:details', essay_id, class_id)
+	
 	else:
 		essayclass = essay.class_name.get(pk=class_id)
 		students = essayclass.student.all()
 		essay_responses = sorted(EssayResponse.objects.filter(essay_id=essay.pk, essayclass_id=class_id), key=operator.attrgetter('student.user.last_name', 'student.user.first_name')) # I used this way of sorting because we cannot use order_by() for case insensitive sorting :(
 		if essay.deadline >= timezone.now():
-			return render(request, 'app_essays/teacher_viewExamInfo.html', {'avatar':avatar, 'active_nav':'EXAMS', 'essay':essay, 'essayclass':essayclass, 'essay_responses':essay_responses})
+			is_deadline = False
+			return render(request, 'app_essays/teacher_viewExamInfo.html', {'avatar':avatar, 'active_nav':'EXAMS', 'essay':essay, 'essayclass':essayclass, 'essay_responses':essay_responses, 'is_deadline':is_deadline})
 		else:
+			is_deadline = True
 			all_graded = EssayResponse.objects.filter(essay_id=essay.pk, grade=None).exists()
-			return render(request, 'app_essays/teacher_viewExamInfo.html', {'avatar':avatar, 'active_nav':'EXAMS', 'essay':essay, 'essayclass':essayclass, 'essay_responses':essay_responses, 'all_graded':all_graded})
+			return render(request, 'app_essays/teacher_viewExamInfo.html', {'avatar':avatar, 'active_nav':'EXAMS', 'essay':essay, 'essayclass':essayclass, 'essay_responses':essay_responses, 'all_graded':all_graded, 'is_deadline':is_deadline})
 	
 @login_required(redirect_field_name='', login_url='/')
 def answer_essay(request, essay_response_id):
@@ -208,7 +218,7 @@ def answer_essay(request, essay_response_id):
 		return render(request, 'app_essays/student_answerEssay.html', {'avatar':avatar, 'active_nav':'EXAMS', 'essay_response':essay_response, 'form':form})
 
 @login_required(redirect_field_name='', login_url='/')
-def essay_submission(request, essay_response_id):
+def essay_submission(request, class_id=None, essay_response_id=None):
 	active_nav = "EXAMS"
 	avatar = UserProfile.objects.get(user_id = request.user.id).avatar
 	essay_response = get_object_or_404(EssayResponse, pk=essay_response_id, status=2)
@@ -234,7 +244,8 @@ def essay_submission(request, essay_response_id):
 	if len(Teacher.objects.filter(user_id = request.user.id)) > 0:
 		if not essay_response.essay.instructor == get_object_or_404(Teacher, user=request.user):
 			raise Http404
-		else:	
+		else:
+			essayclass = essay_response.essay.class_name.get(pk=class_id)
 			if essay_response.grade == None:
 				#SPELLING AND GRAMMAR CHECKER
 				#c = pycurl.Curl()
@@ -276,11 +287,12 @@ def essay_submission(request, essay_response_id):
 					 'c_formset': c_formset,
 					}
 				c.update(csrf(request))
-				return render(request, 'app_essays/teacher_viewEssaySubmission.html', {'avatar':avatar, 'active_nav':'EXAMS', 'essay_response':essay_response, 'has_submission':has_submission, 'er_form':er_form, 'c_formset':c_formset, 'numbered_response':numbered_response})
+				return render(request, 'app_essays/teacher_viewEssaySubmission.html', {'avatar':avatar, 'active_nav':'EXAMS', 'essay_response':essay_response, 'has_submission':has_submission, 'er_form':er_form, 'c_formset':c_formset, 'numbered_response':numbered_response, 'essayclass':essayclass})
 			
 			else:
+				
 				comments = EssayComment.objects.filter(essay=essay_response)
-				return render(request, 'app_essays/teacher_viewEssaySubmission_Graded.html', {'avatar':avatar, 'active_nav':'EXAMS', 'essay_response':essay_response, 'has_submission':has_submission, 'comments':comments, 'numbered_response':numbered_response})
+				return render(request, 'app_essays/teacher_viewEssaySubmission_Graded.html', {'avatar':avatar, 'active_nav':'EXAMS', 'essay_response':essay_response, 'has_submission':has_submission, 'comments':comments, 'numbered_response':numbered_response, 'essayclass':essayclass})
 	
 	#IF USER IS A STUDENT
 	elif len(Student.objects.filter(user_id = request.user.id)) > 0:

@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 {% extends "base/base.html" %}
 {% load staticfiles %}
 
@@ -89,7 +88,7 @@ TECS: Test Essay Checking Software | Essay
                                                                 {% if essay_response.status != 2 %}        
                                                                         <a href="" class="btn btn-small disabled">View</a>
                                                                 {% else %}
-                                                                        <a href="{% url 'essays:submission' essay_response.id %}" class="btn btn-info">View</a>
+                                                                        <a href="{% url 'essays:submission' essay_response.id essayclass.id %}" class="btn btn-info">View</a>
                                                                 {% endif %}
                                                         </td>
                                                 </tr>
@@ -102,12 +101,13 @@ TECS: Test Essay Checking Software | Essay
                                 <p class="pull-left">
                                         <a href="{% url 'essays:list' %}" class="btn btn-inverse"><span class="fui-arrow-left"></span> Back</a>
                                 </p>
-                                {% if essay.status != 3 %}
-                                        <p class="pull-right">
-                                                <a href="#automated-scoring-warning" class="btn btn-royal" data-toggle="modal"><span class="fui-check"></span> Start Automated Scoring</a>
-                                        </p>
-                                        {% endif %}
+                                 <p class="pull-right">
+                                
+                                        <a href="#automated-scoring-warning" class="btn btn-royal" data-toggle="modal"><span class="fui-check"></span> Start Automated Scoring</a>
+                              
+                                </p>
                         </div>
+                        <!---
                         <hr>
                         {% if essay.status == 3 %}
                                 <div class="palette palette-nephritis">
@@ -120,7 +120,7 @@ TECS: Test Essay Checking Software | Essay
                                 <a href="#" class="btn btn-large btn-block disabled">Release Grades</a>
                                 {% endif %}
                         {% endif %}
-
+                        -->
                 </div>
         </div>
 </div>

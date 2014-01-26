@@ -440,8 +440,8 @@ def dashboard(request, email_form=None, message=None, error=None):
 		return render(request, 'app_auth/teacher_dashboard.html', {'avatar': avatar, 'role':role, 'class_count':class_count, 'exam_count':exam_count, 'needs_grading_count':needs_grading_count})
 	elif len(Student.objects.filter(user_id = request.user.id)) > 0:
 		class_count = Class.objects.filter(student=Student.objects.get(user=request.user), is_active=1).count()
-		exam_count = EssayResponse.objects.filter(~Q(essay__status=0), student=Student.objects.get(user_id = request.user.id)).filter(essay__start_date__lte=timezone.now(), essay__deadline__gte=timezone.now()).count()
-		in_progress_count = EssayResponse.objects.filter(~Q(essay__status=1), student=Student.objects.get(user_id = request.user.id)).filter(essay__start_date__lte=timezone.now(), essay__deadline__gte=timezone.now()).count()
+		exam_count = EssayResponse.objects.filter(~Q(status=2), essay__status=1,student=Student.objects.get(user_id = request.user.id)).filter(essay__start_date__lte=timezone.now(), essay__deadline__gte=timezone.now()).count()
+		in_progress_count = EssayResponse.objects.filter(essay__status=1, status=1, student=Student.objects.get(user_id = request.user.id)).count()
 		return render(request, 'app_auth/student_dashboard.html', {'avatar': avatar, 'role':role, 'class_count':class_count, 'exam_count':exam_count, 'in_progress_count':in_progress_count})
 
 	elif len(Admin.objects.filter(user_id = request.user.id)) > 0:
