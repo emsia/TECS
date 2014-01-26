@@ -1,0 +1,197 @@
+{% extends "base/base.html" %}
+{% load staticfiles %}
+
+{% block title %}
+TECS: Test Essay Checking Software | Essay
+{% endblock %}
+
+{% block content %}
+
+<div class="page-content">
+        <div class="row-fluid">
+                <div class="content span8">
+                        <div class="row-fluid">
+                                <img class="title-icons" src="{% static 'base/img/icons/Clipboard@2x.png' %}">
+                                <h3>Essay Submissions</h3>
+                        </div>
+                        <hr>
+                        {% if essay.status != 3 %}
+                                <p class="pull-right">
+                                        <a href="#cancel-exam" role="button" class="btn btn-danger" data-toggle="modal"><span class="fui-cross"></span> Delete this Exam</a>
+                                </p>
+                        {% endif %}
+                        <div class="row-fluid">
+                                <dl class="dl-horizontal">
+                                        <dt>Essay Title</dt>
+                                        <dd>{{ essay.title }}</dd>
+
+                                        <dt>Class</dt>
+                                        <dd>{{ essayclass.year_level }}-{{ essayclass.section }}</dd>
+
+                                        <dt>Instructions</dt>
+                                        <dd>{{ essay.instructions }}</dd>
+
+                                        <dt>Min no. of words</dt>
+                                        <dd>{{ essay.min_words }}</dd>                
+
+                                        <dt>Start Date</dt>
+                                        <dd>{{ essay.start_date }}</dd>
+
+                                        <dt>Deadline</dt>
+                                        <dd>{{ essay.deadline }}</dd>
+
+                                        <dt>Duration</dt>
+                                        <dd>{{ essay.duration_hours }} hour(s) {{ essay.duration_minutes }} minute(s) </dd>
+                                        
+                                </dl>
+                        </div>
+                        <div class="row-fluid">
+                                <table class="table table-striped ">
+                                        <thead>
+                                                <tr>
+                                                        <th width="5%"></th>
+                                                        <th width="22%">Student</th>
+                                                        <th width="22%">Status</th>
+                                                        <th width="12%">Human Grade</th>
+                                                        <th width="12%">Automated Grade</th>
+                                                        <th width="3%">Submisson</th>
+                                                </tr>
+                                        </thead>
+                                        <tbody>
+                                                {% for essay_response in essay_responses %}
+                                                <tr>
+                                                        <td>{{ forloop.counter }}</td>
+                                                        <td>{{ essay_response.student }}</td>
+                                                        <td>
+                                                                {% if essay_response.status == 2 and essay_response.grade == null %}
+                                                                        <p class="text-error">Needs Grading</p>
+                                                                {% elif essay_response.status == 2 %}
+                                                                        OK
+                                                                {% else %}
+                                                                        No response yet
+                                                                {% endif %}</td>
+                                                        <td>
+                                                                {% if essay_response.grade == null %}
+                                                                        --
+                                                                {% else %}
+                                                                        {{ essay_response.grade }}
+                                                                {% endif %}
+                                                        </td>
+                                                        <td>
+                                                                {% if essay_response.computer_grade == null %}
+                                                                        --
+                                                                {% else %}
+                                                                        {{ essay_response.computer_grade }}
+                                                                {% endif %}
+                                                        </td>
+                                                        <td>
+                                                                {% if essay_response.status != 2 %}        
+                                                                        <a href="" class="btn btn-small disabled">View</a>
+                                                                {% else %}
+                                                                        <a href="{% url 'essays:submission' essay_response.id %}" class="btn btn-info">View</a>
+                                                                {% endif %}
+                                                        </td>
+                                                </tr>
+                                                {% endfor %}
+                                        </tbody>
+                                </table>
+                        </div>
+                        
+                        <div class="row-fluid">
+                                <p class="pull-left">
+                                        <a href="{% url 'essays:list' %}" class="btn btn-inverse"><span class="fui-arrow-left"></span> Back</a>
+                                </p>
+                                {% if essay.status != 3 %}
+                                        <p class="pull-right">
+                                                <a href="#automated-scoring-warning" class="btn btn-royal" data-toggle="modal"><span class="fui-check"></span> Start Automated Scoring</a>
+                                        </p>
+                                        {% endif %}
+                        </div>
+                        <hr>
+                        {% if essay.status == 3 %}
+                                <div class="palette palette-nephritis">
+                                        <strong><center>GRADES RELEASED</center></strong>
+                                </div>
+                        {% else %}
+                                {% if essay.is_all_graded %}
+                                <a href="#release-grades" class="btn btn-large btn-block btn-primary" data-toggle="modal">Release Grades</a>
+                                {% else %}
+                                <a href="#" class="btn btn-large btn-block disabled">Release Grades</a>
+                                {% endif %}
+                        {% endif %}
+
+                </div>
+        </div>
+</div>
+
+<form action="" method="post">
+        {% csrf_token %}
+        <div id="cancel-exam" class="modal fade hide" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                <div class="modal-header palette-alizarin">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                        <h3 class="text-white">Deleting an Exam</h3>
+                </div>
+                <div class="modal-body">
+                        <p><h4 class="text-error">Warning!</h4></p>
+                        <p>You are about to <strong>cancel</strong> an on-going exam. Please take note that this action <strong>cannot be undone.</strong></p>
+
+                        <dl class="dl-horizontal">
+                                <dt>Essay Title</dt>
+                                <dd>{{ essay.title }}</dd>
+
+                                <dt>Class</dt>
+                                <dd>{{ essay.class_name }}</dd>                
+                        </dl>
+                        <input type="hidden" name="essay-id" value={{ essay.pk }}>
+                </div>
+                <div class="modal-footer">                
+                        <button id="confirm-cancel" type="submit" name="CANCEL_EXAM" class="btn btn-danger pull-left"><span class="fui-cross"></span> Delete Exam</button>
+                        <button class="btn btn-inverse" data-dismiss="modal" aria-hidden="true"><span class="fui-arrow-left"></span> Back</button>
+                </div>
+        </div>
+</form>
+
+<form action="" method="post">
+        {% csrf_token %}
+        <div id="release-grades" class="modal fade hide" tabindex="-1" role="dialog" aria-hidden="true">
+                <div class="modal-header palette-emerald">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                        <h3 class="text-white">Release Grades</h3>
+                </div>
+                <div class="modal-body">
+                        <p><h4 class="text-success">Heads up!</h4></p>
+                        <p>You are about to release the grades for all essay responses. Make sure all inputs are correct. Please take note that this action <strong>cannot be undone.</strong></p>
+
+                        <input type="hidden" name="essay-id" value={{ essay.pk }}>
+                </div>
+                <div class="modal-footer">                
+                        <button name="RELEASE_GRADES" type="submit" class="btn btn-success pull-left"><span class="fui-check"></span> Release Grades</button>
+                        <button class="btn btn-inverse" data-dismiss="modal" aria-hidden="true"><span class="fui-arrow-left"></span> Back</button>
+                </div>
+        </div>
+</form>
+<form action="" method="post">
+        {% csrf_token %}
+        <div id="automated-scoring-warning" class="modal fade hide" tabindex="-1" role="dialog" aria-hidden="true">
+                <div class="modal-header {% if essay.graded_essay_count < 30 %} palette-sun-flower {% else %} palette-amethyst {% endif %}">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                        <h3 class="text-white">{% if essay.graded_essay_count < 30 %} Warning! {% else %} Automated Essay Scoring {% endif %}</h3>
+                </div>
+                <div class="modal-body">
+                        {% if essay.graded_essay_count < 30 %}
+                                <p><h4 class="text-warning">Insufficient Sample Size!</h4></p>
+                                <p>You are about to proceed to automated scoring with insufficient sample size. It is recommended to have at least 30 papers checked for the magical black box to score the essays accurately.</p>
+                                <p>However, if the topic of this essay exam has been previously used before in automated scoring, you can simply ignore this message.</p>
+                        {% else %}
+                                Are you sure you want to proceed?
+                        {% endif %}
+
+                        <input type="hidden" name="essay-id" value={{ essay.pk }}>
+                </div>
+                <div class="modal-footer">                
+                        <button name="AES" type="submit" class="btn btn-royal pull-left"><span class="fui-check"></span> Start Automated Scoring</button>
+                        <button class="btn btn-inverse" data-dismiss="modal" aria-hidden="true"><span class="fui-arrow-left"></span> Back</button>
+                </div>
+        </div>
+</form>
+{% endblock %}
