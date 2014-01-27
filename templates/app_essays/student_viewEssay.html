@@ -34,9 +34,8 @@ TECS: Test Essay Checking Software | Home
 				</thead>
 				<tbody>
 					{% for essay_response in on_going_essay_responses %}
-						{% for essayclass in essay_response.essay.class_name.all %}
 						<tr>
-							<td>{{ essayclass.subject }}</td>
+							<td>{{ essay_response.essayclass.subject }}</td>
 							<td>{{ essay_response.essay.instructor }}</td>
 							<!--td>{{ essay_response.essay.title }}</td-->
 							<td>{{ essay_response.essay.deadline }}</td>
@@ -70,7 +69,6 @@ TECS: Test Essay Checking Software | Home
 								{% endif %}
 							</td>
 						</tr>
-						{% endfor %}
 					{% endfor %}
 				</tbody>
 			</table>
@@ -100,8 +98,8 @@ TECS: Test Essay Checking Software | Home
 				<tbody>
 					{% for e in past_essay_responses %}
 					<tr>
-						<td>{{ e.essay.class_name.year_level }}-{{ e.essay.class_name.section }}</td>
-						<td>{{ e.essay.class_name.subject }}</td>
+						<td>{{ e.essayclass.year_level }}-{{ e.essayclass.section }}</td>
+						<td>{{ e.essayclass.subject }}</td>
 						<td>{{ e.essay.title }}</td>
 						<td>{{ e.essay.deadline }}</td>
 						<td>

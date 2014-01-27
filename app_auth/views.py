@@ -22,6 +22,7 @@ from app_auth.models import UserProfile, passwordForm, Student, Teacher, School,
 from app_classes.models import Class
 from app_essays.models import Essay, EssayResponse
 from app_essays.models import GradingSystem, GradeSysForm, Grade
+from BruteBuster.models import FailedAttempt
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
 from .forms import LoginForm, PasswordForm, ProfileForm, GradeForm_Option1, GradeForm_Option2, NewSuperAdminForm, schoolForAll
@@ -62,6 +63,10 @@ class LoginView(FormView):
 				return HttpResponseRedirect(self.get_success_url())
 			else:
 				return self.form_invalid(form, request, 'Account not yet Validated.')		
+
+		elif FailedAttempt.objects.get(username = username).failures >= 5:
+			return self.form_invalid(form, request, 'Maximum number of login attempts exceeded, account suspended for 3 mins.')
+	
 		else:		
 			return self.form_invalid(form, request, 'Invalid username and password combination.')
 	
@@ -440,8 +445,8 @@ def dashboard(request, email_form=None, message=None, error=None):
 		return render(request, 'app_auth/teacher_dashboard.html', {'avatar': avatar, 'role':role, 'class_count':class_count, 'exam_count':exam_count, 'needs_grading_count':needs_grading_count})
 	elif len(Student.objects.filter(user_id = request.user.id)) > 0:
 		class_count = Class.objects.filter(student=Student.objects.get(user=request.user), is_active=1).count()
-		exam_count = EssayResponse.objects.filter(~Q(essay__status=0), student=Student.objects.get(user_id = request.user.id)).filter(essay__start_date__lte=timezone.now(), essay__deadline__gte=timezone.now()).count()
-		in_progress_count = EssayResponse.objects.filter(~Q(essay__status=1), student=Student.objects.get(user_id = request.user.id)).filter(essay__start_date__lte=timezone.now(), essay__deadline__gte=timezone.now()).count()
+		exam_count = EssayResponse.objects.filter(~Q(status=2), essay__status=1,student=Student.objects.get(user_id = request.user.id)).filter(essay__start_date__lte=timezone.now(), essay__deadline__gte=timezone.now()).count()
+		in_progress_count = EssayResponse.objects.filter(essay__status=1, status=1, student=Student.objects.get(user_id = request.user.id)).count()
 		return render(request, 'app_auth/student_dashboard.html', {'avatar': avatar, 'role':role, 'class_count':class_count, 'exam_count':exam_count, 'in_progress_count':in_progress_count})
 
 	elif len(Admin.objects.filter(user_id = request.user.id)) > 0:
