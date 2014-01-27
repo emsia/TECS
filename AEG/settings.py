@@ -118,6 +118,7 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
+    'BruteBuster.middleware.RequestMiddleware',
     # Uncomment the next line for simple clickjacking protection:
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
@@ -145,7 +146,8 @@ INSTALLED_APPS = (
 	'django.contrib.humanize',
 	# Uncomment the next line to enable admin documentation:
 	# 'django.contrib.admindocs',
-	'app_auth',
+	'BruteBuster',
+    'app_auth',
 	'app_classes',
 	'app_essays',
 	'app_registration',

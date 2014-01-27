@@ -22,6 +22,7 @@ from app_auth.models import UserProfile, passwordForm, Student, Teacher, School,
 from app_classes.models import Class
 from app_essays.models import Essay, EssayResponse
 from app_essays.models import GradingSystem, GradeSysForm, Grade
+from BruteBuster.models import FailedAttempt
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
 from .forms import LoginForm, PasswordForm, ProfileForm, GradeForm_Option1, GradeForm_Option2, NewSuperAdminForm, schoolForAll
@@ -62,6 +63,10 @@ class LoginView(FormView):
 				return HttpResponseRedirect(self.get_success_url())
 			else:
 				return self.form_invalid(form, request, 'Account not yet Validated.')		
+
+		elif FailedAttempt.objects.get(username = username).failures >= 5:
+			return self.form_invalid(form, request, 'Maximum number of login attempts exceeded, account suspended for 3 mins.')
+	
 		else:		
 			return self.form_invalid(form, request, 'Invalid username and password combination.')
 	
