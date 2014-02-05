@@ -65,7 +65,7 @@ class LoginView(FormView):
 				return self.form_invalid(form, request, 'Account not yet Validated.')		
 
 		elif FailedAttempt.objects.get(username = username).failures >= 5:
-			return self.form_invalid(form, request, 'Maximum number of login attempts exceeded, account suspended for 3 mins.')
+			return self.form_invalid(form, request, 'Maximum number of login attempts exceeded. Account suspended for 3 mins.')
 	
 		else:		
 			return self.form_invalid(form, request, 'Invalid username and password combination.')
@@ -441,7 +441,12 @@ def dashboard(request, email_form=None, message=None, error=None):
 	if len(Teacher.objects.filter(user_id = request.user.id)) > 0:
 		class_count = Class.objects.filter(teacher=Teacher.objects.get(user=request.user), is_active=1).count()
 		exam_count = Essay.objects.filter(instructor = Teacher.objects.get(user = request.user), status=1).filter(start_date__lte=timezone.now(), deadline__gte=timezone.now()).count()
-		needs_grading_count =   EssayResponse.objects.filter(essay=Essay.objects.filter(instructor_id = Teacher.objects.get(user_id = request.user.id).id).filter(deadline__lt=timezone.now()), grade=None).count()
+		needs_grading_essays = Essay.objects.filter(instructor_id = Teacher.objects.get(user_id = request.user.id).id).filter(deadline__lt=timezone.now())
+		
+		needs_grading_count = 0
+		for needs_grading_essay in needs_grading_essays:
+			needs_grading_count +=   EssayResponse.objects.filter(essay=needs_grading_essay, grade=None).count()
+		
 		return render(request, 'app_auth/teacher_dashboard.html', {'avatar': avatar, 'role':role, 'class_count':class_count, 'exam_count':exam_count, 'needs_grading_count':needs_grading_count})
 	elif len(Student.objects.filter(user_id = request.user.id)) > 0:
 		class_count = Class.objects.filter(student=Student.objects.get(user=request.user), is_active=1).count()
