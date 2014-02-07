@@ -5,6 +5,19 @@
 TECS: Test Essay Checking Software | Home
 {% endblock %}
 
+{% block custom_style %}
+	<link rel="stylesheet" href="//code.jquery.com/ui/1.10.4/themes/smoothness/jquery-ui.css">
+	<script src="//code.jquery.com/jquery-1.9.1.js"></script>
+	<script src="//code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
+	<link rel="stylesheet" href="/resources/demos/style.css">
+	<script>
+	$(function() {
+		var date = $('.datepicker').datepicker({ dateFormat: 'yy-mm-dd' }).val();
+		});
+	</script>
+{% endblock %}
+
+
 {% block content %}
 
 <div class="page-content">
@@ -89,7 +102,9 @@ TECS: Test Essay Checking Software | Home
 								<label class="control-label">Start Date</label>
 								<div class="controls">
 									<div class="span4">
-										{{ form.start_date }}
+										
+											{{ form.start_date }}
+										
 										{% for error in form.start_date.errors %}
 										<p class="text-error">{{ error }}</p>
 										{% endfor %}

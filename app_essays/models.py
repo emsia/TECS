@@ -107,8 +107,8 @@ class EssayForm(ModelForm):
 			#'grading_system': ModelChoiceField(queryset=GradingSystem.objects.all(), empty_label=None),
 			'duration_hours': TextInput(attrs={'class':'span1'}),
 			'duration_minutes': TextInput(attrs={'class':'span1'}),
-			'start_date': DateTimeInput(attrs={'class':'span4', 'type':'date'}),
-			'deadline': DateTimeInput(attrs={'class':'span4', 'type':'date'}),
+			'start_date': DateTimeInput(attrs={'class':'span4 datepicker', 'type':'text'}),
+			'deadline': DateTimeInput(attrs={'class':'span4 datepicker', 'type':'text'}),
 		}
 	'''
 	def __init__(self, *args, **kwargs):
