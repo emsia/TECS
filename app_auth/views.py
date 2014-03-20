@@ -484,6 +484,10 @@ def help(request):
 		return render(request, 'app_auth/teacher_help.html', {'avatar':avatar, 'active_nav':'DASHBOARD'})
 	elif len(Student.objects.filter(user_id = request.user.id)) > 0:
 		return render(request, 'app_auth/student_help.html', {'avatar':avatar, 'active_nav':'DASHBOARD'})
+	elif len(SUadmin.objects.filter(user_id = request.user.id)) > 0:
+			return render(request, 'app_auth/suadmin_help.html', {'avatar':avatar, 'active_nav':'DASHBOARD'})
+	elif len(Admin.objects.filter(user_id = request.user.id)) > 0:
+			return render(request, 'app_auth/admin_help.html', {'avatar':avatar, 'active_nav':'DASHBOARD'})
 
 def graderList(request):
 	User_Profile = UserProfile.objects.filter(user_id = request.user.id)

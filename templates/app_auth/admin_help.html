@@ -1,0 +1,130 @@
+{% extends "base/base.html" %}
+{% load staticfiles %}
+
+{% block title %}
+TECS: Test Essay Checking Software | Grading System
+{% endblock %}
+
+{% block content %}
+<div class="page-content">
+	<div class="row-fluid">
+		<div class="content">
+			<div id='top'>
+			<img class="title-icons" src="{% static 'base/img/icons/Clipboard@2x.png' %}">
+			<h3 class="title">Help Menu</h3>
+			<p> Feeling a little lost? Fear not! For we are here to help you! Just click the links below to find out how to maximize the functionalities of this awesome web app.
+			<ul>
+				<li><a href="#edit_sch">Editing School Information</a></li>
+				<li><a href="#add_teacher">Adding a Teacher</a></li>
+				<li> <a href="#dis_teacher">Disabling/Abling a Teacher Account</a></li>
+				<li> <a href="#new_pw">Sending New Password to a Teacher</a></li>
+				<li><a href="#add_class">Adding a Class to a Teacher</a></li> 	
+				<li><a href="#add_students">Adding Students to an Existing Class</a></li>
+				<li><a href="#edit_profile">Editing Your Profile</a></li>
+				<li><a href="#change_pw">Changing Your Password</a></li>	
+			</ul>
+			</p>	
+			</div>
+
+			<hr>
+
+			<div id="edit_sch">
+				<h2>Editing the School Information</h2>
+				<ol>
+					<li>From the 'Dashboard' or the 'Teachers' modules, in the 'Teachers List' Section, click the yellow button adjacent to the the 'Teachers List' label.</li>
+					<li>Edit the field that you wish to change.</li>
+					<li>Click 'Save' when you're done, 'Reset' if you want to clear the form and start over, and 'Cancel' if you do not wish to continue editing your school's information.</li>
+				</ol>
+			<a href='#top'>Back To Top</a>
+			</div>	
+			<hr>	
+
+			<div id="add_teacher">
+				<h2>Adding a Teacher</h2>
+				<ol>
+					<li>From the dahboard or 'Teachers' module, click the 'Add Teachers' button on the navigation bar located at the leftmost side of the screen.</li>
+					<li>Fill up all the required fields.</li>
+					<li>If you wish to add more than one teacher, click the yellow button with the plus sign (+) at the upper-rightmost corner of the screen to add more rows. If you added more rows than intended, just click the red button with the cross sign (x) in the 'Remove' column of the excess row that you want to delete.</li>
+					<li>Click 'Save' when you're done or 'Cancel' if you do not wish to continue adding new teacher/s. </li>
+				</ol>
+			<a href='#top'>Back To Top</a>
+			</div>	
+
+			<hr>
+			<div id="dis_teacher">
+			<p>			
+			<h2>Disabling/Abling or Deactivating/Activating a Teacher Account</h2>
+			<ol>
+				<li>From the 'Dashboard' or the 'Teachers' module, you will find the list of the teachers you administer in the 'Teachers List' Section.</li>
+				<li>Click the yellow button in the 'Disable' column of the row that contains the name of the teacher that you want to disable or deactivate.</li>				
+				<li>To activate a teacher account that had been disabled, just click the blue button in the 'Disable' column of the row that contains the name of the teacher that you want to activate again.</li>
+			</ol>
+			<a href='#top'>Back To Top</a>
+			</p>
+			</div>
+			<hr>	
+			<div id="new_pw">
+			<p>			
+			<h2>Sending New Password to a Teacher </h2>
+			<ol>
+				<li>From the 'Dashboard' or the 'Teachers' module, you will find the list of the teachers you administer in the 'Teachers List' Section.</li>
+				<li>Click the green button in the 'View' column of the row that contains the name of the teacher that you want to send a new password to.</li>				
+				<li>Click the green button with the lock icon in the upper-rightmost corner of the screen to send new password. Note that a teacher must be disabled first to receive a new password so if the green button is disabled or grayed out, click the yellow button beside it first to disable the teacher account, then, you may now click the 'Send New Password' button.</li>
+				<li>Enter the email address that you want to send the new password to.</li>
+				<li>Click 'Send' to send the new password to the email or 'Close' if you do not wish to continue sending new password to the teacher.</li>
+			</ol>
+			<a href='#top'>Back To Top</a>
+			</p>
+			</div>
+
+			<hr>				
+			<div id="add_class">
+				<h2>Adding a Class to a Teacher</h2>
+				<ol>
+					<li>From the 'Dashboard' or the 'Teachers' module, you will find the list of the teachers you administer in the 'Teachers List' Section.</li>
+					<li>Click the green button in the 'View' column of the row that contains the name of the teacher that you want to add class/es to.</li>	
+					<li>Click the blue '+' button at the upper right corner, just below your name and picture.</li>
+					<li>Fill up all the fields.</li>
+					<li>Click 'Save' when you're done, 'Reset' if you want to clear the form and start over, and 'Cancel' if you do not wish to continue creating a new class. </li>
+				</ol>
+			<a href='#top'>Back To Top</a>
+			</div>	
+
+			<hr>
+
+			<div id="add_students">
+				<h2>Adding Students to an Existing Class</h2>
+				<ol>
+					<li>From the 'Dashboard' or the 'Teachers' module, you will find the list of the teachers you administer in the 'Teachers List' Section.</li>
+					<li>Click the green button in the 'View' column of the row that contains the name of the teacher that you want to add class/es to.</li>	
+					<li>Click the 'View' button beside the class that you wish to invite the student/s to.</li>
+					<li> Click the green button with the mail icon at the upper right corner, just below your name and picture.</li>
+					<li> Enter the email addresses of the students that you wish to add separated by comma. </li>
+					<li>Click the 'Send' button when you're done or 'Cancel' if you do not wish to continue inviting students to the class.</li>
+				</ol>
+			<a href='#top'>Back To Top</a>
+			</div>	
+			<hr>				
+			<div id="edit_profile">
+				<h2>Editing Your Profile</h2>
+				<ol>
+					<li>From anywhere in the site, point to your name at the upper right corner of the page then click 'My Profile'.</li>
+					<li>Edit the fields that you want to change.</li>
+					<li>Click the 'Save Changes' button at the bottom of the page.</li>
+				</ol>
+			<a href='#top'>Back To Top</a>
+			</div>	
+			<hr>						
+			<div id="change_pw">
+				<h2>Changing Your Password</h2>
+				<ol>
+					<li>From anywhere in the site, point to your name at the upper right corner of the page then click 'My Profile'.</li>
+					<li>Enter your old password and new password on the spaces provided.</li>
+					<li>Click the 'Update Password' button at the bottom of the page to update your password or the 'Reset' button if you want to clear the fields and start all over again.</li>
+				</ol>
+			<a href='#top'>Back To Top</a>
+			</div>
+			<hr>
+
+</div></div></div>
+{% endblock %}
