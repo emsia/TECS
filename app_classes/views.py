@@ -7,6 +7,7 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponseRedirect
 from django.contrib.auth.decorators import login_required
 from app_classes.models import Class, ClassForm, EditForm, EnrollForm, EditForm_admin
+from app_essays.models import Essay
 from app_auth.models import Admin
 from app_registration.models import RegistrationProfile
 from django.shortcuts import render, get_object_or_404
@@ -338,7 +339,13 @@ def delete_teacher(request):
 @login_required(redirect_field_name='', login_url='/')
 def delete(request):
 	class_info = get_object_or_404(Class, pk=request.POST['class_id'])
-	class_info.delete()
+	on_going_essays = Essay.objects.filter(class_name = class_info.id, status=1).filter(start_date__lte=timezone.now(), deadline__gte=timezone.now()).all()
+	message = 'This class has on going exams. you cannot delete this class.'
+	errr = 1
+	if len(on_going_essays) < 1:
+		class_info.delete()
+		errr = 0
+		message = 'You successfully deleted a class.'
 	place = None
 	try:
 		place = request.POST['place']
@@ -347,9 +354,12 @@ def delete(request):
 		pass
 
 	if not place:
-		return class_teacher(request, 0, 'You successfully deleted a class.')
+		if errr:
+			return class_teacher(request, message)
+		else:
+			return class_teacher(request, 0, message)
 	else:
-		return viewTeachers(request, teacher_id, 'You successfully deleted a class.', '')
+		return viewTeachers(request, teacher_id, message, '')
 
 @login_required(redirect_field_name='', login_url='/')
 def viewClassList(request, class_id, place=None, message=None, success=True):

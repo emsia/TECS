@@ -85,7 +85,7 @@ TECS: Test Essay Checking Software | Essay
 							<td>{{ essay.title }}</td>
 							<td>{{ essay.start_date }}</td>
 							<td>{{ essay.deadline }}</td>
-							<td><center><a href="{% url 'essays:details' essay.id %}" class="btn btn-info">View</a></center></td>
+							<td><center><a href="{% url 'essays:details' essay.id essayclass.id %}" class="btn btn-info">View</a></center></td>
 						</tr>
 						{% endfor %}
 					{% endfor %}
