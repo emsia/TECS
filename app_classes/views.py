@@ -49,9 +49,9 @@ def class_teacher(request, err=None, success=None, formStud=None):
 		else:
 			sections = None
 			power = False
-			hasClasses = 'You have no permission to add Classes.'
+			hasClasses = 'You have no permission to add slasses.'
 	if power and (sections is None or not sections.exists()):
-		hasClasses = 'You don\'t have Classes yet'
+		hasClasses = 'You don\'t have classes yet'
 	avatar = User_Profile.avatar
 	return render(request, link, {'avatar':avatar, 'active_nav':'CLASSES', 'formEnroll':formEnroll, 'sections':sections, 'error': err, 'success':success, 'hasClasses':hasClasses, 'power':power})
 
@@ -465,7 +465,7 @@ def inviteStudent(request):
 						mailSend = EmailMessage('[TECS] Invitation to join Class', template, 'fsvaeg@gmail.com', [email] )
 						mailSend.content_subtype = "html"  # Main content is now text/html
 						mailSend.attach(msgImage)
-						mailSend.send()
+						#mailSend.send()
 
 				success = True
 				message = 'Invitations were sent successfully.'

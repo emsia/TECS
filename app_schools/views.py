@@ -54,8 +54,8 @@ def suadmin_viewSchools(request, err=None, success=None):
 	if suadmin:
 		power = True
 	link = 'app_schools/viewSchools.html'
-	#schools = School.objects.filter(suadmin=suadmin)
-	schools = School.objects.all()
+	schools = School.objects.filter(suadmin=suadmin)
+	#schools = School.objects.all()
 	administration = []
 	for school in schools:
 		try:
@@ -64,7 +64,7 @@ def suadmin_viewSchools(request, err=None, success=None):
 		except:
 			pass
 	if power and (schools is None or not schools.exists()):
-		hasSchools = 'You don\'t have Schools yet'
+		hasSchools = 'You don\'t have schools yet.'
 	avatar = User_Profile.avatar
 	return render(request, link, {'avatar':avatar, 'schools':schools, 'hasSchools':hasSchools, 'power':power, 'active_nav':'SCHOOLS', 'administrations':administration})
 		

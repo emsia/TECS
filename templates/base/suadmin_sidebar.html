@@ -2,13 +2,13 @@
 	<ul>
 		<li {% if not active_nav or active_nav == 'DASHBOARD' %} class="active" {% endif %} >
 			<a href="{% url 'schools:dashboard' %}">
-				<div class="sidebar-icon fui-cmd"></div>
+				<div class="sidebar-icon fui-list"></div>
 				<div class="sidebar-content">DASHBOARD</div>
 			</a>
 		</li>
 		<li {% if active_nav == 'SCHOOLS' %} class="active"  {% endif %} >
 			<a href="{% url 'schools:view' %}">
-				<div class="sidebar-icon fui-eye"></div>
+				<div class="sidebar-icon fui-new"></div>
 				<div class="sidebar-content">SCHOOLS</div>
 			</a>
 		</li>

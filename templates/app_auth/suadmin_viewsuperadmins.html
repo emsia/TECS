@@ -12,7 +12,7 @@ TECS: Test Essay Checking Software | Super Admin
 		<div class="content">
 			<div class="row-fluid">
 				<p class="pull-right">
-					<a href="{% url 'auth:addsuperadmin' %}" class="btn btn-warning"><i class="fui-plus"></i>Add New Super Admin</a>
+					<a href="{% url 'auth:addsuperadmin' %}" class="btn btn-primary"><i class="fui-plus"></i>Add New Super Admin</a>
 				</p>
 				<img class="title-icons" src="{% static 'base/img/icons/tie.png' %}">
 				<h3 class="title">Super Admins</h3>	
@@ -21,11 +21,11 @@ TECS: Test Essay Checking Software | Super Admin
 						<tr>
 							<th style="width: 5%">#</th>
 							<th style="width: 2%"></th>
-							<th style="width: 23%">Username</th>
-							<th style="width: 23%">Last Name</th>
+							<th style="width: 20%">Username</th>
+							<th style="width: 20%">Last Name</th>
 							<th style="width: 23%">First Name</th>
 							<th style="width: 14%">Status</th>
-							<th style="width: 10%"></th>
+							<th style="width: 16%"></th>
 						</tr>
 					</thead>
 					<tbody>
@@ -47,29 +47,119 @@ TECS: Test Essay Checking Software | Super Admin
 								<td>{{superadmin.user.first_name }}</td>
 								<td>			
 									{% if superadmin.status == 1 %}
-										<span class="fui-check-inverted-2"></span> Active
+										<span class="fui-check-inverted-2 text-success"> Active</span>
 									{% else %}
-										<span class="fui-radio-unchecked"></span> Inactive
+										<span class="fui-radio-unchecked text-error"> Inactive</span> 
 									{% endif %}
 									
 								</td>								
-								<td>
-									{% if superadmin.status == 1 %}
-										<a href="{% url 'auth:suadmin_viewsuperadmindetails' superadmin.user.username %}" class="btn btn-info">View</a>
-									{% else %}
-										<button class="btn btn-info disabled">View</button>
-									{% endif %}
+								<td><a href="{% url 'auth:suadmin_viewsuperadmindetails' superadmin.user.username %}" class="btn btn-info">View</a>
 								</td>
-							</tr>
-						
+							</tr>		
 						{% endfor %}
 					</tbody>
 				</table>
-				<hr>
 				<p class="text-info">Accounts marked with <span class="fui-user"></span> are accounts you created.</p>
+				<hr>
+				<div class="palette palette-sun-flower mbs">
+					<strong>Accounts Pending For Activation</strong>
+				</div>
+				<p class="palette-paragraph pull-right">These are super admins you added that have not yet activated their account using the activation link sent thru their mail.</p>
+				{% if superadmins_for_activation|length == 0 %}
+				<br>
+				<div class="alert alert-block alert-error">
+					No accounts pending for activation found.
+				</div>
+				{% else %}
+				<table class="table table-striped">
+					<thead>
+						<tr>
+							<th style="width: 5%">#</th>
+							<th style="width: 19%">Username</th>
+							<th style="width: 19%">Last Name</th>
+							<th style="width: 19%">First Name</th>
+							<th style="width: 19%"></th>
+							<th style="width: 19%"></th>
+						</tr>
+					</thead>
+					<tbody>
+						{% for superadmin in superadmins_for_activation %}		
+							<tr>
+								<td>{{forloop.counter}}</td>
+								<td>
+									{{superadmin.user.username}}
+									{% if superadmin.user == user %}
+										(You)
+									{% endif %}
+								</td>
+								<td>{{superadmin.user.last_name }}</td>
+								<td>{{superadmin.user.first_name }}</td>						
+								<td><button id="resend-activation" class="btn btn-primary" data-toggle="modal" data-target="#confirm-resend"  data-userid={{superadmin.user.pk}}>Send Activation Code</button></td>
+								<td><button id="cancel-activation" class="btn btn-danger" data-toggle="modal" data-target="#confirm-deactivate" data-userid={{superadmin.user.pk}}>Cancel Activation</button>
+								</td>
+							</tr>		
+						{% endfor %}
+					</tbody>
+				</table>
+				{% endif %}
 			</div>
 		</div>
 	</div>
 
 <script src="{% static 'base/js/jquery.min.js' %}"></script>
+
+<div id="confirm-deactivate" class="modal hide fade" data-backdrop="static">
+	<div class="modal-header palette-alizarin">
+		<h3 class="text-white">Confirm Cancelling of Account Activation</h3>
+	</div>
+	<form action="" method="post">
+	<div class="modal-body">
+		<p>Are you sure you want to cancel the pending activation for this account?</p>
+		<p>After continuing with this action, the user can no longer use the activation link sent to his/her email to log in to the system. In addition, the inactive account will be deleted and his/her username will be available to use.</p>
+
+		<p>Please take note that this action cannot be undone.</p>		
+			{% csrf_token %}
+			<input id="userid-cancel" type="hidden" name="userid-cancel" value="">
+	</div>
+	<div class="modal-footer">
+		<button type="submit" class="btn btn-danger pull-left"><span class="fui-cross"></span> Cancel Activation</button>
+		<button class="btn btn-inverse" data-dismiss="modal" aria-hidden="true">Close</button>
+	</div>
+	</form>
+</div>
+
+<div id="confirm-resend" class="modal hide fade" data-backdrop="static">
+	<div class="modal-header palette-turquoise">
+		<h3 class="text-white">Send Activation Code</h3>
+	</div>
+	<form action="" method="post">
+	<div class="modal-body">
+		<p>Are you sure you want to resend to his/her email the activation code for this account?</p>
+		<p>After continuing with this action, a new activation code is generated, activation code expiration is reset and new password is generated. Username remains unchanged. All these credentials are sent to his/her email address.</p>
+
+		<p>Please take note that this action cannot be undone.</p>
+		
+			{% csrf_token %}
+			<input id="userid-resend" type="hidden" name="userid-resend" value="">
+		
+	</div>
+	<div class="modal-footer">
+		<button type="submit" class="btn btn-primary pull-left"><span class="fui-play"></span> Proceed</button>
+		<button class="btn btn-inverse" data-dismiss="modal" aria-hidden="true">Close</button>
+	</div>
+	</form>
+</div>
+
+
+<script>
+	$("#cancel-activation").on("click", function() {
+		var userid = $(this).data('userid')
+		$("#userid-cancel").val(userid)
+	});
+
+	$("#resend-activation").on("click", function() {
+		var userid = $(this).data('userid')
+		$("#userid-resend").val(userid)
+	});
+</script>
 {% endblock %}

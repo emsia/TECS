@@ -7,7 +7,7 @@ from datetime import datetime
 
 class Class(models.Model):
 	school = models.ForeignKey(School)
-	year_level = models.CharField(max_length=2)
+	year_level = models.CharField(max_length=10)
 	section = models.CharField(max_length=30)
 	subject = models.CharField(max_length=30)
 	academic_year = models.CharField(max_length=20)
