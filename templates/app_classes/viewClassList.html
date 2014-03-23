@@ -159,6 +159,15 @@ TECS: Test Essay Checking Software | Home
 			        </div>
 			    {% endif %}
 			</table>
+			
+			<a 
+				{% if place == 'base/base_admin.html' %}
+					href="{% url 'classes:viewTeachers' studentList.teacher.id %}" 
+				{% else %}
+					href="{% url 'classes:classes' %}"
+				{% endif %}
+
+			class="btn btn-inverse"><span class="fui-arrow-left"></span> Back</a>
 			{% endif %}
 		</div>
 	</div>
