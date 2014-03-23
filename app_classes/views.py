@@ -475,7 +475,7 @@ def inviteStudent(request):
 						mailSend = EmailMessage('[TECS] Invitation to join Class', template, 'fsvaeg@gmail.com', [email] )
 						mailSend.content_subtype = "html"  # Main content is now text/html
 						mailSend.attach(msgImage)
-						#mailSend.send()
+						mailSend.send()
 
 				success = True
 				message = 'Invitations were sent successfully.'

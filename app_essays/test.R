@@ -4,7 +4,7 @@ library(lsa);
 library(FNN);
 
 args <- commandArgs(trailingOnly = TRUE)
-args <- c("/home/nowhere/Desktop/CS199TECS/app_essays/essays/computers", "test.csv", "result.csv")
+#args <- c("/home/nowhere/Desktop/CS199TECS/app_essays/essays/computers", "test.csv", "result.csv")
 
 featureVectors <- list()
 
@@ -62,19 +62,19 @@ knnnn=knn(t(train),t(j),cl=training_file[,2],k=3)
 indices = attr(knnnn, "nn.index")
 a = training_file[indices,2]
 h <- matrix(a,ncol = 3)
-k <- as.matrix(apply(h[,3:1], 1, Mode))
+#k <- as.matrix(apply(h[,3:1], 1, Mode))
 #plot(knnnn)
 
-confusion <- table(factor(k, levels = unique(pred)),pred)
-EAA <- sum(diag(confusion))/ncol(j)
+#confusion <- table(factor(k, levels = unique(pred)),pred)
+#EAA <- sum(diag(confusion))/ncol(j)
 
-write.table(td, file=automatedScores,row.names=FALSE, col.names=FALSE, sep=",")
-write.table(confusion, file=paste("EAA_ConfusionMatrix.csv"))
+#write.table(td, file=automatedScores,row.names=FALSE, col.names=FALSE, sep=",")
+#write.table(confusion, file=paste("EAA_ConfusionMatrix.csv"))
 
-AAA <- sum(diag(confusion))
-AAA <- AAA + sum(diag(confusion[2:nrow(confusion),1:ncol(confusion)-1]))
-AAA <- AAA + sum(diag(confusion[1:nrow(confusion)-1,2:ncol(confusion)]))
-AAA <- AAA/ncol(j)
+#AAA <- sum(diag(confusion))
+#AAA <- AAA + sum(diag(confusion[2:nrow(confusion),1:ncol(confusion)-1]))
+#AAA <- AAA + sum(diag(confusion[1:nrow(confusion)-1,2:ncol(confusion)]))
+#AAA <- AAA/ncol(j)
 
 resultMatrix <- do.call(rbind, featureVectors)
 

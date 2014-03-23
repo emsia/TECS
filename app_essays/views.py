@@ -171,10 +171,12 @@ def exam_details(request, essay_id=None, class_id=None):
 
 			#CALL R SCRIPT. PLEASE CHANGE THE LOCATION OF Rscript EXECUTABLE
 			resultcsv = 'result.csv'
-			retcode = subprocess.call(['/usr/bin/Rscript', './app_essays/train.R', directory, trainingcsv])
+			retcode = subprocess.call(['/usr/bin/Rscript', './app_essays/train.R', directory[2:], trainingcsv])
 			print retcode
-			retcode = subprocess.call(['/usr/bin/Rscript', './app_essays/test.R', directory, testcsv, resultcsv, directory+'/myLSAspace.RData', trainingcsv])
+			print "****************** END TRAINING ***********************"
+			retcode = subprocess.call(['/usr/bin/Rscript', './app_essays/test.R', directory[2:], testcsv, resultcsv, directory+'/myLSAspace.RData', trainingcsv])
 			print retcode
+			print "****************** END TESTING ***********************"
 			with open(directory+'/'+resultcsv, 'rb') as resultfile:
 				resultreader = csv.reader(resultfile, delimiter=',', quotechar='|')
 				for row in resultreader:
@@ -320,7 +322,7 @@ def essay_submission(request, class_id=None, essay_response_id=None):
 								c = form.save(commit=False)
 								c.essay = essay_response
 								c.save()
-						return redirect('essays:list')
+						return redirect('essays:submission', essayclass.pk, essay_response.pk)
 				else:
 					er_form = EssayResponseGradeForm()
 					er_form.fields['grade'].queryset = Grade.objects.filter(grading_system = essay_response.essay.grading_system).order_by('value')
