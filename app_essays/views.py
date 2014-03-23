@@ -15,7 +15,7 @@ from app_classes.models import Class
 
 from datetime import datetime
 from random import choice
-import operator, urllib, re
+import operator, urllib, re, csv, subprocess, os, pprint
 import nltk, json
 
 @login_required(redirect_field_name='', login_url='/')
@@ -90,8 +90,15 @@ def list_essay(request, errors=None, success=None):
 		past_essays = Essay.objects.filter(instructor_id = Teacher.objects.get(user_id = request.user.id).id).filter(deadline__lt=timezone.now())
 		
 		#MANUAL WAY TO CHANGE STATUS OF AN ESSAY IF IT'S PAST THE DEADLINE
+		EssayResponse.objects.filter(essay__status=1, essayclass__teacher=Teacher.objects.get(user_id = request.user.id)).filter(essay__deadline__lt=timezone.now()).update(status=2, response='')
 		Essay.objects.filter(instructor_id = Teacher.objects.get(user_id = request.user.id).id).filter(deadline__lt=timezone.now()).update(status=2)
-
+		
+		'''
+		essays.update(status=2)
+		for essay in essays:
+			for essayresponse in EssayResponse.objects.filter(essay=essay):
+				essayresponse.status = 2
+		'''
 		if (len(on_queue_essays) == 0 ):
 			no_on_queue_essays = 1	
 		if (len(on_going_essays) == 0 ):
@@ -138,14 +145,49 @@ def exam_details(request, essay_id=None, class_id=None):
 			essay.save()
 			return redirect('essays:list')
 		elif 'AES' in request.POST:
-			#mock automated grading
 			essay_responses = EssayResponse.objects.filter(essay_id=essay.pk, essayclass_id=class_id)
 			possible_grade_values = Grade.objects.filter(grading_system=essay.grading_system)
-			for essay_response in essay_responses:
-				essay_response.computer_grade = choice(possible_grade_values)
-				essay_response.save()
-				return redirect('essays:details', essay_id, class_id)
-	
+
+			#CREATE A FOLDER FOR THE ESSAYTOPIC
+			directory = './app_essays/essays/'+str(essay.pk)+' '+essay.title.lower()
+			if not os.path.exists(directory):
+				os.makedirs(directory)
+
+			trainingcsv = 'training.csv'
+			testcsv = 'test.csv'
+			with open(directory+'/'+trainingcsv, 'w') as trainingfiles	, open(directory+'/'+testcsv, 'w') as testfiles:
+				csvwriter_training = csv.writer(trainingfiles, delimiter=',', quotechar='|', quoting=csv.QUOTE_MINIMAL)
+				csvwriter_test = csv.writer(testfiles, delimiter=',', quotechar='|', quoting=csv.QUOTE_MINIMAL)
+				for essay_response in essay_responses:	
+					e = re.sub('[^A-Za-z\s]+', '', essay_response.response)
+					e = e.replace('\r\n', '')
+					#print '---------------------------------------------------------'
+					#pprint.pprint(e)
+					if not e.isspace():
+						if essay_response.grade is not None:
+							csvwriter_training.writerow([e, essay_response.grade.pk])
+						else:
+							csvwriter_test.writerow([e, '', essay_response.pk])
+
+			#CALL R SCRIPT. PLEASE CHANGE THE LOCATION OF Rscript EXECUTABLE
+			resultcsv = 'result.csv'
+			retcode = subprocess.call(['/usr/bin/Rscript', './app_essays/train.R', directory, trainingcsv])
+			print retcode
+			retcode = subprocess.call(['/usr/bin/Rscript', './app_essays/test.R', directory, testcsv, resultcsv, directory+'/myLSAspace.RData', trainingcsv])
+			print retcode
+			with open(directory+'/'+resultcsv, 'rb') as resultfile:
+				resultreader = csv.reader(resultfile, delimiter=',', quotechar='|')
+				for row in resultreader:
+					essaypk = row[2]
+					essaygrade = row[1]
+					essay_response = [er for er in essay_responses if er == essaypk]
+					er.computer_grade.pk = essaygrade.pk
+					er.save()
+
+			#for essay_response in essay_responses:
+			#	essay_response.computer_grade = choice(possible_grade_values)
+			#	essay_response.save()
+			return redirect('essays:details', essay_id, class_id)
 	else:
 		essayclass = essay.class_name.get(pk=class_id)
 		students = essayclass.student.all()
@@ -221,7 +263,8 @@ def answer_essay(request, essay_response_id):
 def essay_submission(request, class_id=None, essay_response_id=None):
 	active_nav = "EXAMS"
 	avatar = UserProfile.objects.get(user_id = request.user.id).avatar
-	essay_response = get_object_or_404(EssayResponse, pk=essay_response_id, status=2)
+	#essay_response = get_object_or_404(EssayResponse, pk=essay_response_id, status=2)
+	essay_response = EssayResponse.objects.get(pk=essay_response_id, status=2)
 	numbered_response = ''
 
 	if essay_response.response.isspace() or essay_response.response.strip() == '':

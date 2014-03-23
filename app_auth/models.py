@@ -27,7 +27,7 @@ class UserProfile(models.Model):
 class SUadmin(models.Model):
 	user = models.ForeignKey(User, related_name='self_userid')
 	registered_by = models.ForeignKey(User, related_name='registered_by')
-	status = models.IntegerField(default=0) # -1:deactivated	0:for activation (default)	1:active
+	status = models.IntegerField(default=0) # -1:deactivated	0:for activation (default)	1:active 
 	date_added = models.DateTimeField(null=True)
 	date_registered = models.DateTimeField(default=timezone.now())
 	activation_code = models.CharField(max_length=32, unique=True)

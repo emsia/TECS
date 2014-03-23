@@ -51,8 +51,12 @@ TECS: Test Essay Checking Software | Super Admin
 							</div>
 						</div>
 						<a href="{% url 'auth:viewsuperadmins' %}" class="btn btn-inverse"><span class="fui-arrow-left"></span> Back</a>
-						{% if superadmin.registered_by.pk == user.pk %}
-							<button class="btn btn-danger pull-right span5" data-toggle="modal" data-target="#confirm-deactivate"><span class="fui-cross"></span> Deactivate</a>
+						{% if superadmin.registered_by.pk == user.pk and superadmin.user != user %}
+							{% if superadmin.status = 1 %}
+							<button class="btn btn-danger pull-right span5" data-toggle="modal" data-target="#confirm-deactivate"><span class="fui-cross"></span> Change to Inactive Status</a>
+							{% elif superadmin.status = -1 %}
+							<button class="btn btn-success pull-right span5" data-toggle="modal" data-target="#confirm-deactivate"><span class="fui-check"></span> Change to Active Status</a>
+							{% endif %}
 						{% endif %}						
 					</div>				
 				</div>
@@ -61,21 +65,42 @@ TECS: Test Essay Checking Software | Super Admin
 	</div>	
 </div>
 
+{% if superadmin.status = 1 %}
 <div id="confirm-deactivate" class="modal hide fade" data-backdrop="static">
 	<div class="modal-header palette-alizarin">
-		<h3 class="text-white">Confirm Deactivate</h3>
+		<h3 class="text-white">Confirm Inactivation</h3>
 	</div>
 	<div class="modal-body">
-		<p>Are you sure you want to deactivate this account?</p>
-		<p>After continuing with this action, the user can no longer log in to the system. This action cannot be undone.</p>
+		<p>Are you sure you want to change the status of this account to <strong>inactive?<strong></p>
+		<p>After continuing with this action, the user can no longer log in to the system. Don't worry, you can re-activate this user account anytime. His username and password remains unchanged.</p>
 		<form action="" method="post">
 			{% csrf_token %}
 			<input type="hidden" name="deactivated_username" value="{{superadmin.user.username}}">
 		<form>
 	</div>
 	<div class="modal-footer">
-		<button type="submit" class="btn btn-danger pull-left"><span class="fui-cross"></span> Deactivate</button>
+		<button type="submit" class="btn btn-danger pull-left"><span class="fui-play"></span> Proceed</button>
 		<button class="btn btn-inverse" data-dismiss="modal" aria-hidden="true">Close</button>
 	</div>
 </div>
+{% elif superadmin.status = -1 %}
+<div id="confirm-deactivate" class="modal hide fade" data-backdrop="static">
+	<div class="modal-header palette-emerald">
+		<h3 class="text-white">Confirm Reactivate</h3>
+	</div>
+	<div class="modal-body">
+		<p>Are you sure you want to change the status of this account to <strong>active</strong>?</p>
+		<p>After continuing with this action, the user will be able to log in to the system.</p>
+		<form action="" method="post">
+			{% csrf_token %}
+			<input type="hidden" name="activated_username" value="{{superadmin.user.username}}">
+		<form>
+	</div>
+	<div class="modal-footer">
+		<button type="submit" class="btn btn-success pull-left"><span class="fui-play"></span> Proceed</button>
+		<button class="btn btn-inverse" data-dismiss="modal" aria-hidden="true">Close</button>
+	</div>
+</div>
+{% endif %}
+
 {% endblock %}

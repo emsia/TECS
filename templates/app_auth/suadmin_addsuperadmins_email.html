@@ -12,12 +12,16 @@
       <div style="padding: 7px; border: 2px solid; font-family: 'Lato', sans-serif; line-height: 1.231; font-size: 14px; border-color: #1abc9c; padding-right: 20px;">
         	<p>Hi {{receiver_firstname}} {{receiver_lastname}},</p>
 
-          <p>You have been registered as super admin by {{sender_name}} for TECS: Test Essay Checking Software. Please click the link below to confirm your email and activate your TECS account. Your activation code will expire after {{expiration_days}} days. </p>
+          <p>You have been registered as super admin by <strong>{{sender_name}}</strong> for TECS: Test Essay Checking Software. Please click the link below to confirm your email and activate your TECS account. Your activation code will expire after {{expiration_days}} days. </p>
 
           <p><a href="{{activation_link}}" style="color: #1abc9c; text-decoration: none;"><strong>ACTIVATE YOUR TECS ACCOUNT HERE.</strong></a></p>
 
           Username: {{username}}<br>
-          Password: {{password}}
+          Password: {{password}}<br>
+
+          <p>If the above link doesn't work, copy the link below and paste it on your address bar then go.</p>
+
+          https://tecs.herokuapp.com/{{activation_link}}<br>
 
       </div>
 {% endblock %}

@@ -62,7 +62,7 @@ class LoginView(FormView):
 				login(self.request, user)
 				return HttpResponseRedirect(self.get_success_url())
 			else:
-				return self.form_invalid(form, request, 'Account not yet Validated.')		
+				return self.form_invalid(form, request, 'Account not yet validated.')		
 
 		elif FailedAttempt.objects.get(username = username).failures >= 5:
 			return self.form_invalid(form, request, 'Maximum number of login attempts exceeded. Account suspended for 3 mins.')
@@ -507,18 +507,58 @@ def suadmin_viewsuperadmins(request, err=None, success=None):
 		return redirect("/profile")
 
 	if request.method == 'POST':
-		userid = request.POST.get('user_id')
-		get_object_or_404(SUadmin, user__id=userid, registered_by=request.user)	#CHECK IF CURRENT USER IS ALLOWED TO CANCEL ACTIVATION  FOR THIS ACC
-		user = get_object_or_404(User, pk=userid)
-		user.delete()
-		user.save()
+		if 'userid-cancel' in request.POST:
+			userid = request.POST.get('userid-cancel')
+			get_object_or_404(SUadmin, user__id=userid, registered_by=request.user)	#CHECK IF CURRENT USER IS ALLOWED TO CANCEL ACTIVATION  FOR THIS ACC
+			user = get_object_or_404(User, pk=userid)
+			user.delete()
+			user.save()
+		elif 'userid-resend' in request.POST:
+			userid = request.POST.get('userid-resend')
+			user = get_object_or_404(User, id=userid)
+			superadmin = get_object_or_404(SUadmin, user=user)
+			while True:
+				ac = ''.join(random.choice(string.ascii_letters + string.digits) for x in range(32))
+				if not SUadmin.objects.filter(activation_code=ac).exists():
+					break
+			activation_code_expiry = datetime.datetime.now() + datetime.timedelta(days=7)
+			password = ''.join(random.choice(string.ascii_letters + string.digits) for x in range(8))
+			user.password = password
+			user.save()
+			superadmin.activation_code = ac
+			superadmin.activation_code_expiry = activation_code_expiry
+			superadmin.save()
+
+			link = request.get_host()+"/activate/"+ac
+			print link
+			c = {
+				'sender_name': request.user,
+				'receiver_lastname': user.last_name,
+				'receiver_firstname': user.first_name,
+				'activation_code' : ac,
+				'username' : user.username,
+				'password' : password,
+				'activation_link' : link,
+			}
+			
+			fp = open('./static/base/img/icons/Mail3.png', 'rb')
+			msgImage = MIMEImage(fp.read())
+			fp.close()
+			msgImage.add_header('Content-ID', '<image1>')
+
+			message = render_to_string('app_auth/suadmin_addsuperadmins_email.html', c)
+
+			mailSend = EmailMessage('[TECS] You have been registered as super admin', message, request.user.email, [user.email] )
+			mailSend.content_subtype = "html"
+			mailSend.attach(msgImage)
+			mailSend.send()
 
 	User_Profile = User_Profile.get(user_id=request.user.id)
 	avatar = User_Profile.avatar
-	superadmins = SUadmin.objects.filter(status__gte=0)
+	superadmins = SUadmin.objects.filter(Q(status=1)|Q(status=-1, registered_by=request.user))
+	superadmins_for_activation = SUadmin.objects.filter(status=0, registered_by=request.user)
 
-
-	return render(request, 'app_auth/suadmin_viewsuperadmins.html', {'avatar':avatar, 'superadmins':superadmins, 'active_nav':'SUPERADMIN'})
+	return render(request, 'app_auth/suadmin_viewsuperadmins.html', {'avatar':avatar, 'superadmins':superadmins, 'superadmins_for_activation':superadmins_for_activation,'active_nav':'SUPERADMIN'})
 
 @login_required(redirect_field_name='', login_url='/')
 def suadmin_viewsuperadmindetails(request, username):
@@ -532,16 +572,26 @@ def suadmin_viewsuperadmindetails(request, username):
 		profile = get_or_none(UserProfile, user=superadmin.user)
 
 		if request.method == 'POST':
-			username = request.POST.get('deactivated_username')
-			user = get_object_or_404(User, username=username)
-			superadmin_d = get_or_none(SUadmin, user__username=username, registered_by=request.user)
-			if superadmin_d is None:
-				raise Http404
-			else:
-				superadmin_d.status = -1
-				superadmin_d.user.active = False
-				superadmin_d.save()
-				return redirect('/superadmin/view')
+			if 'deactivated_username' in request.POST:
+				username = request.POST.get('deactivated_username')
+				user = get_object_or_404(User, username=username)
+				superadmin_d = get_object_or_404(SUadmin, user__username=username, registered_by=request.user, status=1)
+				if superadmin_d is not None:
+					superadmin_d.status = -1
+					superadmin_d.user.is_active = False
+					superadmin_d.user.save()
+					superadmin_d.save()
+					return redirect('/superadmin/view')
+			elif 'activated_username' in request.POST:
+				username = request.POST.get('activated_username')
+				user = get_object_or_404(User, username=username)
+				superadmin_d = get_object_or_404(SUadmin, user__username=username, registered_by=request.user, status=-1)
+				if superadmin_d is not None:
+					superadmin_d.status = 1
+					superadmin_d.user.is_active = True
+					superadmin_d.user.save()
+					superadmin_d.save()
+					return redirect('/superadmin/view')
 		else:
 			return render(request, 'app_auth/suadmin_viewsuperadmins_details.html', {'avatar': avatar, 'superadmin':superadmin, 'profile':profile, 'active_nav':'SUPERADMIN'})
 
@@ -572,7 +622,8 @@ def suadmin_addsuperadmin(request, err=None, success=None):
 			user.save()
 			SUadmin.objects.create(user=user, registered_by=request.user, activation_code=ac, activation_code_expiry=activation_code_expiry)
 
-			link = ""+request.get_host()+"/activate/"+ac,
+			link = request.get_host()+"/activate/"+ac
+			print link
 			c = {
 				'sender_name': request.user,
 				'receiver_lastname': form.cleaned_data['last_name'],
@@ -618,6 +669,7 @@ def activate(request, id):
 		superadmin.user.is_active = True
 		superadmin.date_added = timezone.now()
 		superadmin.status = 1
+		superadmin.user.save()
 		superadmin.save()
 
 		superadmin.user.backend = 'django.contrib.auth.backends.ModelBackend'

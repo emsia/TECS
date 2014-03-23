@@ -88,7 +88,7 @@ TECS: Test Essay Checking Software | Essay
                                                                 {% if essay_response.status != 2 %}        
                                                                         <a href="" class="btn btn-small disabled">View</a>
                                                                 {% else %}
-                                                                        <a href="{% url 'essays:submission' essay_response.id essayclass.id %}" class="btn btn-info">View</a>
+                                                                        <a href="{% url 'essays:submission' essayclass.id essay_response.id %}" class="btn btn-info">View</a>
                                                                 {% endif %}
                                                         </td>
                                                 </tr>
@@ -141,7 +141,7 @@ TECS: Test Essay Checking Software | Essay
                                 <dd>{{ essay.title }}</dd>
 
                                 <dt>Class</dt>
-                                <dd>{{ essay.class_name }}</dd>                
+                                <dd>{{ essayclass }}</dd>                
                         </dl>
                         <input type="hidden" name="essay-id" value={{ essay.pk }}>
                 </div>

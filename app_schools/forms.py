@@ -39,3 +39,5 @@ class adminAdd(forms.Form):
     first_name = forms.CharField( label='First Name', widget=forms.TextInput(attrs={'type':'text', 'class': 'span6 cap', 'placeholder': 'Required'}))
     username = forms.CharField( label='Username', widget=forms.TextInput(attrs={'type':'text', 'class': 'span6', 'placeholder': 'Required'}))
     email = MultiEmailField( label='Email', widget=forms.TextInput(attrs={'type':'text', 'class': 'span6', 'placeholder': 'Required'}))
+
+    
