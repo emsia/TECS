@@ -16,7 +16,9 @@ Mode <- function(x) {
 
 setwd(args[1])
 testFile = args[2]
+#testFile = "test.csv"
 automatedScores = args[3]
+#automatedScores = "result.csv"
 #training_file = args[5]
 load('myLSAspace.RData')
 load('training_matrix.RData')
@@ -55,14 +57,11 @@ j <- as.matrix(tem_red)
 train <- as.matrix(TrainingMatrix)
 TrainingMatrix = "";
 
-pred <- td[,2]
-knnn = ""
-
 knnnn=knn(t(train),t(j),cl=training_file[,2],k=3)
 indices = attr(knnnn, "nn.index")
 a = training_file[indices,2]
 h <- matrix(a,ncol = 3)
-#k <- as.matrix(apply(h[,3:1], 1, Mode))
+k <- as.matrix(apply(h[,3:1], 1, Mode))
 #plot(knnnn)
 
 #confusion <- table(factor(k, levels = unique(pred)),pred)
