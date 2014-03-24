@@ -93,10 +93,16 @@ def submit(request):
 			if school_info.exists():
 				return suadmin_viewSchools(request, 'That School already exists.')
 
-			forms['name'] = name_info
-			forms['short_name'] = short_name_info
-			forms['address'] = address_info
-			form = form_school.save(commit=False)
+			School.objects.create(name=name_info , short_name=short_name_info, address= address_info)
+			#forms['name'] = name_info
+			#forms['short_name'] = short_name_info
+			#forms['address'] = address_info
+			#form = form_school.save(commit=False)
+			form = School.objects.get(name=name_info , short_name=short_name_info, address= address_info)
+			#form.name = name_info
+			#forms['short_name'] = short_name_info
+			#forms['address'] = address_info
+			#print(forms['name'])
 			form.suadmin = suadmin_info
 			form.date_created = timezone.now()
 			form.is_active = True

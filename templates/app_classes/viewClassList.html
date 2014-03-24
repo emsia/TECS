@@ -47,7 +47,7 @@ TECS: Test Essay Checking Software | Home
 	</div>
 	<div class="modal-footer"> 
 		<button type="submit" name="gradesys-send"  class="btn btn-primary pull-left" >Make Invitation <span class="fui-check"></span></button>
-		<button type="button" class="btn btn-inverse" data-dismiss="modal" aria-hidden="true">Cancel <i class="fui-cross"></i></button>
+		<button type="button" class="btn btn-warning" data-dismiss="modal" aria-hidden="true">Cancel <i class="fui-new"></i></button>
 	</div>
 	</form>
 </div>	
@@ -154,11 +154,20 @@ TECS: Test Essay Checking Software | Home
 				{% else %}
 					<br>
 					<div {% if succ %} class="alert alert-block alert-success" {% else %} class="alert alert-block alert-error" {% endif %}>
+						<button type="button" class="close" data-dismiss="alert">&times;</button>
 			          <h4><strong>{% if succ %}Success!{% else %}Error!{% endif %}</strong></h4> {{ success }}
 			        </div>
 			    {% endif %}
 			</table>
-			<a href= "{% url 'classes:classes' %}" class="btn btn-inverse"><span class="fui-arrow-left"></span> Back</a>
+			
+			<a 
+				{% if place == 'base/base_admin.html' %}
+					href="{% url 'classes:viewTeachers' studentList.teacher.id %}" 
+				{% else %}
+					href="{% url 'classes:classes' %}"
+				{% endif %}
+
+			class="btn btn-inverse"><span class="fui-arrow-left"></span> Back</a>
 			{% endif %}
 		</div>
 	</div>

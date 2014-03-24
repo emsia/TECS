@@ -7,7 +7,7 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponseRedirect
 from django.contrib.auth.decorators import login_required
 from app_classes.models import Class, ClassForm, EditForm, EnrollForm, EditForm_admin
-from app_essays.models import Essay
+from app_essays.models import Essay, EssayResponse
 from app_auth.models import Admin
 from app_registration.models import RegistrationProfile
 from django.shortcuts import render, get_object_or_404
@@ -339,11 +339,23 @@ def delete_teacher(request):
 @login_required(redirect_field_name='', login_url='/')
 def delete(request):
 	class_info = get_object_or_404(Class, pk=request.POST['class_id'])
-	on_going_essays = Essay.objects.filter(class_name = class_info.id, status=1).filter(start_date__lte=timezone.now(), deadline__gte=timezone.now()).all()
-	message = 'This class has on going exams. you cannot delete this class.'
+	on_going_essays = Essay.objects.filter(instructor_id = class_info.teacher.id, status=1, class_name=class_info).filter(start_date__lte=timezone.now(), deadline__gte=timezone.now()).all()
+	past_essays = Essay.objects.get(instructor_id = class_info.teacher.id, class_name=class_info)
+	needs = EssayResponse.objects.filter(essay_id=past_essays.id, final_grade=None).exists()
+	message = ''
+
+	if len(on_going_essays) and needs:
+		message = 'This class has on going exam(s) and exam(s) that needs grading. You cannot delete this class.'
+	elif len(on_going_essays):
+		message = 'This class has on going exam(s). You cannot delete this class.'
+	elif needs:
+		message = 'This class has exam(s) that needs grading. You cannot delete this class.'	
 	errr = 1
-	if len(on_going_essays) < 1:
+
+	if len(on_going_essays) < 1 and not needs:
+		essays = get_object_or_404(Essay, pk=past_essays.id)
 		class_info.delete()
+		essays.delete()
 		errr = 0
 		message = 'You successfully deleted a class.'
 	place = None
