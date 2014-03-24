@@ -52,8 +52,7 @@ TECS: Test Essay Checking Software | Essay
                                                         <th width="5%"></th>
                                                         <th width="22%">Student</th>
                                                         <th width="22%">Status</th>
-                                                        <th width="12%">Human Grade</th>
-                                                        <th width="12%">Automated Grade</th>
+                                                        <th width="12%">Grade</th>
                                                         <th width="3%">Submisson</th>
                                                 </tr>
                                         </thead>
@@ -75,13 +74,6 @@ TECS: Test Essay Checking Software | Essay
                                                                         --
                                                                 {% else %}
                                                                         {{ essay_response.grade }}
-                                                                {% endif %}
-                                                        </td>
-                                                        <td>
-                                                                {% if essay_response.computer_grade == null %}
-                                                                        --
-                                                                {% else %}
-                                                                        {{ essay_response.computer_grade }}
                                                                 {% endif %}
                                                         </td>
                                                         <td>

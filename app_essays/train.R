@@ -1,9 +1,10 @@
 library(tm);
 library(lsa);
 args <- commandArgs(trailingOnly = TRUE)
-#args <- c("/home/nowhere/Desktop/CS199TECS/app_essays/essays/computers", "training.csv")
+#args <- c("/home/nowhere/Desktop/CS199TECS/app_essays/essays/13 effects of computer", "training.csv")
 setwd(args[1])
-trainingFile <- args[2];
+#trainingFile <- args[2];
+trainingFile <- "training1.csv"
     
 training_file <- read.csv(trainingFile, header=F);
 save(training_file, file='training_file.RData')
@@ -31,8 +32,4 @@ save(training_matrix, file='training_matrix.RData')
 #TrainingMatrix = lw_logtf(training_matrix) * gw_idf(training_matrix)
 TrainingMatrix = weightTfIdf(training_matrix, normalize=F)
 save(TrainingMatrix, file='TrainingMatrix.RData')
-
-#LSA
-myLSAspace = lsa(TrainingMatrix, dims=dimcalc_share(share=0.95))
-save(myLSAspace, file='myLSAspace.RData')
 

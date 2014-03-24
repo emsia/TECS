@@ -155,37 +155,43 @@ def exam_details(request, essay_id=None, class_id=None):
 
 			trainingcsv = 'training.csv'
 			testcsv = 'test.csv'
-			with open(directory+'/'+trainingcsv, 'w') as trainingfiles	, open(directory+'/'+testcsv, 'w') as testfiles:
+			with open(directory+'/'+trainingcsv, 'w') as trainingfiles	, open(directory+'/'+testcsv, 'a') as testfiles:
 				csvwriter_training = csv.writer(trainingfiles, delimiter=',', quotechar='|', quoting=csv.QUOTE_MINIMAL)
 				csvwriter_test = csv.writer(testfiles, delimiter=',', quotechar='|', quoting=csv.QUOTE_MINIMAL)
+				forautograding = 0
 				for essay_response in essay_responses:	
 					e = re.sub('[^A-Za-z\s]+', '', essay_response.response)
 					e = e.replace('\r\n', '')
 					#print '---------------------------------------------------------'
-					#pprint.pprint(e)
+					pprint.pprint(e)
 					if not e.isspace():
 						if essay_response.grade is not None:
 							csvwriter_training.writerow([e, essay_response.grade.pk])
 						else:
 							csvwriter_test.writerow([e, '', essay_response.pk])
+							++forautograding
 
 			#CALL R SCRIPT. PLEASE CHANGE THE LOCATION OF Rscript EXECUTABLE
 			resultcsv = 'result.csv'
-			retcode = subprocess.call(['/usr/bin/Rscript', './app_essays/train.R', directory[2:], trainingcsv])
-			print retcode
+			#retcode = subprocess.call(['/usr/bin/Rscript', './app_essays/train.R', directory[2:], trainingcsv])
+			#print retcode
 			print "****************** END TRAINING ***********************"
-			retcode = subprocess.call(['/usr/bin/Rscript', './app_essays/test.R', directory[2:], testcsv, resultcsv, directory+'/myLSAspace.RData', trainingcsv])
+			retcode = subprocess.call(['/usr/bin/Rscript', './app_essays/conceptindexing.R', directory[2:], testcsv, resultcsv, directory+'/myLSAspace.RData', trainingcsv])
 			print retcode
 			print "****************** END TESTING ***********************"
 			with open(directory+'/'+resultcsv, 'rb') as resultfile:
 				resultreader = csv.reader(resultfile, delimiter=',', quotechar='|')
+				
 				for row in resultreader:
 					essaypk = row[2]
 					essaygrade = row[1]
-					essay_response = [er for er in essay_responses if er == essaypk]
-					er.computer_grade.pk = essaygrade.pk
-					er.save()
-
+					print essaypk
+					print essaygrade
+					#essay_response = [er for er in essay_responses if er == essaypk]
+					essay_response = EssayResponse.objects.get(id=essaypk)
+					essay_response.grade = Grade.objects.get(pk=essaygrade)
+					essay_response.save()
+				
 			#for essay_response in essay_responses:
 			#	essay_response.computer_grade = choice(possible_grade_values)
 			#	essay_response.save()
