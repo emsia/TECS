@@ -6,7 +6,7 @@ library(MASS)
 args <- commandArgs(trailingOnly = TRUE)
 setwd(args[1])
 
-args <- c("./essays/computers", "test.csv", "result.csv")
+#args <- c("./essays/computers", "test.csv", "result.csv")
 
 featureVectors <- list()
 
@@ -51,7 +51,7 @@ test.corpus <- tm_map(test.corpus, tolower);
 test.corpus <- tm_map(test.corpus, function(x) removeWords(x, stopwords("english")));
 
 #stemming
-#test.corpus <- tm_map(test.corpus, stemDocument)
+test.corpus <- tm_map(test.corpus, stemDocument)
 
 #convert to matrix
 test_matrix <- TermDocumentMatrix(test.corpus, control=list(dictionary=rownames(training_matrix)));

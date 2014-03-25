@@ -15,7 +15,7 @@ from app_classes.models import Class
 
 from datetime import datetime
 from random import choice
-import operator, urllib, re, csv, subprocess, os, pprint
+import operator, urllib, re, csv, subprocess, os, pprint, collections
 import nltk, json
 
 @login_required(redirect_field_name='', login_url='/')
@@ -187,8 +187,8 @@ def exam_details(request, essay_id=None, class_id=None):
 			writer.writerows(new_rows_list)
 			file2.close()
 
-			os.remove(trainingcsv)
-			os.rename('training_corrected.csv',trainingcsv)
+			os.remove(directory+'/'+trainingcsv)
+			os.rename(directory+'/'+'training_corrected.csv',directory+'/'+trainingcsv)
 
 			##################### correcting misspelled words in test ###########################
 			files = directory+'/'+testcsv
@@ -197,7 +197,7 @@ def exam_details(request, essay_id=None, class_id=None):
 			new_rows_list = []
 
 			for row in reader:
-				new_row = ' '.join(correct(t) for t in words(row[0])), row[1]
+				new_row = ' '.join(correct(t) for t in words(row[0])), row[1], row[2]
 				new_rows_list.append(new_row)
 
 			file1.close()
@@ -207,14 +207,14 @@ def exam_details(request, essay_id=None, class_id=None):
 			writer.writerows(new_rows_list)
 			file2.close()
 
-			os.remove(testcsv)
-			os.rename('test_corrected.csv',testcsv)
+			os.remove(directory+'/'+testcsv)
+			os.rename(directory+'/'+'test_corrected.csv',directory+'/'+testcsv)
 
 			#CALL R SCRIPT. PLEASE CHANGE THE LOCATION OF Rscript EXECUTABLE
 			resultcsv = 'result.csv'
-			retcode = subprocess.call(['/app/vendor/R/lib64/R/bin/Rscript', './app_essays/train.R', directory, trainingcsv])
+			retcode = subprocess.call(['/Library/Frameworks/R.framework/Versions/3.0/Resources/bin/Rscript', './app_essays/train.R', directory, trainingcsv])
 			print retcode
-			retcode = subprocess.call(['/app/vendor/R/lib64/R/bin/Rscript', './app_essays/test.R', directory, testcsv, resultcsv, directory+'/myLSAspace.RData', trainingcsv])
+			retcode = subprocess.call(['/Library/Frameworks/R.framework/Versions/3.0/Resources/bin/Rscript', './app_essays/test.R', directory, testcsv, resultcsv, directory+'/myLSAspace.RData', trainingcsv])
 			print retcode
 			print "****************** END TESTING ***********************"
 			with open(directory+'/'+resultcsv, 'rb') as resultfile:
@@ -223,9 +223,8 @@ def exam_details(request, essay_id=None, class_id=None):
 					essaypk = row[2]
 					essaygrade = row[1]
 					essay_response = EssayResponse.objects.get(pk=essaypk) #[err for er in essay_responses if er.pk == essaypk]
-					essay_near = EssayResponse.objects.get(id=essaygrade)
-					print(essay_near.id)
-					essay_response.computer_grade = essay_near.grade
+					
+					essay_response.computer_grade = Grade.objects.get(pk=essaygrade)
 					essay_response.save()
 
 			#for essay_response in essay_responses:
@@ -252,7 +251,7 @@ def train(features):
         model[f] += 1
     return model
 
-NWORDS = train(words(file('dictionary.txt').read()))
+NWORDS = train(words(file('./app_essays/dictionary.txt').read()))
 
 alphabet = 'abcdefghijklmnopqrstuvwxyz'
 
