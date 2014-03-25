@@ -1,24 +1,37 @@
 # args[1] directory [2] testcsv [3] resultcsv [4] myLSAspace [5] trainingcsv
 library(tm);
 library(lsa);
-library(FNN);
+library(MASS);
 
 args <- commandArgs(trailingOnly = TRUE)
-args <- c("/home/nowhere/Desktop/CS199TECS/app_essays/essays/computers", "test.csv", "result.csv")
+setwd(args[1])
+
+args <- c("./essays/computers", "test.csv", "result.csv")
 
 featureVectors <- list()
+
+#Mode <- function(x) {
+#  ux <- unique(x)
+#  ux[which.max(tabulate(match(x, ux)))]
+#}
 
 Mode <- function(x) {
   ux <- unique(x)
   ux[which.max(tabulate(match(x, ux)))]
 }
 
+whichpart <- function(x, n=3) {
+  nx <- length(x)
+  p <- nx-n+1
+  xp <- sort(x, partial=p)[p:nx]
+  c(which(x==xp[1])[1],  which(x==xp[2])[1],  which(x==xp[3])[1])
+}
 
-setwd(args[1])
+#setwd(args[1])
 testFile = args[2]
 automatedScores = args[3]
 #training_file = args[5]
-load('myLSAspace.RData')
+#load('myLSAspace.RData')
 load('training_matrix.RData')
 load('TrainingMatrix.RData')
 load('training_file.RData')
@@ -38,7 +51,7 @@ test.corpus <- tm_map(test.corpus, tolower);
 test.corpus <- tm_map(test.corpus, function(x) removeWords(x, stopwords("english")));
 
 #stemming
-test.corpus <- tm_map(test.corpus, stemDocument)
+#test.corpus <- tm_map(test.corpus, stemDocument)
 
 #convert to matrix
 test_matrix <- TermDocumentMatrix(test.corpus, control=list(dictionary=rownames(training_matrix)));
@@ -49,24 +62,77 @@ TestMatrix = weightTfIdf(test_matrix, normalize=F)
 n <- as.matrix(TestMatrix)
 
 #fold in the test matrix to exisitng LSA Space
-tem_red = fold_in(n, myLSAspace)
-j <- as.matrix(tem_red)
+#tem_red = fold_in(n, myLSAspace)
+#j <- as.matrix(tem_red)
 
 train <- as.matrix(TrainingMatrix)
-TrainingMatrix = "";
+rm(TrainingMatrix)
+
+if(ncol(train) < 35) j <- ceiling(ncol(train)/5)
+if(ncol(train) >= 35) j <- 35 # 35 will be the minimum
+cand <- mat.or.vec(j,2)
+
+for(i in 1:j){
+  cand[i,1] <- (kmeans(t(train), i+2))$tot.withinss
+  cand[i,2] <- i + 2
+}
+
+if(j>1)
+	result <- mat.or.vec(j-1,1)
+if(j<=1)
+	result <- mat.or.vec(j,1)
+
+if(nrow(cand) > 1)
+	result[1:j-1] <- cand[1:j-1,1] - cand[2:j,1];
+if(nrow(cand) <= 1)
+	result[1] <- cand[1];
+
+result[result<0] <- ""
+rm(cand)
+
+k <- which.min(result)
+
+rm(result)
+centers_kmeans <- (kmeans(t(train), k, algorithm="Hartigan-Wong"))
+centers_kmeans <- t(centers_kmeans$centers)
+
+a <- 0.04
+centers_kmeans[abs(centers_kmeans) <a] <- 0
+
+inv <- ginv(t(centers_kmeans) %*% centers_kmeans)
+X_train <-  inv %*% (t(centers_kmeans) %*% train)
+Q_test <- inv %*% (t(centers_kmeans) %*% n);
+
+rm(train, n, inv, centers_kmeans)
 
 pred <- td[,2]
-knnn = ""
+cos <- mat.or.vec(ncol(Q_test),ncol(X_train))
+    
+for(a in 1:ncol(Q_test)){
+  for(b in 1:ncol(X_train)){
+    cos[a,b] <- cosine(Q_test[,a],X_train[,b])
+  }
+}
 
-knnnn=knn(t(train),t(j),cl=training_file[,2],k=3)
-indices = attr(knnnn, "nn.index")
-a = training_file[indices,2]
+sco <- as.matrix(apply(cos[,1:ncol(X_train)], 1, whichpart))
+a = training_file[sco,2]
 h <- matrix(a,ncol = 3)
 k <- as.matrix(apply(h[,3:1], 1, Mode))
-#plot(knnnn)
 
+td[,2] <- k
+#knnn = ""
+
+#knnnn=knn(t(train),t(j),cl=training_file[,2],k=3)
+#indices = attr(knnnn, "nn.index")
+#a = training_file[indices,2]
+#h <- matrix(a,ncol = 3)
+#k <- as.matrix(apply(h[,3:1], 1, Mode))
+#plot(knnnn)
 confusion <- table(factor(k, levels = unique(pred)),pred)
-EAA <- sum(diag(confusion))/ncol(j)
+print(confusion)
+rm(pred, cos)
+
+EAA <- sum(diag(confusion))/ncol(Q_test)
 
 write.table(td, file=automatedScores,row.names=FALSE, col.names=FALSE, sep=",")
 write.table(confusion, file=paste("EAA_ConfusionMatrix.csv"))
@@ -74,9 +140,9 @@ write.table(confusion, file=paste("EAA_ConfusionMatrix.csv"))
 AAA <- sum(diag(confusion))
 AAA <- AAA + sum(diag(confusion[2:nrow(confusion),1:ncol(confusion)-1]))
 AAA <- AAA + sum(diag(confusion[1:nrow(confusion)-1,2:ncol(confusion)]))
-AAA <- AAA/ncol(j)
+AAA <- AAA/ncol(Q_test)
 
 resultMatrix <- do.call(rbind, featureVectors)
 
 colnames(resultMatrix) <- c("EAA","AAA")
-write.csv(resultMatrix, file="resultMatrix_knn.csv")
+write.csv(resultMatrix, file="resultMatrix_ci_knn.csv")

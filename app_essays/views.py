@@ -149,7 +149,8 @@ def exam_details(request, essay_id=None, class_id=None):
 			possible_grade_values = Grade.objects.filter(grading_system=essay.grading_system)
 
 			#CREATE A FOLDER FOR THE ESSAYTOPIC
-			directory = './app_essays/essays/'+str(essay.pk)+' '+essay.title.lower()
+			title = re.sub('[^A-Za-z\s]+', '', essay.title).lower()
+			directory = './app_essays/essays/'+str(essay.pk)+' '+title
 			if not os.path.exists(directory):
 				os.makedirs(directory)
 
@@ -171,18 +172,20 @@ def exam_details(request, essay_id=None, class_id=None):
 
 			#CALL R SCRIPT. PLEASE CHANGE THE LOCATION OF Rscript EXECUTABLE
 			resultcsv = 'result.csv'
-			retcode = subprocess.call(['/usr/bin/Rscript', './app_essays/train.R', directory, trainingcsv])
+			retcode = subprocess.call(['/app/vendor/R/lib64/R/bin/Rscript', './app_essays/train.R', directory, trainingcsv])
 			print retcode
-			retcode = subprocess.call(['/usr/bin/Rscript', './app_essays/test.R', directory, testcsv, resultcsv, directory+'/myLSAspace.RData', trainingcsv])
+			retcode = subprocess.call(['/app/vendor/R/lib64/R/bin/Rscript', './app_essays/test.R', directory, testcsv, resultcsv, directory+'/myLSAspace.RData', trainingcsv])
 			print retcode
 			with open(directory+'/'+resultcsv, 'rb') as resultfile:
 				resultreader = csv.reader(resultfile, delimiter=',', quotechar='|')
 				for row in resultreader:
 					essaypk = row[2]
 					essaygrade = row[1]
-					essay_response = [er for er in essay_responses if er == essaypk]
-					er.computer_grade.pk = essaygrade.pk
-					er.save()
+					essay_response = EssayResponse.objects.get(pk=essaypk) #[err for er in essay_responses if er.pk == essaypk]
+					essay_near = EssayResponse.objects.get(id=essaygrade)
+					print(essay_near.id)
+					essay_response.computer_grade = essay_near.grade
+					essay_response.save()
 
 			#for essay_response in essay_responses:
 			#	essay_response.computer_grade = choice(possible_grade_values)
@@ -244,8 +247,8 @@ def answer_essay(request, essay_response_id):
 			essay_response.response = response_data
 			essay_response.save()
 
-			#if 'draft' in request.POST:
-			#	return redirect('essays:answer', essay_response_id=essay_response.pk)
+			if 'draft' in request.POST:
+				return redirect('essays:answer', essay_response_id=essay_response.pk)
 
 			if 'final' in request.POST:
 				essay_response.status = 2
