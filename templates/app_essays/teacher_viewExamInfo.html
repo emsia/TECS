@@ -69,9 +69,9 @@ TECS: Test Essay Checking Software | Essay
                                                                 {% if essay_response.status == 2 and essay_response.grade == null %}
                                                                         <p class="text-error">Needs Grading</p>
                                                                 {% elif essay_response.status == 2 %}
-                                                                        OK
+                                                                        <p class="text-success">OK</p>
                                                                 {% else %}
-                                                                        No response yet
+                                                                        <p class="text-error">No response yet</p>
                                                                 {% endif %}</td>
                                                         <td>
                                                                 {% if essay_response.grade == null %}
@@ -198,4 +198,5 @@ TECS: Test Essay Checking Software | Essay
                 </div>
         </div>
 </form>
+>>>>>>> edfb789330b4968deb6e0d6fb4dfa95104c85768
 {% endblock %}

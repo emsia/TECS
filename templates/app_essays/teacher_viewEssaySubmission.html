@@ -132,16 +132,16 @@ TECS: Test Essay Checking Software | Essay
 </div>
 
 <div id="back" class="modal fade hide" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-	<div class="modal-header">
+	<div class="modal-header palette-sun-flower">
 		<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-		<h3 class="text-warning">Warning!</h3>
+		<h3 class="text-white">Warning!</h3>
 	</div>
 	<div class="modal-body">
 		<p>You are about to go back to the previous page. If you decide to <strong>continue</strong>, please take note that any changes made will be discarded.</p>
 	</div>
 	<div class="modal-footer">		
-		<a href="{% url 'essays:list' %}" class="btn btn-inverse" aria-hidden="true"><span class="fui-arrow-left"></span> Continue</a>
-		<button class="btn btn-primary" data-dismiss="modal" aria-hidden="true">Close</button>
+		<a href="{% url 'essays:details' essay_response.essay.id essay_response.essayclass.id %}" class="btn btn-primary pull-left" aria-hidden="true"><span class="fui-arrow-left"></span> Continue</a>
+		<button class="btn btn-inverse" data-dismiss="modal" aria-hidden="true">Close</button>
 	</div>
 </div>
 

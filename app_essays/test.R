@@ -1,7 +1,7 @@
 # args[1] directory [2] testcsv [3] resultcsv [4] myLSAspace [5] trainingcsv
-library(tm);
-library(lsa);
-library(MASS);
+library(tm)
+library(lsa)
+library(MASS)
 
 args <- commandArgs(trailingOnly = TRUE)
 setwd(args[1])
@@ -68,8 +68,11 @@ n <- as.matrix(TestMatrix)
 train <- as.matrix(TrainingMatrix)
 rm(TrainingMatrix)
 
-if(ncol(train) < 35) j <- ceiling(ncol(train)/5)
-if(ncol(train) >= 35) j <- 35 # 35 will be the minimum
+if(ncol(train) <= 35){
+  j <- ceiling(ncol(train)/5)
+} else
+  j <- 35 # 35 will be the minimum
+
 cand <- mat.or.vec(j,2)
 
 for(i in 1:j){
@@ -77,18 +80,17 @@ for(i in 1:j){
   cand[i,2] <- i + 2
 }
 
-if(j>1)
+if(j>1){
 	result <- mat.or.vec(j-1,1)
-if(j<=1)
+} else
 	result <- mat.or.vec(j,1)
 
-if(nrow(cand) > 1)
+if(nrow(cand) > 1){
 	result[1:j-1] <- cand[1:j-1,1] - cand[2:j,1];
-if(nrow(cand) <= 1)
+} else
 	result[1] <- cand[1];
 
 result[result<0] <- ""
-rm(cand)
 
 k <- which.min(result)
 
@@ -128,21 +130,21 @@ td[,2] <- k
 #h <- matrix(a,ncol = 3)
 #k <- as.matrix(apply(h[,3:1], 1, Mode))
 #plot(knnnn)
-confusion <- table(factor(k, levels = unique(pred)),pred)
-print(confusion)
-rm(pred, cos)
+#confusion <- table(factor(k, levels = unique(pred)),pred)
 
-EAA <- sum(diag(confusion))/ncol(Q_test)
+#rm(pred, cos)
+
+#EAA <- sum(diag(confusion))/ncol(Q_test)
 
 write.table(td, file=automatedScores,row.names=FALSE, col.names=FALSE, sep=",")
-write.table(confusion, file=paste("EAA_ConfusionMatrix.csv"))
+#write.table(confusion, file=paste("EAA_ConfusionMatrix.csv"))
 
-AAA <- sum(diag(confusion))
-AAA <- AAA + sum(diag(confusion[2:nrow(confusion),1:ncol(confusion)-1]))
-AAA <- AAA + sum(diag(confusion[1:nrow(confusion)-1,2:ncol(confusion)]))
-AAA <- AAA/ncol(Q_test)
+#AAA <- sum(diag(confusion))
+#AAA <- AAA + sum(diag(confusion[2:nrow(confusion),1:ncol(confusion)-1]))
+#AAA <- AAA + sum(diag(confusion[1:nrow(confusion)-1,2:ncol(confusion)]))
+#AAA <- AAA/ncol(Q_test)
 
-resultMatrix <- do.call(rbind, featureVectors)
+#resultMatrix <- do.call(rbind, featureVectors)
 
-colnames(resultMatrix) <- c("EAA","AAA")
-write.csv(resultMatrix, file="resultMatrix_ci_knn.csv")
+#colnames(resultMatrix) <- c("EAA","AAA")
+#write.csv(resultMatrix, file="resultMatrix_ci_knn.csv")

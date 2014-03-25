@@ -399,10 +399,10 @@ def grading_system_new(request):
 				cd_grades = formGrade2.cleaned_data
 
 				if cd_grades['start'] < cd_grades['end']:
-					for idx, grade in enumerate(numpy.arange(cd_grades['start'], cd_grades['end']-1, abs(cd_grades['step']))):
+					for idx, grade in enumerate(numpy.arange(cd_grades['start'], cd_grades['end']+1, abs(cd_grades['step']))):
 						Grade.objects.create(grading_system=cd_sys, name=grade, value=idx)
 				else:
-					for idx, grade in enumerate(numpy.arange(cd_grades['start'], cd_grades['end']+1, -abs(cd_grades['step']))):
+					for idx, grade in enumerate(numpy.arange(cd_grades['start'], cd_grades['end']-1, -abs(cd_grades['step']))):
 						Grade.objects.create(grading_system=cd_sys, name=grade, value=idx)
 				
 				return redirect('auth:gradesys')
