@@ -19,7 +19,7 @@ from django.core.exceptions import ValidationError
 from django import forms
 from django.contrib.sites.models import RequestSite
 from django.contrib.sites.models import Site
-
+from django.db.models import Q
 from django.forms.widgets import Textarea
 from django.utils import timezone
 from django.core.mail import EmailMessage
@@ -339,9 +339,8 @@ def delete_teacher(request):
 @login_required(redirect_field_name='', login_url='/')
 def delete(request):
 	class_info = get_object_or_404(Class, pk=request.POST['class_id'])
-	on_going_essays = Essay.objects.filter(instructor_id = class_info.teacher.id, status=1, class_name=class_info).filter(start_date__lte=timezone.now(), deadline__gte=timezone.now()).all()
-	past_essays = Essay.objects.get(instructor_id = class_info.teacher.id, class_name=class_info)
-	needs = EssayResponse.objects.filter(essay_id=past_essays.id, final_grade=None).exists()
+	on_going_essays = Essay.objects.filter(class_name=class_info,instructor_id = Teacher.objects.get(user_id = request.user.id).id, status=1).filter(start_date__lte=timezone.now(), deadline__gte=timezone.now()).all()
+	needs = EssayResponse.objects.filter(~Q(grade=None), essayclass=class_info, essay__status=1, essayclass__teacher=Teacher.objects.get(user_id = request.user.id), essay__deadline__lt=timezone.now()).exists()
 	message = ''
 
 	if len(on_going_essays) and needs:
@@ -353,9 +352,7 @@ def delete(request):
 	errr = 1
 
 	if len(on_going_essays) < 1 and not needs:
-		essays = get_object_or_404(Essay, pk=past_essays.id)
 		class_info.delete()
-		essays.delete()
 		errr = 0
 		message = 'You successfully deleted a class.'
 	place = None
