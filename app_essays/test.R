@@ -79,4 +79,3 @@ k <- as.matrix(apply(h[,3:1], 1, Mode))
 testfile[,2] <- k
 
 write.table(testfile, file=automatedScores,row.names=FALSE, col.names=FALSE, sep=",")
-testfile

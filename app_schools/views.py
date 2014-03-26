@@ -271,3 +271,14 @@ def send_newPassword(request):
 		error = 0
 
 	return viewSchoolAdmins(request, school_id, message, error, True)
+
+@login_required(redirect_field_name='', login_url='/')
+def disableAdmin(request, admin_id, school_id):
+	admin_info = get_object_or_404(Admin, pk=admin_id)
+	try:
+		user_info = get_object_or_404(User, pk=admin_info.user.id)
+		user_info.is_active = not user_info.is_active
+		user_info.save()
+	except:
+		pass
+	return redirect('schools:viewSchool', school_id=school_id)

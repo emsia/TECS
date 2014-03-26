@@ -51,6 +51,7 @@ TECS: Test Essay Checking Software | Home
 						<th><center>First name</center></th>
 						<th><center>Email</center></th>
 						<th><center>Status</center></th>
+						<th><center>Disable</center></th>
 						<th><center>Resend Password</center></th>
 						<th><center>Remove</center></th>
 					</tr>
@@ -64,6 +65,7 @@ TECS: Test Essay Checking Software | Home
 						<td><center>{{admin.user.email}}</center></td>
 						<td><center>{% if admin.user.is_active %}<center style="color:#1abc9c">Active</center>
 						{% else %}<center style="color:red">Inactive</center></td>{% endif %} 
+						<td><center>{% if admin.user.is_active %}<a href="{% url 'schools:disableAdmin' admin.id school.id %}" class="btn btn-warning fui-play"></a>{% else %}<a href="{% url 'schools:disableAdmin' admin.id school.id %}" class="btn btn-inverse fui-pause">{% endif %}</center></td>
 						<td><center><a 
 						{% if admin.user.is_active %}
 							class="btn btn-success disabled fui-lock"

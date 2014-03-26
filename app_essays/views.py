@@ -15,7 +15,7 @@ from app_classes.models import Class
 
 from datetime import datetime
 from random import choice
-import operator, urllib, re, csv, subprocess, os, pprint
+import operator, urllib, re, csv, subprocess, os, pprint, collections
 import nltk, json
 
 @login_required(redirect_field_name='', login_url='/')
@@ -149,8 +149,8 @@ def exam_details(request, essay_id=None, class_id=None):
 			possible_grade_values = Grade.objects.filter(grading_system=essay.grading_system)
 
 			#CREATE A FOLDER FOR THE ESSAYTOPIC
-			#directory = './app_essays/essays/'+str(essay.pk)+' '+essay.title.lower()
-			directory = './app_essays/essays/'+str(request.user.pk)+' '+essay.title.lower()
+			title = re.sub('[^A-Za-z\s]+', '', essay.title).lower()
+			directory = './app_essays/essays/'+str(request.user.pk)+' '+title
 			if not os.path.exists(directory):
 				os.makedirs(directory)
 
@@ -168,15 +168,53 @@ def exam_details(request, essay_id=None, class_id=None):
 						if essay_response.grade is not None:
 							csvwriter_training.writerow([e, essay_response.grade.pk])
 						else:
-							csvwriter_test.writerow([e, ' ', essay_response.pk])
+							csvwriter_test.writerow([e, '', essay_response.pk])
 							forautograding+=1
+			################### correcting misspelled words in training ##############################
+			files = directory+'/'+trainingcsv
+			file1 = open(files, 'rb')
+			reader = csv.reader(file1)
+			new_rows_list = []
+
+			for row in reader:
+				new_row = ' '.join(correct(t) for t in words(row[0])), row[1]
+				new_rows_list.append(new_row)
+
+			file1.close()
+			file2 = open(directory+'/'+'training_corrected.csv', 'wb')
+
+			writer = csv.writer(file2)
+			writer.writerows(new_rows_list)
+			file2.close()
+
+			os.remove(directory+'/'+trainingcsv)
+			os.rename(directory+'/'+'training_corrected.csv',directory+'/'+trainingcsv)
+
+			##################### correcting misspelled words in test ###########################
+			files = directory+'/'+testcsv
+			file1 = open(files, 'rb')
+			reader = csv.reader(file1)
+			new_rows_list = []
+
+			for row in reader:
+				new_row = ' '.join(correct(t) for t in words(row[0])), row[1], row[2]
+				new_rows_list.append(new_row)
+
+			file1.close()
+			file2 = open(directory+'/'+'test_corrected.csv', 'wb')
+
+			writer = csv.writer(file2)
+			writer.writerows(new_rows_list)
+			file2.close()
+
+			os.remove(directory+'/'+testcsv)
+			os.rename(directory+'/'+'test_corrected.csv',directory+'/'+testcsv)
 
 			#CALL R SCRIPT. PLEASE CHANGE THE LOCATION OF Rscript EXECUTABLE
 			resultcsv = 'result.csv'
-			retcode = subprocess.call(['/usr/bin/Rscript', './app_essays/train.R', directory[2:], trainingcsv])
+			retcode = subprocess.call(['/Library/Frameworks/R.framework/Versions/3.0/Resources/bin/Rscript', './app_essays/train.R', directory, trainingcsv])
 			print retcode
-			print "****************** END TRAINING ***********************"
-			retcode = subprocess.call(['/usr/bin/Rscript', './app_essays/test.R', directory[2:], testcsv, resultcsv])
+			retcode = subprocess.call(['/Library/Frameworks/R.framework/Versions/3.0/Resources/bin/Rscript', './app_essays/test.R', directory, testcsv, resultcsv, directory+'/myLSAspace.RData', trainingcsv])
 			print retcode
 			print "****************** END TESTING ***********************"
 			with open(directory+'/'+trainingcsv, 'a') as trainingfiles, open(directory+'/'+resultcsv, 'rb') as resultfile:
@@ -198,14 +236,44 @@ def exam_details(request, essay_id=None, class_id=None):
 		students = essayclass.student.all()
 		essay_responses = sorted(EssayResponse.objects.filter(essay_id=essay.pk, essayclass_id=class_id), key=operator.attrgetter('student.user.last_name', 'student.user.first_name')) # I used this way of sorting because we cannot use order_by() for case insensitive sorting :(
 		all_graded = not EssayResponse.objects.filter(essay_id=essay.pk, essayclass_id=class_id, grade=None).exists()
-		print all_graded
+
 		if essay.deadline >= timezone.now():
 			is_deadline = False
 			return render(request, 'app_essays/teacher_viewExamInfo.html', {'avatar':avatar, 'active_nav':'EXAMS', 'essay':essay, 'essayclass':essayclass, 'essay_responses':essay_responses, 'is_deadline':is_deadline, 'all_graded':all_graded})
 		else:
 			is_deadline = True
+			all_graded = EssayResponse.objects.filter(essay_id=essay.pk, grade=None).exists()
 			return render(request, 'app_essays/teacher_viewExamInfo.html', {'avatar':avatar, 'active_nav':'EXAMS', 'essay':essay, 'essayclass':essayclass, 'essay_responses':essay_responses, 'all_graded':all_graded, 'is_deadline':is_deadline})
-	
+
+def words(text): return re.findall('[a-z]+', text.lower()) 
+
+def train(features):
+    model = collections.defaultdict(lambda: 1)
+    for f in features:
+        model[f] += 1
+    return model
+
+NWORDS = train(words(file('./app_essays/dictionary.txt').read()))
+
+alphabet = 'abcdefghijklmnopqrstuvwxyz'
+
+def edits1(word):
+   splits     = [(word[:i], word[i:]) for i in range(len(word) + 1)]
+   deletes    = [a + b[1:] for a, b in splits if b]
+   transposes = [a + b[1] + b[0] + b[2:] for a, b in splits if len(b)>1]
+   replaces   = [a + c + b[1:] for a, b in splits for c in alphabet if b]
+   inserts    = [a + c + b     for a, b in splits for c in alphabet]
+   return set(deletes + transposes + replaces + inserts)
+
+def known_edits2(word):
+    return set(e2 for e1 in edits1(word) for e2 in edits1(e1) if e2 in NWORDS)
+
+def known(words): return set(w for w in words if w in NWORDS)
+
+def correct(word):
+    candidates = known([word]) or known(edits1(word)) or known_edits2(word) or [word]
+    return max(candidates, key=NWORDS.get)
+
 @login_required(redirect_field_name='', login_url='/')
 def answer_essay(request, essay_response_id):
 	active_nav = "EXAMS"
@@ -250,8 +318,8 @@ def answer_essay(request, essay_response_id):
 			essay_response.response = response_data
 			essay_response.save()
 
-			#if 'draft' in request.POST:
-			#	return redirect('essays:answer', essay_response_id=essay_response.pk)
+			if 'draft' in request.POST:
+				return redirect('essays:answer', essay_response_id=essay_response.pk)
 
 			if 'final' in request.POST:
 				essay_response.status = 2
