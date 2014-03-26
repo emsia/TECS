@@ -21,7 +21,7 @@ training.corpus <- tm_map(training.corpus, tolower);
 training.corpus <- tm_map(training.corpus, function(x) removeWords(x, stopwords("english")));
     
 #stemming
-training.corpus <- tm_map(training.corpus, stemDocument)
+#training.corpus <- tm_map(training.corpus, stemDocument)
     
 #gagawin lang nyang matrix yung termdocument matrix
 training_matrix <- TermDocumentMatrix(training.corpus);
@@ -29,7 +29,7 @@ save(training_matrix, file='training_matrix.RData')
     
 #tfidf weightTfIdf
 #TrainingMatrix = lw_logtf(training_matrix) * gw_idf(training_matrix)
-TrainingMatrix = weightTfIdf(training_matrix, normalize=F)
+TrainingMatrix = weightTfIdf(training_matrix, normalize=T)
 save(TrainingMatrix, file='TrainingMatrix.RData')
 
 #LSA

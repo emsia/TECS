@@ -51,14 +51,14 @@ test.corpus <- tm_map(test.corpus, tolower);
 test.corpus <- tm_map(test.corpus, function(x) removeWords(x, stopwords("english")));
 
 #stemming
-test.corpus <- tm_map(test.corpus, stemDocument)
+#test.corpus <- tm_map(test.corpus, stemDocument)
 
 #convert to matrix
 test_matrix <- TermDocumentMatrix(test.corpus, control=list(dictionary=rownames(training_matrix)));
 
 #TFIDF -- bnag kaka NaN(not a numeric) dahil hindi nag eexist yung word. Dapat machange to "0" yung mga NaN
 #TestMatrix = lw_logtf(test_matrix) * gw_idf(test_matrix)
-TestMatrix = weightTfIdf(test_matrix, normalize=F)
+TestMatrix = weightTfIdf(test_matrix, normalize=T)
 n <- as.matrix(TestMatrix)
 
 #fold in the test matrix to exisitng LSA Space
@@ -81,20 +81,19 @@ for(i in 1:j){
 }
 
 if(j>1){
-	result <- mat.or.vec(j-1,1)
+  result <- mat.or.vec(j-1,1)
 } else
-	result <- mat.or.vec(j,1)
+  result <- mat.or.vec(j,1)
 
 if(nrow(cand) > 1){
-	result[1:j-1] <- cand[1:j-1,1] - cand[2:j,1];
+  result[1:j-1] <- cand[1:j-1,1] - cand[2:j,1];
 } else
-	result[1] <- cand[1];
+  result[1] <- cand[1];
 
 result[result<0] <- ""
 
 k <- which.min(result)
 
-rm(result)
 centers_kmeans <- (kmeans(t(train), k, algorithm="Hartigan-Wong"))
 centers_kmeans <- t(centers_kmeans$centers)
 
@@ -104,8 +103,6 @@ centers_kmeans[abs(centers_kmeans) <a] <- 0
 inv <- ginv(t(centers_kmeans) %*% centers_kmeans)
 X_train <-  inv %*% (t(centers_kmeans) %*% train)
 Q_test <- inv %*% (t(centers_kmeans) %*% n);
-
-rm(train, n, inv, centers_kmeans)
 
 pred <- td[,2]
 cos <- mat.or.vec(ncol(Q_test),ncol(X_train))
@@ -130,14 +127,15 @@ td[,2] <- k
 #h <- matrix(a,ncol = 3)
 #k <- as.matrix(apply(h[,3:1], 1, Mode))
 #plot(knnnn)
-#confusion <- table(factor(k, levels = unique(pred)),pred)
+
+confusion <- table(factor(k, levels = unique(pred)),pred)
 
 #rm(pred, cos)
 
-#EAA <- sum(diag(confusion))/ncol(Q_test)
+EAA <- sum(diag(confusion))/ncol(Q_test)
 
 write.table(td, file=automatedScores,row.names=FALSE, col.names=FALSE, sep=",")
-#write.table(confusion, file=paste("EAA_ConfusionMatrix.csv"))
+write.table(confusion, file=paste0(EAA,"_EAA_ConfusionMatrix.csv"),sep=",")
 
 #AAA <- sum(diag(confusion))
 #AAA <- AAA + sum(diag(confusion[2:nrow(confusion),1:ncol(confusion)-1]))
