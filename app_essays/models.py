@@ -43,9 +43,6 @@ class Essay(models.Model):
 	def __str__(self):
 		return self.title
 
-	def is_all_graded(self):
-		return not EssayResponse.objects.filter(essay_id=self.pk, final_grade=None).exists()
-
 class EssayResponse(models.Model):
 	essay = models.ForeignKey(Essay)
 	essayclass = models.ForeignKey(Class)

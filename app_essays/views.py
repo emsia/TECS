@@ -87,7 +87,7 @@ def list_essay(request, errors=None, success=None):
 
 		on_queue_essays = Essay.objects.filter(instructor_id = Teacher.objects.get(user_id = request.user.id).id, status=1).filter(start_date__gt=timezone.now()).all()
 		on_going_essays = Essay.objects.filter(instructor_id = Teacher.objects.get(user_id = request.user.id).id, status=1).filter(start_date__lte=timezone.now(), deadline__gte=timezone.now()).all()
-		past_essays = Essay.objects.filter(instructor_id = Teacher.objects.get(user_id = request.user.id).id).filter(deadline__lt=timezone.now())
+		past_essays = Essay.objects.filter(Q(instructor_id = Teacher.objects.get(user_id = request.user.id).id, deadline__lt=timezone.now()) | Q(status=3)).order_by('deadline')
 		
 		#MANUAL WAY TO CHANGE STATUS OF AN ESSAY IF IT'S PAST THE DEADLINE
 		EssayResponse.objects.filter(essay__status=1, essayclass__teacher=Teacher.objects.get(user_id = request.user.id)).filter(essay__deadline__lt=timezone.now()).update(status=2, response='')
@@ -150,7 +150,7 @@ def exam_details(request, essay_id=None, class_id=None):
 
 			#CREATE A FOLDER FOR THE ESSAYTOPIC
 			#directory = './app_essays/essays/'+str(essay.pk)+' '+essay.title.lower()
-			directory = './app_essays/essays/'+essay.title.lower()
+			directory = './app_essays/essays/'+str(request.user.pk)+' '+essay.title.lower()
 			if not os.path.exists(directory):
 				os.makedirs(directory)
 
@@ -197,12 +197,13 @@ def exam_details(request, essay_id=None, class_id=None):
 		essayclass = essay.class_name.get(pk=class_id)
 		students = essayclass.student.all()
 		essay_responses = sorted(EssayResponse.objects.filter(essay_id=essay.pk, essayclass_id=class_id), key=operator.attrgetter('student.user.last_name', 'student.user.first_name')) # I used this way of sorting because we cannot use order_by() for case insensitive sorting :(
+		all_graded = not EssayResponse.objects.filter(essay_id=essay.pk, essayclass_id=class_id, grade=None).exists()
+		print all_graded
 		if essay.deadline >= timezone.now():
 			is_deadline = False
-			return render(request, 'app_essays/teacher_viewExamInfo.html', {'avatar':avatar, 'active_nav':'EXAMS', 'essay':essay, 'essayclass':essayclass, 'essay_responses':essay_responses, 'is_deadline':is_deadline})
+			return render(request, 'app_essays/teacher_viewExamInfo.html', {'avatar':avatar, 'active_nav':'EXAMS', 'essay':essay, 'essayclass':essayclass, 'essay_responses':essay_responses, 'is_deadline':is_deadline, 'all_graded':all_graded})
 		else:
 			is_deadline = True
-			all_graded = EssayResponse.objects.filter(essay_id=essay.pk, grade=None).exists()
 			return render(request, 'app_essays/teacher_viewExamInfo.html', {'avatar':avatar, 'active_nav':'EXAMS', 'essay':essay, 'essayclass':essayclass, 'essay_responses':essay_responses, 'all_graded':all_graded, 'is_deadline':is_deadline})
 	
 @login_required(redirect_field_name='', login_url='/')

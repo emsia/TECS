@@ -99,20 +99,20 @@ TECS: Test Essay Checking Software | Essay
                               
                                 </p>
                         </div>
-                        <!---
+                        
                         <hr>
                         {% if essay.status == 3 %}
                                 <div class="palette palette-nephritis">
                                         <strong><center>GRADES RELEASED</center></strong>
                                 </div>
                         {% else %}
-                                {% if essay.is_all_graded %}
+                                {% if all_graded %}
                                 <a href="#release-grades" class="btn btn-large btn-block btn-primary" data-toggle="modal">Release Grades</a>
                                 {% else %}
                                 <a href="#" class="btn btn-large btn-block disabled">Release Grades</a>
                                 {% endif %}
                         {% endif %}
-                        -->
+                    
                 </div>
         </div>
 </div>
