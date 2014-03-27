@@ -33,32 +33,27 @@ $(document).ready(function () {
 	function addForm(btn, prefix) {
 		var formCount = parseInt($('#id_' + prefix + '-TOTAL_FORMS').val());
 		// You can only submit a maximum of 10 todo items 
-		if (formCount < 10) {
-			// Clone a form (without event handlers) from the first form
-			var row = $(".item:first").clone(false).get(0);
-			// Insert it after the last form
-			$(row).removeAttr('id').hide().insertAfter(".item:last").slideDown(500);
-			// Remove the bits we don't want in the new row/form
-			// e.g. error messages
-			$(".errorlist", row).remove();
-			$(row).children().removeClass("error");
+		// Clone a form (without event handlers) from the first form
+		var row = $(".item:first").clone(false).get(0);
+		// Insert it after the last form
+		$(row).removeAttr('id').hide().insertAfter(".item:last").slideDown(500);
+		// Remove the bits we don't want in the new row/form
+		// e.g. error messages
+		$(".errorlist", row).remove();
+		$(row).children().removeClass("error");
 
-			// Relabel or rename all the relevant bits
-			$(row).children().children().each(function () {
-				updateElementIndex(this, prefix, formCount);
-				$(this).val("");
-			});
+		// Relabel or rename all the relevant bits
+		$(row).children().children().each(function () {
+			updateElementIndex(this, prefix, formCount);
+			$(this).val("");
+		});
 
-			// Add an event handler for the delete item/form link 
-			$(row).find(".delete").click(function () {
-				return deleteForm(this, prefix);
-			});
-			// Update the total form count
-			$("#id_" + prefix + "-TOTAL_FORMS").val(formCount + 1);
-		} // End if
-		else {
-			alert("Sorry, you can only enter a maximum of ten items.");
-		}
+		// Add an event handler for the delete item/form link 
+		$(row).find(".delete").click(function () {
+			return deleteForm(this, prefix);
+		});
+		// Update the total form count
+		$("#id_" + prefix + "-TOTAL_FORMS").val(formCount + 1);
 		return false;
 	}
 	// Register the click event handlers

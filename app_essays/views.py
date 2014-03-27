@@ -238,14 +238,14 @@ def exam_details(request, essay_id=None, class_id=None):
 		students = essayclass.student.all()
 		essay_responses = sorted(EssayResponse.objects.filter(essay_id=essay.pk, essayclass_id=class_id), key=operator.attrgetter('student.user.last_name', 'student.user.first_name')) # I used this way of sorting because we cannot use order_by() for case insensitive sorting :(
 		all_graded = not EssayResponse.objects.filter(essay_id=essay.pk, essayclass_id=class_id, grade=None).exists()
-
+		graded_essay_count =  len(EssayResponse.objects.filter(~Q(grade=None), essay_id=essay.pk, essayclass_id=class_id))
 		if essay.deadline >= timezone.now():
 			is_deadline = False
-			return render(request, 'app_essays/teacher_viewExamInfo.html', {'avatar':avatar, 'active_nav':'EXAMS', 'essay':essay, 'essayclass':essayclass, 'essay_responses':essay_responses, 'is_deadline':is_deadline, 'all_graded':all_graded})
+			return render(request, 'app_essays/teacher_viewExamInfo.html', {'avatar':avatar, 'active_nav':'EXAMS', 'essay':essay, 'essayclass':essayclass, 'essay_responses':essay_responses, 'is_deadline':is_deadline, 'all_graded':all_graded, 'graded_essay_count':graded_essay_count})
 		else:
 			is_deadline = True
 			all_graded = EssayResponse.objects.filter(essay_id=essay.pk, grade=None).exists()
-			return render(request, 'app_essays/teacher_viewExamInfo.html', {'avatar':avatar, 'active_nav':'EXAMS', 'essay':essay, 'essayclass':essayclass, 'essay_responses':essay_responses, 'all_graded':all_graded, 'is_deadline':is_deadline})
+			return render(request, 'app_essays/teacher_viewExamInfo.html', {'avatar':avatar, 'active_nav':'EXAMS', 'essay':essay, 'essayclass':essayclass, 'essay_responses':essay_responses, 'all_graded':all_graded, 'is_deadline':is_deadline, 'graded_essay_count':graded_essay_count})
 
 def words(text): return re.findall('[a-z]+', text.lower()) 
 
@@ -365,7 +365,7 @@ def essay_submission(request, class_id=None, essay_response_id=None):
 			raise Http404
 		else:
 			essayclass = essay_response.essay.class_name.get(pk=class_id)
-			if essay_response.grade == None:
+			if essay_response.grade == None or ('edit' in request.GET and request.GET['edit']):
 				#SPELLING AND GRAMMAR CHECKER
 				#c = pycurl.Curl()
 				#url_param = "http://localhost:8081/?language=en-US&text="+urllib.quote_plus(essay_response.response)
@@ -398,7 +398,7 @@ def essay_submission(request, class_id=None, essay_response_id=None):
 								c.save()
 						return redirect('essays:submission', essayclass.pk, essay_response.pk)
 				else:
-					er_form = EssayResponseGradeForm()
+					er_form = EssayResponseGradeForm(initial={'grade':essay_response.grade, 'general_feedback':essay_response.general_feedback})
 					er_form.fields['grade'].queryset = Grade.objects.filter(grading_system = essay_response.essay.grading_system).order_by('value')
 					c_formset = EssayCommentFormSet()
 
@@ -406,11 +406,11 @@ def essay_submission(request, class_id=None, essay_response_id=None):
 					 'c_formset': c_formset,
 					}
 				c.update(csrf(request))
-				return render(request, 'app_essays/teacher_viewEssaySubmission.html', {'avatar':avatar, 'active_nav':'EXAMS', 'essay_response':essay_response, 'has_submission':has_submission, 'er_form':er_form, 'c_formset':c_formset, 'numbered_response':numbered_response, 'essayclass':essayclass})
-			
-			else:
-				
 				comments = EssayComment.objects.filter(essay=essay_response)
+				return render(request, 'app_essays/teacher_viewEssaySubmission.html', {'avatar':avatar, 'active_nav':'EXAMS', 'essay_response':essay_response, 'has_submission':has_submission, 'er_form':er_form, 'c_formset':c_formset, 'numbered_response':numbered_response, 'essayclass':essayclass, 'comments':comments})
+			
+			else:			
+				comments = EssayComment.objects.filter(essay=essay_response).order_by('start', 'end')
 				return render(request, 'app_essays/teacher_viewEssaySubmission_Graded.html', {'avatar':avatar, 'active_nav':'EXAMS', 'essay_response':essay_response, 'has_submission':has_submission, 'comments':comments, 'numbered_response':numbered_response, 'essayclass':essayclass})
 	
 	#IF USER IS A STUDENT

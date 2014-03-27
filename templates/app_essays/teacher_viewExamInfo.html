@@ -96,11 +96,11 @@ TECS: Test Essay Checking Software | Essay
                                 <p class="pull-left">
                                         <a href="{% url 'essays:list' %}" class="btn btn-inverse"><span class="fui-arrow-left"></span> Back</a>
                                 </p>
-                                 <p class="pull-right">
-                                
+                                {% if essay.status != 3 %}
+                                 <p class="pull-right">                                
                                         <a href="#automated-scoring-warning" class="btn btn-royal" data-toggle="modal"><span class="fui-check"></span> Start Automated Scoring</a>
-                              
                                 </p>
+                                {% endif %}
                         </div>
                         
                         <hr>
@@ -169,15 +169,14 @@ TECS: Test Essay Checking Software | Essay
 <form action="" method="post">
         {% csrf_token %}
         <div id="automated-scoring-warning" class="modal fade hide" tabindex="-1" role="dialog" aria-hidden="true">
-                <div class="modal-header {% if essay.graded_essay_count < 30 %} palette-sun-flower {% else %} palette-amethyst {% endif %}">
+                <div class="modal-header {% if graded_essay_count < 30 %} palette-sun-flower {% else %} palette-amethyst {% endif %}">
                         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-                        <h3 class="text-white">{% if essay.graded_essay_count < 30 %} Warning! {% else %} Automated Essay Scoring {% endif %}</h3>
+                        <h3 class="text-white">{% if graded_essay_count < 30 %} Warning! {% else %} Automated Essay Scoring {% endif %}</h3>
                 </div>
                 <div class="modal-body">
-                        {% if essay.graded_essay_count < 30 %}
-                                <p><h4 class="text-warning">Insufficient Sample Size!</h4></p>
-                                <p>You are about to proceed to automated scoring with insufficient sample size. It is recommended to have at least 30 papers checked for the magical black box to score the essays accurately.</p>
-                                <p>However, if the topic of this essay exam has been previously used before in automated scoring, you can simply ignore this message.</p>
+                        {% if graded_essay_count < 30 %}
+                                <p><h4 class="text-warning"><strong>Insufficient Number of Graded Essays.</strong></h4></p>
+                                <p>You are about to proceed to automated scoring with insufficient number of graded essays. It is recommended to have at least 30 essays checked in order for the system to learn deeper and grade essays accurately.</p>
                         {% else %}
                                 Are you sure you want to proceed?
                         {% endif %}

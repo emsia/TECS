@@ -162,9 +162,9 @@ class EssayCommentForm(ModelForm):
 		model = EssayComment
 		exclude = ['essay']
 		widgets = {
-			'start': TextInput(attrs={'class':'span1'}),
-			'end': TextInput(attrs={'class':'span1'}),
-			'comment': TextInput(attrs={'class':'span1'}),
+			'start': TextInput(attrs={'class':'span1 mbl'}),
+			'end': TextInput(attrs={'class':'span1 mbl'}),
+			'comment': TextInput(attrs={'class':'span1 mbl'}),
 		}
 	
 	def clean_start(self):
