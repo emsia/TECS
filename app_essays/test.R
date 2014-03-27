@@ -1,6 +1,5 @@
 library(lsa)
 library(tm)
-library(FNN);
 library(MASS)
 
 args <- commandArgs(trailingOnly = TRUE)
@@ -30,19 +29,24 @@ test.corpus <- Corpus(DataframeSource(data.frame(testfile[,1])));
 test.corpus <- tm_map(test.corpus, removePunctuation);
 test.corpus <- tm_map(test.corpus, tolower)
 test.corpus <- tm_map(test.corpus, function(x) removeWords(x, stopwords("english")));
-test.corpus <- tm_map(test.corpus, stemDocument)
+#test.corpus <- tm_map(test.corpus, stemDocument)
 testmatrix <- TermDocumentMatrix(test.corpus, control=list(dictionary=rownames(training_matrix)));
 testmatrix = weightTfIdf(testmatrix, normalize=T)
 
 n <- as.matrix(testmatrix)
 train <- as.matrix(TrainingMatrix)
-j <- 3
+
+if(ncol(train) <= 35){
+  j <- ceiling(ncol(train)/5)
+} else
+  j <- 35 
 
 cand <- mat.or.vec(j,2)
 
 for(i in 1:j){
-  #cand[i,1] <- (kmeans(t(train), i+2))$tot.withinss
-  cand[i,1] <- (kmeans(t(train), i))$tot.withinss
+  set.seed(1234)
+  cand[i,1] <- (kmeans(t(train), i+2))$tot.withinss
+  #cand[i,1] <- (kmeans(t(train), i))$tot.withinss
   cand[i,2] <- i + 2
 }
 
@@ -51,7 +55,8 @@ result[1:j-1] <- cand[1:j-1,1] - cand[2:j,1]
 result[result<0] <- ""
 
 k <- which.min(result)
-centers_kmeans <- (kmeans(t(train), k, nstart=2, algorithm="Hartigan-Wong"))
+set.seed(1234)
+centers_kmeans <- (kmeans(t(train), k, nstart=j, algorithm="Hartigan-Wong"))
 centers_kmeans <- t(centers_kmeans$centers)
 #plot(train, col = centers_kmeans$cluster)
 
@@ -72,7 +77,7 @@ for(a in 1:ncol(Q_test)){
 
 sco <- as.matrix(apply(cos[,1:ncol(X_train)], 1, whichpart))
 
-a = training_file[sco,2]
+a <- training_file[sco,2]
 h <- matrix(a,ncol = 3)
 
 k <- as.matrix(apply(h[,3:1], 1, Mode))

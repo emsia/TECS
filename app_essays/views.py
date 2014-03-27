@@ -137,8 +137,10 @@ def exam_details(request, essay_id=None, class_id=None):
 		essay = Essay.objects.get(pk=essay_id_post)
 		
 		if 'CANCEL_EXAM' in request.POST:
-			essay.status = -1
-			essay.save()
+			#print(essay)
+			#essay.status = -1
+			#essay.save()
+			essay.delete()
 			return redirect('essays:list')
 		elif 'RELEASE_GRADES' in request.POST:
 			essay.status = 3
