@@ -239,13 +239,20 @@ def exam_details(request, essay_id=None, class_id=None):
 		essay_responses = sorted(EssayResponse.objects.filter(essay_id=essay.pk, essayclass_id=class_id), key=operator.attrgetter('student.user.last_name', 'student.user.first_name')) # I used this way of sorting because we cannot use order_by() for case insensitive sorting :(
 		all_graded = not EssayResponse.objects.filter(essay_id=essay.pk, essayclass_id=class_id, grade=None).exists()
 		graded_essay_count =  len(EssayResponse.objects.filter(~Q(grade=None), essay_id=essay.pk, essayclass_id=class_id))
+		x=Grade.objects.filter(grading_system=essay.grading_system).values('id')
+		y=EssayResponse.objects.filter(essay__title=essay.title).values('grade')
+
+		all_candidates = set([k['id'] for k in x]).issubset([k['grade'] for k in y])
+		pprint.pprint(x.all())
+		pprint.pprint(y.all())
+
 		if essay.deadline >= timezone.now():
 			is_deadline = False
-			return render(request, 'app_essays/teacher_viewExamInfo.html', {'avatar':avatar, 'active_nav':'EXAMS', 'essay':essay, 'essayclass':essayclass, 'essay_responses':essay_responses, 'is_deadline':is_deadline, 'all_graded':all_graded, 'graded_essay_count':graded_essay_count})
+			return render(request, 'app_essays/teacher_viewExamInfo.html', {'avatar':avatar, 'active_nav':'EXAMS', 'essay':essay, 'essayclass':essayclass, 'essay_responses':essay_responses, 'is_deadline':is_deadline, 'all_graded':all_graded, 'graded_essay_count':graded_essay_count, 'all_candidates':all_candidates})
 		else:
 			is_deadline = True
 			all_graded = EssayResponse.objects.filter(essay_id=essay.pk, grade=None).exists()
-			return render(request, 'app_essays/teacher_viewExamInfo.html', {'avatar':avatar, 'active_nav':'EXAMS', 'essay':essay, 'essayclass':essayclass, 'essay_responses':essay_responses, 'all_graded':all_graded, 'is_deadline':is_deadline, 'graded_essay_count':graded_essay_count})
+			return render(request, 'app_essays/teacher_viewExamInfo.html', {'avatar':avatar, 'active_nav':'EXAMS', 'essay':essay, 'essayclass':essayclass, 'essay_responses':essay_responses, 'all_graded':all_graded, 'is_deadline':is_deadline, 'graded_essay_count':graded_essay_count, 'all_candidates':all_candidates})
 
 def words(text): return re.findall('[a-z]+', text.lower()) 
 
