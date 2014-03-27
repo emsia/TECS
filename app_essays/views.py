@@ -87,7 +87,7 @@ def list_essay(request, errors=None, success=None):
 
 		on_queue_essays = Essay.objects.filter(instructor_id = Teacher.objects.get(user_id = request.user.id).id, status=1).filter(start_date__gt=timezone.now()).all()
 		on_going_essays = Essay.objects.filter(instructor_id = Teacher.objects.get(user_id = request.user.id).id, status=1).filter(start_date__lte=timezone.now(), deadline__gte=timezone.now()).all()
-		past_essays = Essay.objects.filter(instructor_id = Teacher.objects.get(user_id = request.user.id).id).filter(deadline__lt=timezone.now())
+		past_essays = Essay.objects.filter(Q(instructor_id = Teacher.objects.get(user_id = request.user.id).id, deadline__lt=timezone.now()) | Q(status=3)).order_by('deadline')
 		
 		#MANUAL WAY TO CHANGE STATUS OF AN ESSAY IF IT'S PAST THE DEADLINE
 		EssayResponse.objects.filter(essay__status=1, essayclass__teacher=Teacher.objects.get(user_id = request.user.id)).filter(essay__deadline__lt=timezone.now()).update(status=2, response='')
@@ -150,26 +150,26 @@ def exam_details(request, essay_id=None, class_id=None):
 
 			#CREATE A FOLDER FOR THE ESSAYTOPIC
 			title = re.sub('[^A-Za-z\s]+', '', essay.title).lower()
-			directory = './app_essays/essays/'+str(essay.pk)+' '+title
+			directory = './app_essays/essays/'+str(request.user.pk)+' '+title
 			if not os.path.exists(directory):
 				os.makedirs(directory)
 
 			trainingcsv = 'training.csv'
 			testcsv = 'test.csv'
-			with open(directory+'/'+trainingcsv, 'w') as trainingfiles	, open(directory+'/'+testcsv, 'w') as testfiles:
+			with open(directory+'/'+trainingcsv, 'a') as trainingfiles, open(directory+'/'+testcsv, 'w') as testfiles:
 				csvwriter_training = csv.writer(trainingfiles, delimiter=',', quotechar='|', quoting=csv.QUOTE_MINIMAL)
 				csvwriter_test = csv.writer(testfiles, delimiter=',', quotechar='|', quoting=csv.QUOTE_MINIMAL)
+				forautograding = 0
 				for essay_response in essay_responses:	
 					e = re.sub('[^A-Za-z\s]+', '', essay_response.response)
 					e = e.replace('\r\n', '')
 					#print '---------------------------------------------------------'
-					#pprint.pprint(e)
-					if not e.isspace():
+					if e:
 						if essay_response.grade is not None:
 							csvwriter_training.writerow([e, essay_response.grade.pk])
 						else:
 							csvwriter_test.writerow([e, '', essay_response.pk])
-
+							forautograding+=1
 			################### correcting misspelled words in training ##############################
 			files = directory+'/'+trainingcsv
 			file1 = open(files, 'rb')
@@ -217,16 +217,16 @@ def exam_details(request, essay_id=None, class_id=None):
 			retcode = subprocess.call(['/Library/Frameworks/R.framework/Versions/3.0/Resources/bin/Rscript', './app_essays/test.R', directory, testcsv, resultcsv, directory+'/myLSAspace.RData', trainingcsv])
 			print retcode
 			print "****************** END TESTING ***********************"
-			with open(directory+'/'+resultcsv, 'rb') as resultfile:
+			with open(directory+'/'+trainingcsv, 'a') as trainingfiles, open(directory+'/'+resultcsv, 'rb') as resultfile:
 				resultreader = csv.reader(resultfile, delimiter=',', quotechar='|')
+				csvwriter_training = csv.writer(trainingfiles, delimiter=',', quotechar='|', quoting=csv.QUOTE_MINIMAL)
 				for row in resultreader:
 					essaypk = row[2]
 					essaygrade = row[1]
-					essay_response = EssayResponse.objects.get(pk=essaypk) #[err for er in essay_responses if er.pk == essaypk]
-					
-					essay_response.computer_grade = Grade.objects.get(pk=essaygrade)
+					essay_response = EssayResponse.objects.get(id=essaypk)
+					essay_response.grade = Grade.objects.get(pk=essaygrade)
 					essay_response.save()
-
+					csvwriter_training.writerow([row[0], essaypk])
 			#for essay_response in essay_responses:
 			#	essay_response.computer_grade = choice(possible_grade_values)
 			#	essay_response.save()
@@ -235,9 +235,11 @@ def exam_details(request, essay_id=None, class_id=None):
 		essayclass = essay.class_name.get(pk=class_id)
 		students = essayclass.student.all()
 		essay_responses = sorted(EssayResponse.objects.filter(essay_id=essay.pk, essayclass_id=class_id), key=operator.attrgetter('student.user.last_name', 'student.user.first_name')) # I used this way of sorting because we cannot use order_by() for case insensitive sorting :(
+		all_graded = not EssayResponse.objects.filter(essay_id=essay.pk, essayclass_id=class_id, grade=None).exists()
+
 		if essay.deadline >= timezone.now():
 			is_deadline = False
-			return render(request, 'app_essays/teacher_viewExamInfo.html', {'avatar':avatar, 'active_nav':'EXAMS', 'essay':essay, 'essayclass':essayclass, 'essay_responses':essay_responses, 'is_deadline':is_deadline})
+			return render(request, 'app_essays/teacher_viewExamInfo.html', {'avatar':avatar, 'active_nav':'EXAMS', 'essay':essay, 'essayclass':essayclass, 'essay_responses':essay_responses, 'is_deadline':is_deadline, 'all_graded':all_graded})
 		else:
 			is_deadline = True
 			all_graded = EssayResponse.objects.filter(essay_id=essay.pk, grade=None).exists()

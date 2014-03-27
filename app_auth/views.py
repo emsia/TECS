@@ -592,6 +592,16 @@ def suadmin_viewsuperadmindetails(request, username):
 					superadmin_d.user.save()
 					superadmin_d.save()
 					return redirect('/superadmin/view')
+			elif 'activated_username' in request.POST:
+				username = request.POST.get('delete_username')
+				user = get_object_or_404(User, username=username)
+				superadmin_d = get_object_or_404(SUadmin, user__username=username, registered_by=request.user, status=-1)
+				if superadmin_d is not None:
+					superadmin_d.status = -2
+					superadmin_d.user.is_active = False
+					superadmin_d.user.save()
+					superadmin_d.save()
+					return redirect('/superadmin/view')
 		else:
 			return render(request, 'app_auth/suadmin_viewsuperadmins_details.html', {'avatar': avatar, 'superadmin':superadmin, 'profile':profile, 'active_nav':'SUPERADMIN'})
 

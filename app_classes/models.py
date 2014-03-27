@@ -17,6 +17,10 @@ class Class(models.Model):
 	date_created = models.DateTimeField(default=datetime.now)
 	is_active = models.IntegerField(default=0)
 
+	def save(self):
+		self.year_level = self.year_level.upper()
+		super(MyModel, self).save()
+
 	def __str__(self):
 		return u'%s-%s %s' % (self.year_level, self.section, self.subject)
 

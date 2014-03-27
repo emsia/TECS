@@ -28,7 +28,7 @@ TECS: Test Essay Checking Software | Essay
 				<h3 class="title">My Submission</h3>
 				<hr>
 
-				{% if not essay_response.grade  %}
+				{% if essay_response.status != 3  %}
 					<div class="alert alert-warning">
 						<h4>STATUS: Not yet graded</h4>
 					</div>
@@ -70,7 +70,7 @@ TECS: Test Essay Checking Software | Essay
 				<br>
 
 
-				{% if essay_response.grade  %}
+				{% if essay_response.status == 3  %}
 				<div class="form-horizontal">
 				 	<div class="control-group">
 						<label class="control-label" for="inputfeedback"><strong>Rating</strong></label>

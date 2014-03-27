@@ -55,8 +55,7 @@ TECS: Test Essay Checking Software | Essay
                                                         <th width="5%"></th>
                                                         <th width="22%">Student</th>
                                                         <th width="22%">Status</th>
-                                                        <th width="12%">Human Grade</th>
-                                                        <th width="12%">Automated Grade</th>
+                                                        <th width="12%">Grade</th>
                                                         <th width="3%">Submisson</th>
                                                 </tr>
                                         </thead>
@@ -78,13 +77,6 @@ TECS: Test Essay Checking Software | Essay
                                                                         --
                                                                 {% else %}
                                                                         {{ essay_response.grade }}
-                                                                {% endif %}
-                                                        </td>
-                                                        <td>
-                                                                {% if essay_response.computer_grade == null %}
-                                                                        --
-                                                                {% else %}
-                                                                        {{ essay_response.computer_grade }}
                                                                 {% endif %}
                                                         </td>
                                                         <td>
@@ -110,20 +102,20 @@ TECS: Test Essay Checking Software | Essay
                               
                                 </p>
                         </div>
-                        <!---
+                        
                         <hr>
                         {% if essay.status == 3 %}
                                 <div class="palette palette-nephritis">
                                         <strong><center>GRADES RELEASED</center></strong>
                                 </div>
                         {% else %}
-                                {% if essay.is_all_graded %}
+                                {% if all_graded %}
                                 <a href="#release-grades" class="btn btn-large btn-block btn-primary" data-toggle="modal">Release Grades</a>
                                 {% else %}
                                 <a href="#" class="btn btn-large btn-block disabled">Release Grades</a>
                                 {% endif %}
                         {% endif %}
-                        -->
+                    
                 </div>
         </div>
 </div>
