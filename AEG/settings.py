@@ -1,7 +1,22 @@
 # Django settings for mejango project.
+from __future__ import absolute_import
 #import dj_database_url
 import os
+import urlparse
+from celery import Celery
 
+#from rq import Queue
+#from worker import conn
+import djcelery
+djcelery.setup_loader()
+
+#BROKER_URL = 'django://'
+BROKER_URL = 'amqp://pmanomsh:b67iwhrWStPYwosFHF8KSGbY40Sb8jxN@tiger.cloudamqp.com/pmanomsh'
+BROKER_BACKEND = "djkombu.transport.DatabaseTransport"
+
+app = Celery('AEG', backend=BROKER_BACKEND, broker=BROKER_URL)
+
+#CELERY_ACCEPT_CONTENT = ['json']
 PROJECT_DIR = os.path.dirname(__file__) # this is not Django setting.
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -11,14 +26,40 @@ DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
-	('Molen Fernando', 'molenfernando@gmail.com'),
-	('Efren Ver Sia', 'fsvaeg@gmail.com'),
-	('Chery Verano', 'cheryleighverano@gmail.com'),
+    ('Molen Fernando', 'molenfernando@gmail.com'),
+    ('Efren Ver Sia', 'fsvaeg@gmail.com'),
+    ('Chery Verano', 'cheryleighverano@gmail.com'),
 )
+
+#redis_url = urlparse.urlparse(os.environ.get('REDISTOGO_URL', 'redis://pub-redis-11493.us-east-1-3.1.ec2.garantiadata.com:11493'))
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
+        'LOCATION': 'caches_table',
+        'TIMEOUT': 60,
+    }
+}
+
+#CACHES = {
+#    'default': {
+#        'BACKEND': 'redis_cache.RedisCache',
+#        'LOCATION': '%s:%s' % (redis_url.hostname, redis_url.port),
+#        'OPTIONS': {
+#            'DB': 0,
+#            'PASSWORD': redis_url.password,
+#        }
+#    }
+#}
+
+#redis_q = Queue(connection=conn)
 
 MANAGERS = ADMINS
 
-#DATABASES['default'] =  dj_database_url.config()
+#DATABASES = {
+#    'default': dj_database_url.config(default=os.environ.get('DATABASE_URL'))
+#}
+#
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
@@ -31,7 +72,7 @@ DATABASES = {
     }
 }
 
-#EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 
 EMAIL_USE_TLS = True
 EMAIL_HOST = 'smtp.gmail.com'
@@ -118,7 +159,6 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    'BruteBuster.middleware.RequestMiddleware',
     # Uncomment the next line for simple clickjacking protection:
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
@@ -136,23 +176,35 @@ TEMPLATE_DIRS = (
 )
 
 INSTALLED_APPS = (
-	'django.contrib.auth',
-	'django.contrib.contenttypes',
-	'django.contrib.sessions',
-	'django.contrib.sites',
-	'django.contrib.messages',
-	'django.contrib.staticfiles',
-	'django.contrib.admin',
-	'django.contrib.humanize',
-	# Uncomment the next line to enable admin documentation:
-	# 'django.contrib.admindocs',
-	'BruteBuster',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.sites',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+    'django.contrib.admin',
+    'django.contrib.humanize',
+    # Uncomment the next line to enable admin documentation:
+    # 'django.contrib.admindocs',
+    'kombu.transport.django',
+    'djkombu',
+    'celery',
+    'djcelery',
     'app_auth',
-	'app_classes',
-	'app_essays',
-	'app_registration',
-	'app_captcha',
-    'app_schools'
+    'BruteBuster',
+    'app_classes',
+    'app_essays',
+    'app_registration',
+    'app_captcha',
+    'app_schools',
+)
+
+app.conf.update(
+    CELERY_RESULT_BACKEND='djcelery.backends.database:DatabaseBackend',
+)
+
+app.conf.update(
+    CELERY_RESULT_BACKEND='djcelery.backends.cache:CacheBackend',
 )
 
 ACCOUNT_ACTIVATION_DAYS = 7 # One-week activation window;

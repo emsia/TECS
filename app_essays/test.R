@@ -45,7 +45,7 @@ cand <- mat.or.vec(j,2)
 
 for(i in 1:j){
   set.seed(1234)
-  cand[i,1] <- (kmeans(t(train), i+2))$tot.withinss
+  cand[i,1] <- (kmeans(t(train), i))$tot.withinss
   #cand[i,1] <- (kmeans(t(train), i))$tot.withinss
   cand[i,2] <- i + 2
 }

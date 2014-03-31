@@ -13,6 +13,11 @@ from app_auth.models import UserProfile, Student, Teacher
 from app_essays.models import Essay, EssayResponse, GradingSystem, EssayForm, EssayComment, Grade, EssayResponseForm, EssayResponseGradeForm, EssayCommentForm
 from app_classes.models import Class
 
+#from rq import Queue
+#from run_worker import conn
+
+from app_essays import tasks
+
 from datetime import datetime
 from random import choice
 import operator, urllib, re, csv, subprocess, os, pprint, collections
@@ -156,15 +161,39 @@ def exam_details(request, essay_id=None, class_id=None):
 			if not os.path.exists(directory):
 				os.makedirs(directory)
 
+			'''
 			trainingcsv = 'training.csv'
 			testcsv = 'test.csv'
-			with open(directory+'/'+trainingcsv, 'a') as trainingfiles, open(directory+'/'+testcsv, 'w') as testfiles:
+			
+			with open(directory+'/'+trainingcsv, 'a') as trainingfiles, open(directory+'/'+testcsv, 'wb') as testfiles:
+				csvwriter_training = csv.writer(trainingfiles, delimiter=',', quotechar='|', quoting=csv.QUOTE_MINIMAL)
+				csvwriter_test = csv.writer(testfiles, delimiter=',', quotechar='|', quoting=csv.QUOTE_MINIMAL)
+				forautograding = 0
+
+				for essay_response in essay_responses:
+					e = re.sub('[^A-Za-z\s]+', '', essay_response.response)
+					e = e.replace('\r\n', '')
+					#print '---------------------------------------------------------'
+					if e:
+						if essay_response.grade is not None:
+							csvwriter_training.writerow([e, essay_response.grade.pk])
+						else:
+							csvwriter_test.writerow([e, '', essay_response.pk])
+							forautograding+=1
+			'''
+			#q = Queue(connection=conn)
+			#results = q.enqueue(the_making(request, directory, essay_response))
+			## essay, class_id, directory
+			results = tasks.the_making(request, essay, class_id, directory)
+
+			'''
+			with open(directory+'/'+trainingcsv, 'a') as trainingfiles, open(directory+'/'+testcsv, 'wb') as testfiles:
 				csvwriter_training = csv.writer(trainingfiles, delimiter=',', quotechar='|', quoting=csv.QUOTE_MINIMAL)
 				csvwriter_test = csv.writer(testfiles, delimiter=',', quotechar='|', quoting=csv.QUOTE_MINIMAL)
 				forautograding = 0
 				for essay_response in essay_responses:	
 					e = re.sub('[^A-Za-z\s]+', '', essay_response.response)
-					e = e.replace('\r\n', '')
+					e = e.replace('', '')
 					#print '---------------------------------------------------------'
 					if e:
 						if essay_response.grade is not None:
@@ -212,11 +241,12 @@ def exam_details(request, essay_id=None, class_id=None):
 			os.remove(directory+'/'+testcsv)
 			os.rename(directory+'/'+'test_corrected.csv',directory+'/'+testcsv)
 
+			
 			#CALL R SCRIPT. PLEASE CHANGE THE LOCATION OF Rscript EXECUTABLE
 			resultcsv = 'result.csv'
-			retcode = subprocess.call(['/Library/Frameworks/R.framework/Versions/3.0/Resources/bin/Rscript', './app_essays/train.R', directory, trainingcsv])
+			retcode = subprocess.call(['/app/vendor/R/lib64/R/bin/Rscript', './app_essays/train.R', directory, trainingcsv])
 			print retcode
-			retcode = subprocess.call(['/Library/Frameworks/R.framework/Versions/3.0/Resources/bin/Rscript', './app_essays/test.R', directory, testcsv, resultcsv, directory+'/myLSAspace.RData', trainingcsv])
+			retcode = subprocess.call(['/app/vendor/R/lib64/R/bin/Rscript', './app_essays/test.R', directory, testcsv, resultcsv, directory+'/myLSAspace.RData', trainingcsv])
 			print retcode
 			print "****************** END TESTING ***********************"
 			with open(directory+'/'+trainingcsv, 'a') as trainingfiles, open(directory+'/'+resultcsv, 'rb') as resultfile:
@@ -229,9 +259,11 @@ def exam_details(request, essay_id=None, class_id=None):
 					essay_response.grade = Grade.objects.get(pk=essaygrade)
 					essay_response.save()
 					csvwriter_training.writerow([row[0], essaypk])
-			#for essay_response in essay_responses:
-			#	essay_response.computer_grade = choice(possible_grade_values)
-			#	essay_response.save()
+			for essay_response in essay_responses:
+				essay_response.computer_grade = choice(possible_grade_values)
+				essay_response.save()
+			'''
+				
 			return redirect('essays:details', essay_id, class_id)
 	else:
 		essayclass = essay.class_name.get(pk=class_id)
