@@ -81,11 +81,11 @@ TECS: Test Essay Checking Software | Super Admin
 		<form action="" method="post">
 			{% csrf_token %}
 			<input type="hidden" name="deactivated_username" value="{{superadmin.user.username}}">
-		<form>
 	</div>
 	<div class="modal-footer">
 		<button type="submit" class="btn btn-danger pull-left"><span class="fui-play"></span> Proceed</button>
 		<button class="btn btn-inverse" data-dismiss="modal" aria-hidden="true">Close</button>
+		</form>
 	</div>
 </div>
 {% elif superadmin.status = -1 %}
@@ -99,11 +99,11 @@ TECS: Test Essay Checking Software | Super Admin
 		<form action="" method="post">
 			{% csrf_token %}
 			<input type="hidden" name="activated_username" value="{{superadmin.user.username}}">
-		<form>
 	</div>
 	<div class="modal-footer">
 		<button type="submit" class="btn btn-success pull-left"><span class="fui-play"></span> Proceed</button>
 		<button class="btn btn-inverse" data-dismiss="modal" aria-hidden="true">Close</button>
+		</form>
 	</div>
 </div>
 {% endif %}
@@ -115,14 +115,15 @@ TECS: Test Essay Checking Software | Super Admin
 	<div class="modal-body">
 		<p>Are you sure you want to delete this account permanently?</p>
 		<p>After continuing with this action, the user will no longer be able to log in to the system. All previous activity and records of this user will remain. This account can no longer be reactivated.</p>
+		<p>In addition, all rights to modify and delete accounts added by this user will be transferred to you.</p>
 		<form action="" method="post">
 			{% csrf_token %}
 			<input type="hidden" name="delete_username" value="{{superadmin.user.username}}">
-		<form>
 	</div>
 	<div class="modal-footer">
 		<button type="submit" class="btn btn-danger pull-left"><span class="fui-cross"></span> Delete Permanently</button>
 		<button class="btn btn-inverse" data-dismiss="modal" aria-hidden="true">Close</button>
+		</form>
 	</div>
 </div>
 

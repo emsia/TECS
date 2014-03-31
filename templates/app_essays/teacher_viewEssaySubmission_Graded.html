@@ -88,8 +88,10 @@ TECS: Test Essay Checking Software | Essay
 							</span>
 						</div>  
 					</div>
-
-					<a href="{% url 'essays:details' essay_response.essay.id essayclass.id %}" class="btn btn-inverse"><i class="fui-arrow-left"></i><b> Back</b></a> 
+					<div class="control-group">  
+						<a href="{% url 'essays:details' essay_response.essay.id essayclass.id %}" class="btn btn-inverse pull-right"><i class="fui-arrow-left"></i><b> Back</b></a>
+						<a href="{% url 'essays:submission' essayclass.id essay_response.id %}?edit=1" class="btn btn-primary pull-left"><i pull-right class="fui-new"></i><b> Edit</b></a>
+					</div>
 				</div>
 			</div>
 		</div>

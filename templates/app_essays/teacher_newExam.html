@@ -23,7 +23,7 @@ TECS: Test Essay Checking Software | Home
 <div class="page-content">
 	<div class="row-fluid">
 		<div class="span12 content">
-			<img class="title-icons" src="{% static 'base/img/icons/Watches@2x.png' %}">
+			<img class="title-icons" src="{% static 'base/img/icons/pencil.png' %}">
 			<h3 class="title">New Exam</h3>
 			<div class="span11">
 				{% if not has_class %}
@@ -47,7 +47,7 @@ TECS: Test Essay Checking Software | Home
 									</div>				  
 							</div>
 							<div class="control-group">  
-								<label class="control-label" for="inputtitle">Exam Title</label>							  
+								<label class="control-label" for="inputtitle">Essay Topic</label>							  
 								<div class="controls">  
 									{{ form.title }}
 									{% for error in form.title.errors %}
