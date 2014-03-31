@@ -184,8 +184,8 @@ def exam_details(request, essay_id=None, class_id=None):
 			#q = Queue(connection=conn)
 			#results = q.enqueue(the_making(request, directory, essay_response))
 			## essay, class_id, directory
-			results = tasks.the_making(request, essay, class_id, directory)
-
+			results = tasks.the_making.delay(essay, class_id, directory)
+			print results
 			'''
 			with open(directory+'/'+trainingcsv, 'a') as trainingfiles, open(directory+'/'+testcsv, 'wb') as testfiles:
 				csvwriter_training = csv.writer(trainingfiles, delimiter=',', quotechar='|', quoting=csv.QUOTE_MINIMAL)

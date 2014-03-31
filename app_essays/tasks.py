@@ -3,15 +3,15 @@ import operator, urllib, re, csv, subprocess, os, pprint, collections
 from celery import shared_task, current_app, Celery
 from AEG.celery import app
 from djcelery import celery
-from celery import current_app
 from app_essays.models import Grade, EssayResponse
 from django.views.decorators.cache import cache_page
+from celery.contrib.methods import task_method, task
 
-#app = Celery('tasks', broker='amqp://guest@localhost//')
+#app = Celery('AEG')
 
-#@app.task
-@cache_page(60 * 15)
-def the_making(request, essay, class_id, directory):
+#@cache_page(60 * 15)
+@app.task
+def the_making(essay, class_id, directory):
 	print(directory)
 	trainingcsv = 'training.csv'
 	testcsv = 'test.csv'
