@@ -1,18 +1,10 @@
-# Django settings for mejango project.
-from __future__ import absolute_import
-#import dj_database_url
 import os
-import urlparse
-from celery import Celery
 
-#app = Celery('AEG', backend=BROKER_BACKEND, broker=BROKER_URL)
-
-#CELERY_ACCEPT_CONTENT = ['json']
 PROJECT_DIR = os.path.dirname(__file__) # this is not Django setting.
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-DEBUG = True
+DEBUG = False
 
 TEMPLATE_DEBUG = DEBUG
 
@@ -21,29 +13,6 @@ ADMINS = (
     ('Efren Ver Sia', 'fsvaeg@gmail.com'),
     ('Chery Verano', 'cheryleighverano@gmail.com'),
 )
-
-#redis_url = urlparse.urlparse(os.environ.get('REDISTOGO_URL', 'redis://pub-redis-11493.us-east-1-3.1.ec2.garantiadata.com:11493'))
-
-CACHES = {
-    'default': {
-        'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
-        'LOCATION': 'caches_table',
-        'TIMEOUT': 60,
-    }
-}
-
-#CACHES = {
-#    'default': {
-#        'BACKEND': 'redis_cache.RedisCache',
-#        'LOCATION': '%s:%s' % (redis_url.hostname, redis_url.port),
-#        'OPTIONS': {
-#            'DB': 0,
-#            'PASSWORD': redis_url.password,
-#        }
-#    }
-#}
-
-#redis_q = Queue(connection=conn)
 
 MANAGERS = ADMINS
 
@@ -191,48 +160,6 @@ INSTALLED_APPS = (
     'app_schools',
     #'django_rq',
 )
-
-'''
-RQ_QUEUES = {
-    'default': {
-        'HOST': 'localhost',
-        'PORT': 6379,
-        'DB': 0,
-        'PASSWORD': 'password',
-    },
-    'high': {
-        'URL': os.getenv('REDISTOGO_URL', 'redis://redistogo:9b12139f2738f483ef7de709036617b0@grideye.redistogo.com:10272'), # If you're on Heroku
-        'DB': 0,
-    },
-    'low': {
-        'HOST': 'localhost',
-        'PORT': 6379,
-        'DB': 0,
-    }
-}
-
-import djcelery
-djcelery.setup_loader()
-#BROKER_URL = 'django://'
-BROKER_URL = 'amqp://pmanomsh:b67iwhrWStPYwosFHF8KSGbY40Sb8jxN@tiger.cloudamqp.com/pmanomsh'
-BROKER_BACKEND = "djkombu.transport.DatabaseTransport"
-
-REDIS_URL = os.getenv('REDISTOGO_URL', 'redis://redistogo:9b12139f2738f483ef7de709036617b0@grideye.redistogo.com:10272')
-
-DROPBOX_CONSUMER_KEY = 'esklmqg0g4f049m'
-DROPBOX_CONSUMER_SECRET = '4ethtqmnk44e9my'
-
-DROPBOX_ACCESS_TOKEN = 'fo5z554hg7s1ntr2'
-DROPBOX_ACCESS_TOKEN_SECRET = 'ua48npsbqyp7e4h'
-
-app.conf.update(
-    CELERY_RESULT_BACKEND='djcelery.backends.database:DatabaseBackend',
-)
-
-app.conf.update(
-    CELERY_RESULT_BACKEND='djcelery.backends.cache:CacheBackend',
-)
-'''
 
 ACCOUNT_ACTIVATION_DAYS = 7 # One-week activation window;
 RECAPTCHA_PUBLIC_KEY = '6Lf-oOcSAAAAAO2-8-yrUFxYjQyluvupPS6GQYQY'
