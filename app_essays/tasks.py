@@ -1,17 +1,18 @@
-from __future__ import absolute_import
+#from __future__ import absolute_import
 import operator, urllib, re, csv, subprocess, os, pprint, collections
-from celery import shared_task, current_app, Celery
-from AEG.celery import app
-from djcelery import celery
+#from celery import shared_task, current_app, Celery
+#from AEG.celery import app
+#from djcelery import celery
 from app_essays.models import Grade, EssayResponse
-from django.views.decorators.cache import cache_page
-from celery.contrib.methods import task_method, task
-
+#from django.views.decorators.cache import cache_page
+#from celery.contrib.methods import task_method, task
+#from celery.decorators import task
 #app = Celery('AEG')
+#from celery import task
 
 #@cache_page(60 * 15)
-@app.task
-def the_making(essay, class_id, directory):
+#@task
+def the_making(essay, class_id, directory,title):
 	print(directory)
 	trainingcsv = 'training.csv'
 	testcsv = 'test.csv'
@@ -105,7 +106,7 @@ def the_making(essay, class_id, directory):
 			essaypk = row[2]
 			essaygrade = row[1]
 			essay_response = EssayResponse.objects.get(id=essaypk)
-			essay_response.grade = Grade.objects.get(pk=essaygrade)
+			essay_response.computer_grade = Grade.objects.get(pk=essaygrade)
 			essay_response.save()
 			csvwriter_training.writerow([row[0], essaypk])
 	return 1

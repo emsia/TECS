@@ -55,7 +55,7 @@ TECS: Test Essay Checking Software | Essay
 														<th width="5%"></th>
 														<th width="22%">Student</th>
 														<th width="22%">Status</th>
-														<th width="12%">Grade</th>
+														<th width="12%">Score</th>
 														<th width="3%">Submisson</th>
 												</tr>
 										</thead>
@@ -65,16 +65,20 @@ TECS: Test Essay Checking Software | Essay
 														<td>{{ forloop.counter }}</td>
 														<td>{{ essay_response.student }}</td>
 														<td>
-																{% if essay_response.status == 2 and essay_response.grade == null %}
+																{% if essay_response.status == 2 and essay_response.grade == null and essay_response.computer_grade == null %}
 																		<p class="text-error">Needs Grading</p>
-																{% elif essay_response.status == 2 %}
-																		<p class="text-success">OK</p>
+																{% elif essay_response.status == 2 and essay_response.grade != null %}
+																		<p class="text-success">Manual Grade</p>
+																{% elif essay_response.status == 2 and essay_response.computer_grade != null %}
+																		<p class="text-success">Automated Grade</p>
 																{% else %}
 																		<p class="text-error">No response yet</p>
 																{% endif %}</td>
 														<td>
-																{% if essay_response.grade == null %}
+																{% if essay_response.grade == null and essay_response.computer_grade == null %}
 																		--
+																{% elif essay_response.computer_grade != null %}
+																	{{ essay_response.computer_grade }}
 																{% else %}
 																		{{ essay_response.grade }}
 																{% endif %}

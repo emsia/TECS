@@ -20,7 +20,7 @@ Mode <- function(x) {
 whichpart <- function(x, n=3) {
   nx <- length(x)
   p <- nx-n+1
-  xp <- sort(x, partial=p)[p:nx]
+  xp <- sort(x, partial=p, decreasing=TRUE)[1:3]
   c(which(x==xp[1])[1],  which(x==xp[2])[1],  which(x==xp[3])[1])
 }
 
@@ -37,10 +37,10 @@ n <- as.matrix(testmatrix)
 train <- as.matrix(TrainingMatrix)
 
 if(ncol(train) <= 35){
-  j <- ceiling(ncol(train)/5)
+  j <- ceiling(ncol(train)/10)
 } else
   j <- 35 
-
+print(j)
 cand <- mat.or.vec(j,2)
 
 for(i in 1:j){

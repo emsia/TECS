@@ -44,7 +44,15 @@ TECS: Test Essay Checking Software | Essay
 				 	<div class="control-group">
 						<label class="control-label" for="inputfeedback"><strong>Rating</strong></label>
 						<div class="controls" id= "inputfeedback">
-							<span class="help-inline"><h1 class="text-error">{{ essay_response.grade }}</h1></span>
+							<span class="help-inline">
+								<h1 class="text-error">
+									{% if essay_response.grade != null %}
+										{{ essay_response.grade }}
+									{% else %}
+										{{ essay_response.computer_grade }}
+									{% endif %}
+								</h1>
+							</span>
 						</div>
 					</div>
 

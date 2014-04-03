@@ -5,16 +5,7 @@ import os
 import urlparse
 from celery import Celery
 
-#from rq import Queue
-#from worker import conn
-import djcelery
-djcelery.setup_loader()
-
-#BROKER_URL = 'django://'
-BROKER_URL = 'amqp://pmanomsh:b67iwhrWStPYwosFHF8KSGbY40Sb8jxN@tiger.cloudamqp.com/pmanomsh'
-BROKER_BACKEND = "djkombu.transport.DatabaseTransport"
-
-app = Celery('AEG', backend=BROKER_BACKEND, broker=BROKER_URL)
+#app = Celery('AEG', backend=BROKER_BACKEND, broker=BROKER_URL)
 
 #CELERY_ACCEPT_CONTENT = ['json']
 PROJECT_DIR = os.path.dirname(__file__) # this is not Django setting.
@@ -186,10 +177,11 @@ INSTALLED_APPS = (
     'django.contrib.humanize',
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
-    'kombu.transport.django',
-    'djkombu',
-    'celery',
-    'djcelery',
+    #'django_dropbox',
+    #'djkombu',
+    #'celery',
+    #'djcelery',
+    #'kombu.transport.django',
     'app_auth',
     'BruteBuster',
     'app_classes',
@@ -197,7 +189,41 @@ INSTALLED_APPS = (
     'app_registration',
     'app_captcha',
     'app_schools',
+    #'django_rq',
 )
+
+'''
+RQ_QUEUES = {
+    'default': {
+        'HOST': 'localhost',
+        'PORT': 6379,
+        'DB': 0,
+        'PASSWORD': 'password',
+    },
+    'high': {
+        'URL': os.getenv('REDISTOGO_URL', 'redis://redistogo:9b12139f2738f483ef7de709036617b0@grideye.redistogo.com:10272'), # If you're on Heroku
+        'DB': 0,
+    },
+    'low': {
+        'HOST': 'localhost',
+        'PORT': 6379,
+        'DB': 0,
+    }
+}
+
+import djcelery
+djcelery.setup_loader()
+#BROKER_URL = 'django://'
+BROKER_URL = 'amqp://pmanomsh:b67iwhrWStPYwosFHF8KSGbY40Sb8jxN@tiger.cloudamqp.com/pmanomsh'
+BROKER_BACKEND = "djkombu.transport.DatabaseTransport"
+
+REDIS_URL = os.getenv('REDISTOGO_URL', 'redis://redistogo:9b12139f2738f483ef7de709036617b0@grideye.redistogo.com:10272')
+
+DROPBOX_CONSUMER_KEY = 'esklmqg0g4f049m'
+DROPBOX_CONSUMER_SECRET = '4ethtqmnk44e9my'
+
+DROPBOX_ACCESS_TOKEN = 'fo5z554hg7s1ntr2'
+DROPBOX_ACCESS_TOKEN_SECRET = 'ua48npsbqyp7e4h'
 
 app.conf.update(
     CELERY_RESULT_BACKEND='djcelery.backends.database:DatabaseBackend',
@@ -206,6 +232,7 @@ app.conf.update(
 app.conf.update(
     CELERY_RESULT_BACKEND='djcelery.backends.cache:CacheBackend',
 )
+'''
 
 ACCOUNT_ACTIVATION_DAYS = 7 # One-week activation window;
 RECAPTCHA_PUBLIC_KEY = '6Lf-oOcSAAAAAO2-8-yrUFxYjQyluvupPS6GQYQY'

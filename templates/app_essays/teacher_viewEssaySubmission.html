@@ -45,17 +45,17 @@ TECS: Test Essay Checking Software | Essay
 					{% endautoescape %}
 				</div>				
 				<br>
-				<div class="row-fluid">
+				<!--- div class="row-fluid">
 					<center><a href="javascript:check()" type="button" class="btn btn-primary">
 						<strong>Check for Spelling and Grammatical Errors</strong> <i class="fui-check-inverted"></i>
 					</a></center>
-				</div>
+				</div -->
 				<hr>
 				<form class="form-horizontal" action="" method="post">
 					{% csrf_token %}
 					<fieldset>
 					 	<div class="control-group">
-							<label class="control-label">Grade</label>
+							<label class="control-label">Score</label>
 							<div class="controls">
 								{{ er_form.grade }}
 								{% for error in er_form.grade.errors %}

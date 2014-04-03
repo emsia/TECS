@@ -13,8 +13,9 @@ from app_auth.models import UserProfile, Student, Teacher
 from app_essays.models import Essay, EssayResponse, GradingSystem, EssayForm, EssayComment, Grade, EssayResponseForm, EssayResponseGradeForm, EssayCommentForm
 from app_classes.models import Class
 
-#from rq import Queue
-#from run_worker import conn
+import redis
+import django_rq
+from rq import use_connection, Queue
 
 from app_essays import tasks
 
@@ -184,7 +185,8 @@ def exam_details(request, essay_id=None, class_id=None):
 			#q = Queue(connection=conn)
 			#results = q.enqueue(the_making(request, directory, essay_response))
 			## essay, class_id, directory
-			results = tasks.the_making.delay(essay, class_id, directory)
+			#queue = django_rq.get_queue('high')
+			results = tasks.the_making(essay, class_id, directory, title)
 			print results
 			'''
 			with open(directory+'/'+trainingcsv, 'a') as trainingfiles, open(directory+'/'+testcsv, 'wb') as testfiles:
@@ -404,7 +406,7 @@ def essay_submission(request, class_id=None, essay_response_id=None):
 			raise Http404
 		else:
 			essayclass = essay_response.essay.class_name.get(pk=class_id)
-			if essay_response.grade == None or ('edit' in request.GET and request.GET['edit']):
+			if (essay_response.grade == None and essay_response.computer_grade == None) or ('edit' in request.GET and request.GET['edit']):
 				#SPELLING AND GRAMMAR CHECKER
 				#c = pycurl.Curl()
 				#url_param = "http://localhost:8081/?language=en-US&text="+urllib.quote_plus(essay_response.response)
@@ -425,7 +427,11 @@ def essay_submission(request, class_id=None, essay_response_id=None):
 
 					if er_form.is_valid() and c_formset.is_valid():
 						cd = er_form.cleaned_data
-						essay_response.grade = cd['grade']
+						if essay_response.computer_grade is not None:
+							essay_response.computer_grade = cd['grade']
+						else:
+							essay_response.grade = cd['grade']
+						
 						essay_response.general_feedback = cd['general_feedback']
 						essay_response.save()
 
@@ -437,7 +443,13 @@ def essay_submission(request, class_id=None, essay_response_id=None):
 								c.save()
 						return redirect('essays:submission', essayclass.pk, essay_response.pk)
 				else:
-					er_form = EssayResponseGradeForm(initial={'grade':essay_response.grade, 'general_feedback':essay_response.general_feedback})
+					if essay_response.grade is not None:
+						f_grade = essay_response.grade
+						message = 1
+					else:
+						f_grade = essay_response.computer_grade
+						message = 0
+					er_form = EssayResponseGradeForm(initial={'grade':f_grade, 'general_feedback':essay_response.general_feedback})
 					er_form.fields['grade'].queryset = Grade.objects.filter(grading_system = essay_response.essay.grading_system).order_by('value')
 					c_formset = EssayCommentFormSet()
 
@@ -446,11 +458,11 @@ def essay_submission(request, class_id=None, essay_response_id=None):
 					}
 				c.update(csrf(request))
 				comments = EssayComment.objects.filter(essay=essay_response)
-				return render(request, 'app_essays/teacher_viewEssaySubmission.html', {'avatar':avatar, 'active_nav':'EXAMS', 'essay_response':essay_response, 'has_submission':has_submission, 'er_form':er_form, 'c_formset':c_formset, 'numbered_response':numbered_response, 'essayclass':essayclass, 'comments':comments})
+				return render(request, 'app_essays/teacher_viewEssaySubmission.html', {'avatar':avatar, 'active_nav':'EXAMS', 'essay_response':essay_response, 'has_submission':has_submission, 'er_form':er_form, 'c_formset':c_formset, 'numbered_response':numbered_response, 'message':message, 'essayclass':essayclass, 'comments':comments})
 			
 			else:			
 				comments = EssayComment.objects.filter(essay=essay_response).order_by('start', 'end')
-				return render(request, 'app_essays/teacher_viewEssaySubmission_Graded.html', {'avatar':avatar, 'active_nav':'EXAMS', 'essay_response':essay_response, 'has_submission':has_submission, 'comments':comments, 'numbered_response':numbered_response, 'essayclass':essayclass})
+				return render(request, 'app_essays/teacher_viewEssaySubmission_Graded.html', {'avatar':avatar, 'active_nav':'EXAMS', 'essay_response':essay_response, 'has_submission':has_submission, 'comments':comments, 'numbered_response':numbered_response, 'message':1, 'essayclass':essayclass})
 	
 	#IF USER IS A STUDENT
 	elif len(Student.objects.filter(user_id = request.user.id)) > 0:
