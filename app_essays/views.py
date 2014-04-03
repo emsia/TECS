@@ -13,12 +13,6 @@ from app_auth.models import UserProfile, Student, Teacher
 from app_essays.models import Essay, EssayResponse, GradingSystem, EssayForm, EssayComment, Grade, EssayResponseForm, EssayResponseGradeForm, EssayCommentForm
 from app_classes.models import Class
 
-'''
-import redis
-import django_rq
-from rq import use_connection, Queue
-'''
-
 from app_essays import tasks
 
 from datetime import datetime

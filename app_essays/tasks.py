@@ -20,36 +20,26 @@ def the_making(essay, class_id, directory,title):
 	essay_responses = EssayResponse.objects.filter(essay_id=essay.pk, essayclass_id=class_id)
 	possible_grade_values = Grade.objects.filter(grading_system=essay.grading_system)
 
-	with open(directory+'/'+trainingcsv, 'a') as trainingfiles, open(directory+'/'+testcsv, 'wb') as testfiles:
-		csvwriter_training = csv.writer(trainingfiles, delimiter=',', quotechar='|', quoting=csv.QUOTE_MINIMAL)
-		csvwriter_test = csv.writer(testfiles, delimiter=',', quotechar='|', quoting=csv.QUOTE_MINIMAL)
-		forautograding = 0
+	trainingfiles = open(directory+'/'+trainingcsv, 'a')
+	testfiles = open(directory+'/'+testcsv, 'wb')
 
-		for essay_response in essay_responses:
-			e = re.sub('[^A-Za-z\s]+', '', essay_response.response)
-			e = e.replace('\r\n', '')
-			#print '---------------------------------------------------------'
-			if e:
-				if essay_response.grade is not None:
-					csvwriter_training.writerow([e, essay_response.grade.pk])
-				else:
-					csvwriter_test.writerow([e, '', essay_response.pk])
-					forautograding+=1
+	csvwriter_training = csv.writer(trainingfiles, delimiter=',', quotechar='|', quoting=csv.QUOTE_MINIMAL)
+	csvwriter_test = csv.writer(testfiles, delimiter=',', quotechar='|', quoting=csv.QUOTE_MINIMAL)
+	forautograding = 0
 
-	with open(directory+'/'+trainingcsv, 'a') as trainingfiles, open(directory+'/'+testcsv, 'wb') as testfiles:
-		csvwriter_training = csv.writer(trainingfiles, delimiter=',', quotechar='|', quoting=csv.QUOTE_MINIMAL)
-		csvwriter_test = csv.writer(testfiles, delimiter=',', quotechar='|', quoting=csv.QUOTE_MINIMAL)
-		forautograding = 0
-		for essay_response in essay_responses:
-			e = re.sub('[^A-Za-z\s]+', '', essay_response.response)
-			e = e.replace('\r\n', '')
-			#print '---------------------------------------------------------'
-			if e:
-				if essay_response.grade is not None:
-					csvwriter_training.writerow([e, essay_response.grade.pk])
-				else:
-					csvwriter_test.writerow([e, '', essay_response.pk])
-					forautograding+=1
+	for essay_response in essay_responses:
+		e = re.sub('[^A-Za-z\s]+', '', essay_response.response)
+		e = e.replace('\r\n', '')
+		#print '---------------------------------------------------------'
+		if e:
+			if essay_response.grade is not None:
+				csvwriter_training.writerow([e, essay_response.grade.pk])
+			else:
+				csvwriter_test.writerow([e, '', essay_response.pk])
+				forautograding+=1
+	
+	trainingfiles.close()
+	testfiles.close()
 
 	################### correcting misspelled words in training ##############################
 	files = directory+'/'+trainingcsv
@@ -98,18 +88,19 @@ def the_making(essay, class_id, directory,title):
 	retcode = subprocess.call(['/Library/Frameworks/R.framework/Versions/3.0/Resources/bin/Rscript', './app_essays/test.R', directory, testcsv, resultcsv, directory+'/myLSAspace.RData', trainingcsv])
 	print retcode
 	print "****************** END TESTING ***********************"
-	with open(directory+'/'+trainingcsv, 'a') as trainingfiles, open(directory+'/'+resultcsv, 'rb') as resultfile:
-		resultreader = csv.reader(resultfile, delimiter=',', quotechar='|')
-		csvwriter_training = csv.writer(trainingfiles, delimiter=',', quotechar='|', quoting=csv.QUOTE_MINIMAL)
+	trainingfiles = open(directory+'/'+trainingcsv, 'a')
+	resultfile = open(directory+'/'+resultcsv, 'rb')
+	resultreader = csv.reader(resultfile, delimiter=',', quotechar='|')
+	csvwriter_training = csv.writer(trainingfiles, delimiter=',', quotechar='|', quoting=csv.QUOTE_MINIMAL)
 
-		for row in resultreader:
-			essaypk = row[2]
-			essaygrade = row[1]
-			essay_response = EssayResponse.objects.get(id=essaypk)
-			essay_response.computer_grade = Grade.objects.get(pk=essaygrade)
-			essay_response.save()
-			csvwriter_training.writerow([row[0], essaypk])
-	return 1
+	for row in resultreader:
+		essaypk = row[2]
+		essaygrade = row[1]
+		essay_response = EssayResponse.objects.get(id=essaypk)
+		essay_response.computer_grade = Grade.objects.get(pk=essaygrade)
+		essay_response.save()
+		csvwriter_training.writerow([row[0], essaypk])
+	return True
 
 def words(text): return re.findall('[a-z]+', text.lower()) 
 

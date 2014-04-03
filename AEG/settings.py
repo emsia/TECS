@@ -1,10 +1,10 @@
+from __future__ import absolute_import
 import os
-
 PROJECT_DIR = os.path.dirname(__file__) # this is not Django setting.
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-DEBUG = False
+DEBUG = True
 
 TEMPLATE_DEBUG = DEBUG
 
