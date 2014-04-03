@@ -25,7 +25,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql_psycopg2', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
         'NAME': 'aeg',                    # Or path to database file if using sqlite3.
         # The following settings are not used with sqlite3:
-        'USER': 'postgres',
+        'USER': 'aeg',
         'PASSWORD': 'password',
         'HOST': 'localhost',                      # Empty for localhost through domain sockets or '127.0.0.1' for localhost through TCP.
         'PORT': '',                   # Set to empty string for default.
@@ -120,7 +120,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     # Uncomment the next line for simple clickjacking protection:
-    # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
+     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
 
 ROOT_URLCONF = 'AEG.urls'
@@ -146,11 +146,6 @@ INSTALLED_APPS = (
     'django.contrib.humanize',
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
-    #'django_dropbox',
-    #'djkombu',
-    #'celery',
-    #'djcelery',
-    #'kombu.transport.django',
     'app_auth',
     'BruteBuster',
     'app_classes',
@@ -158,7 +153,6 @@ INSTALLED_APPS = (
     'app_registration',
     'app_captcha',
     'app_schools',
-    #'django_rq',
 )
 
 ACCOUNT_ACTIVATION_DAYS = 7 # One-week activation window;
