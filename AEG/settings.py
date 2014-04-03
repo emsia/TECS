@@ -1,9 +1,9 @@
 # Django settings for mejango project.
-from __future__ import absolute_import
+#from __future__ import absolute_import
 #import dj_database_url
 import os
 import urlparse
-from celery import Celery
+#from celery import Celery
 
 #app = Celery('AEG', backend=BROKER_BACKEND, broker=BROKER_URL)
 
@@ -12,7 +12,7 @@ PROJECT_DIR = os.path.dirname(__file__) # this is not Django setting.
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-DEBUG = True
+DEBUG = False
 
 TEMPLATE_DEBUG = DEBUG
 
@@ -24,6 +24,7 @@ ADMINS = (
 
 #redis_url = urlparse.urlparse(os.environ.get('REDISTOGO_URL', 'redis://pub-redis-11493.us-east-1-3.1.ec2.garantiadata.com:11493'))
 
+'''
 CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
@@ -31,7 +32,7 @@ CACHES = {
         'TIMEOUT': 60,
     }
 }
-
+'''
 #CACHES = {
 #    'default': {
 #        'BACKEND': 'redis_cache.RedisCache',
