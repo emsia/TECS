@@ -83,9 +83,9 @@ def the_making(essay, class_id, directory,title):
 
 	#CALL R SCRIPT. PLEASE CHANGE THE LOCATION OF Rscript EXECUTABLE
 	resultcsv = 'result.csv'
-	retcode = subprocess.call(['/Library/Frameworks/R.framework/Versions/3.0/Resources/bin/Rscript', './app_essays/train.R', directory, trainingcsv])
+	retcode = subprocess.call(['/usr/lib/R/bin/Rscript', './app_essays/train.R', directory, trainingcsv])
 	print retcode
-	retcode = subprocess.call(['/Library/Frameworks/R.framework/Versions/3.0/Resources/bin/Rscript', './app_essays/test.R', directory, testcsv, resultcsv, directory+'/myLSAspace.RData', trainingcsv])
+	retcode = subprocess.call(['/usr/lib/R/bin/Rscript', './app_essays/test.R', directory, testcsv, resultcsv, directory+'/myLSAspace.RData', trainingcsv])
 	print retcode
 	print "****************** END TESTING ***********************"
 	trainingfiles = open(directory+'/'+trainingcsv, 'a')
