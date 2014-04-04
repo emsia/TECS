@@ -167,6 +167,7 @@ def exam_details(request, essay_id=None, class_id=None):
 				csvwriter_test = csv.writer(testfiles, delimiter=',', quotechar='|', quoting=csv.QUOTE_MINIMAL)
 				forautograding = 0
 
+
 				for essay_response in essay_responses:
 					e = re.sub('[^A-Za-z\s]+', '', essay_response.response)
 					e = e.replace('\r\n', '')
@@ -267,7 +268,16 @@ def exam_details(request, essay_id=None, class_id=None):
 		essayclass = essay.class_name.get(pk=class_id)
 		students = essayclass.student.all()
 		essay_responses = sorted(EssayResponse.objects.filter(essay_id=essay.pk, essayclass_id=class_id), key=operator.attrgetter('student.user.last_name', 'student.user.first_name')) # I used this way of sorting because we cannot use order_by() for case insensitive sorting :(
-		all_graded = not EssayResponse.objects.filter(essay_id=essay.pk, essayclass_id=class_id, grade=None).exists()
+		all_graded = EssayResponse.objects.filter(essay_id=essay.pk, essayclass_id=class_id, grade__isnull=False).count()
+		auto_grade_count = EssayResponse.objects.filter(essay_id=essay.pk, essayclass_id=class_id, computer_grade__isnull=False).count()
+		all_count = EssayResponse.objects.filter(essay_id=essay.pk, essayclass_id=class_id).count()
+		print(auto_grade_count)
+		print(all_graded)	
+		print(all_count)
+		if (all_count-(all_graded+auto_grade_count)) == 0:
+			released = True
+		else:
+			released = False
 		graded_essay_count =  len(EssayResponse.objects.filter(~Q(grade=None), essay_id=essay.pk, essayclass_id=class_id))
 		x=Grade.objects.filter(grading_system=essay.grading_system).values('id')
 		y=EssayResponse.objects.filter(essay__title=essay.title).values('grade')
@@ -278,11 +288,11 @@ def exam_details(request, essay_id=None, class_id=None):
 
 		if essay.deadline >= timezone.now():
 			is_deadline = False
-			return render(request, 'app_essays/teacher_viewExamInfo.html', {'avatar':avatar, 'active_nav':'EXAMS', 'essay':essay, 'essayclass':essayclass, 'essay_responses':essay_responses, 'is_deadline':is_deadline, 'all_graded':all_graded, 'graded_essay_count':graded_essay_count, 'all_candidates':all_candidates})
+			return render(request, 'app_essays/teacher_viewExamInfo.html', {'avatar':avatar, 'active_nav':'EXAMS', 'essay':essay, 'essayclass':essayclass, 'essay_responses':essay_responses, 'is_deadline':is_deadline, 'all_graded':released, 'graded_essay_count':graded_essay_count, 'all_candidates':all_candidates})
 		else:
 			is_deadline = True
-			all_graded = EssayResponse.objects.filter(essay_id=essay.pk, grade=None).exists()
-			return render(request, 'app_essays/teacher_viewExamInfo.html', {'avatar':avatar, 'active_nav':'EXAMS', 'essay':essay, 'essayclass':essayclass, 'essay_responses':essay_responses, 'all_graded':all_graded, 'is_deadline':is_deadline, 'graded_essay_count':graded_essay_count, 'all_candidates':all_candidates})
+			released = EssayResponse.objects.filter(essay_id=essay.pk, grade=None).exists()
+			return render(request, 'app_essays/teacher_viewExamInfo.html', {'avatar':avatar, 'active_nav':'EXAMS', 'essay':essay, 'essayclass':essayclass, 'essay_responses':essay_responses, 'all_graded':released, 'is_deadline':is_deadline, 'graded_essay_count':graded_essay_count, 'all_candidates':all_candidates})
 
 def words(text): return re.findall('[a-z]+', text.lower()) 
 
