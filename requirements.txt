@@ -8,7 +8,7 @@ bdist-mpkg==0.4.4
 gunicorn==18.0
 macholib==1.4.2
 modulegraph==0.9.1
-nltk==2.0.4
+nltk==3.1
 numpy==1.6.1
 psycopg2==2.5.1
 py2app==0.6.3
