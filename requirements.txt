@@ -1,5 +1,5 @@
 Django==1.5.4
-PIL==1.1.7
+Pillow==3.0.0
 PyRSS2Gen==1.0.0
 PyYAML==3.10
 Twisted==12.0.0
